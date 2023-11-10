@@ -11,6 +11,7 @@ specifiers:
   autoprefixer: ^10.4.14
   eslint: ^8.47.0
   eslint-config-next: ^14.0.0
+  geist: ^1.1.0
   next: ^14.0.0
   postcss: ^8.4.27
   prettier: ^3.0.0
@@ -23,6 +24,7 @@ specifiers:
 
 dependencies:
   '@t3-oss/env-nextjs': 0.7.1_5t6euwxcdh5fbfdut3slz5dieu
+  geist: 1.1.0_next@14.0.1
   next: 14.0.1_biqbaboplfbrettd7655fr4n2y
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
@@ -1368,6 +1370,14 @@ packages:
   /functions-have-names/1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
     dev: true
+
+  /geist/1.1.0_next@14.0.1:
+    resolution: {integrity: sha512-UwZH+ekwAt1T5XYlviFD+jUXFeRRawDDT8RtpJ//IHTPXlVIO6BCcZ8M0Pxg1K/FT3H8HLn3KJqMsPLHbo1HNg==}
+    peerDependencies:
+      next: ^13.2 || ^14
+    dependencies:
+      next: 14.0.1_biqbaboplfbrettd7655fr4n2y
+    dev: false
 
   /get-intrinsic/1.2.2:
     resolution: {integrity: sha512-0gSo4ml/0j98Y3lngkFEot/zhiCeWsbYIlZ+uZOVgzLyLaUw7wxUL+nCTP0XJvJg1AXulJRI3UJi8GsbDuxdGA==}
