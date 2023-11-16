@@ -1,13 +1,6 @@
-"use client";
-
-import React from "react";
-import { gradient } from "../components/Gradient.js";
+import Background from "~/components/Background";
 
 export default function HomePage() {
-  React.useEffect(() => {
-    gradient.initGradient("#gradient-canvas");
-  }, []);
-
   return (
     <main className="flex min-h-screen flex-col items-center justify-center text-ellipsis">
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
@@ -24,11 +17,7 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-      <canvas
-        id="gradient-canvas"
-        data-transition-in
-        className="fixed left-0 top-0 z-[-1] h-full w-full"
-      />
+      <Background />
     </main>
   );
 }

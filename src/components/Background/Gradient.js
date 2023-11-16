@@ -1,20 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/no-implied-eval */
-/* eslint-disable @typescript-eslint/prefer-optional-chain */
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+/* eslint-disable */
 // @ts-nocheck
 
-//Converting colors to proper format
 function normalizeColor(hexCode) {
   return [
     ((hexCode >> 16) & 255) / 255,
@@ -30,9 +16,6 @@ function normalizeColor(hexCode) {
   {},
 );
 
-//Essential functionality of WebGl
-//t = width
-//n = height
 class MiniGl {
   constructor(canvas, width, height, debug = false) {
     const _miniGl = this,
@@ -125,9 +108,7 @@ class MiniGl {
                 material.attachUniforms(void 0, _miniGl.commonUniforms),
                 material.attachUniforms(void 0, material.uniforms);
             }
-            //t = uniform
             attachUniforms(name, uniforms) {
-              //n  = material
               const material = this;
               void 0 === name
                 ? Object.entries(uniforms).forEach(([name, uniform]) => {
@@ -181,9 +162,6 @@ class MiniGl {
                   0 === this.typeFn.indexOf("Matrix") ? this.value : null,
                 );
             }
-            //e - name
-            //t - type
-            //n - length
             getDeclaration(name, type, length) {
               const uniform = this;
               if (uniform.excludeFrom !== type) {
@@ -462,7 +440,7 @@ class MiniGl {
         height: t,
       });
   }
-  //left, right, top, bottom, near, far
+
   setOrthographicCamera(e = 0, t = 0, n = 0, i = -2e3, s = 2e3) {
     (this.commonUniforms.projectionMatrix.value = [
       2 / this.width,
@@ -494,7 +472,6 @@ class MiniGl {
   }
 }
 
-//Sets initial properties
 function e(object, propertyName, val) {
   return (
     propertyName in object
@@ -509,7 +486,6 @@ function e(object, propertyName, val) {
   );
 }
 
-//Gradient object
 class Gradient {
   constructor(...t) {
     e(this, "el", void 0),
@@ -518,11 +494,7 @@ class Gradient {
       e(this, "angle", 0),
       e(this, "isLoadedClass", !1),
       e(this, "isScrolling", !1),
-      /*e(this, "isStatic", o.disableAmbientAnimations()),*/ e(
-        this,
-        "scrollingTimeout",
-        void 0,
-      ),
+      e(this, "scrollingTimeout", void 0),
       e(this, "scrollingRefreshDelay", 200),
       e(this, "isIntersecting", !1),
       e(this, "shaderFiles", void 0),
@@ -599,11 +571,11 @@ class Gradient {
         }
         if (0 !== this.last && this.isStatic)
           return this.minigl.render(), void this.disconnect();
-        /*this.isIntersecting && */ (this.conf.playing || this.isMouseDown) &&
+        (this.conf.playing || this.isMouseDown) &&
           requestAnimationFrame(this.animate);
       }),
       e(this, "addIsLoadedClass", () => {
-        /*this.isIntersecting && */ !this.isLoadedClass &&
+        !this.isLoadedClass &&
           ((this.isLoadedClass = !0),
           this.el.classList.add("isLoaded"),
           setTimeout(() => {
@@ -672,15 +644,6 @@ class Gradient {
               ((this.computedCanvasStyle = getComputedStyle(this.el)),
               this.waitForCssVars());
           }));
-    /*
-          this.scrollObserver = await s.create(.1, !1),
-          this.scrollObserver.observe(this.el),
-          this.scrollObserver.onSeparate(() => {
-              window.removeEventListener("scroll", this.handleScroll), window.removeEventListener("mousedown", this.handleMouseDown), window.removeEventListener("mouseup", this.handleMouseUp), window.removeEventListener("keydown", this.handleKeyDown), this.isIntersecting = !1, this.conf.playing && this.pause()
-          }), 
-          this.scrollObserver.onIntersect(() => {
-              window.addEventListener("scroll", this.handleScroll), window.addEventListener("mousedown", this.handleMouseDown), window.addEventListener("mouseup", this.handleMouseUp), window.addEventListener("keydown", this.handleKeyDown), this.isIntersecting = !0, this.addIsLoadedClass(), this.play()
-          })*/
   }
   disconnect() {
     this.scrollObserver &&
@@ -842,10 +805,6 @@ class Gradient {
       requestAnimationFrame(this.animate),
       window.addEventListener("resize", this.resize);
   }
-  /*
-   * Waiting for the css variables to become available, usually on page load before we can continue.
-   * Using default colors assigned below if no variables have been found after maxCssVarRetries
-   */
   waitForCssVars() {
     if (
       this.computedCanvasStyle &&
@@ -867,9 +826,6 @@ class Gradient {
       requestAnimationFrame(() => this.waitForCssVars());
     }
   }
-  /*
-   * Initializes the four section colors by retrieving them from css variables.
-   */
   initGradientColors() {
     this.sectionColors = [
       "--gradient-color-1",
@@ -881,7 +837,6 @@ class Gradient {
         let hex = this.computedCanvasStyle
           .getPropertyValue(cssPropertyName)
           .trim();
-        //Check if shorthand hex value was used and double the length so the conversion in normalizeColor will work.
         if (4 === hex.length) {
           const hexTemp = hex
             .substr(1)
@@ -896,19 +851,5 @@ class Gradient {
       .map(normalizeColor);
   }
 }
-
-/*
- *Finally initializing the Gradient class, assigning a canvas to it and calling Gradient.connect() which initializes everything,
- * Use Gradient.pause() and Gradient.play() for controls.
- *
- * Here are some default property values you can change anytime:
- * Amplitude:    Gradient.amp = 0
- * Colors:       Gradient.sectionColors (if you change colors, use normalizeColor(#hexValue)) before you assign it.
- *
- *
- * Useful functions
- * Gradient.toggleColor(index)
- * Gradient.updateFrequency(freq)
- */
 
 export const gradient = new Gradient();
