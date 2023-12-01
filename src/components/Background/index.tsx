@@ -2,16 +2,20 @@
 import React from "react";
 import { gradient } from "./Gradient";
 
-function Background() {
+function Background({ darkMode }: { darkMode?: boolean }) {
   React.useEffect(() => {
-    gradient.initGradient("#gradient-canvas");
-  }, []);
+    gradient.initGradient(
+      darkMode ? "#dark-gradient-canvas" : "#gradient-canvas",
+    );
+  }, [darkMode]);
 
   return (
     <canvas
-      id="gradient-canvas"
+      id={darkMode ? "dark-gradient-canvas" : "gradient-canvas"}
       data-transition-in
-      className="fixed left-0 top-0 z-[-1] h-full w-full"
+      className={`fixed left-0 top-0 z-[-1] h-full w-full ${
+        darkMode ? "bg-gray-800" : "bg-blue-200"
+      }`}
     />
   );
 }
