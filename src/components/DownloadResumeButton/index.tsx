@@ -3,8 +3,7 @@
 export default function DownloadResumeButton() {
   const handleClick = async () => {
     const response = await fetch("/api/file");
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
+    const url = window.URL.createObjectURL(await response.blob());
     const link = document.createElement("a");
 
     link.href = url;

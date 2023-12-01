@@ -73,7 +73,11 @@ export default function HomePage() {
             </div>
             <div>
               <picture>
-                <img src="phone.png" alt="Logo" className="h-auto w-72 pt-6" />
+                <img
+                  src="phone.png"
+                  alt="Logo"
+                  className="h-auto w-72 pt-6 transition duration-300 ease-in-out hover:-translate-y-2 hover:scale-105"
+                />
               </picture>
             </div>
           </div>

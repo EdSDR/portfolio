@@ -12,7 +12,11 @@ export default function SectionCard(props: SectionCardProps) {
         <p className="text-lg">{props.description}</p>
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={props.image} alt="Logo" className="h-auto w-28 sm:w-44" />
+      <img
+        src={props.image}
+        alt="Logo"
+        className="h-auto w-28 transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-105 sm:w-44"
+      />
     </div>
   );
 }
