@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="bg-blue-300 pt-48">
+      <body className="bg-blue-300 px-3 pt-48">
         <HeaderNav />
         {children}
         <FooterNav />

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function HeaderNav() {
   return (
     <div className="blur-40 fixed inset-x-0 left-3 right-3 top-3 mx-auto flex h-14 max-w-6xl justify-between rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 px-4 text-blue-950 backdrop-blur-md">
@@ -6,21 +8,21 @@ export default function HeaderNav() {
           <img src="logo.svg" alt="Logo" className="h-7 w-auto" />
         </picture>
         <nav className="hidden space-x-6 md:flex">
-          <a href="#" className="hover:text-blue-800">
+          <Link href="/" className="hover:text-blue-800">
             Home
-          </a>
-          <a href="#" className="hover:text-blue-800">
+          </Link>
+          <Link href="/about" className="hover:text-blue-800">
             About
-          </a>
-          <a href="#" className="hover:text-blue-800">
+          </Link>
+          <Link href="/tech-stack" className="hover:text-blue-800">
             Tech Stack
-          </a>
-          <a href="#" className="hover:text-blue-800">
+          </Link>
+          <Link href="/work" className="hover:text-blue-800">
             Work
-          </a>
-          <a href="#" className="hover:text-blue-800">
+          </Link>
+          <Link href="/blog" className="hover:text-blue-800">
             Blog
-          </a>
+          </Link>
         </nav>
       </div>
       <div className="flex items-center space-x-4 opacity-70">
