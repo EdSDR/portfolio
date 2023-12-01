@@ -1,12 +1,11 @@
+import Link from "next/link";
 import { sectionCardData } from "~/data";
-import Background from "~/components/Background";
 import SectionCard from "~/components/SectionCard";
 import DownloadResumeButton from "~/components/DownloadResumeButton";
-import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen justify-center">
+    <main className="flex justify-center">
       <div className="container flex max-w-6xl flex-col gap-36">
         <div className="items-left container flex max-w-6xl flex-col gap-10">
           <h1 className="text-6xl font-extrabold text-blue-950">
@@ -33,9 +32,9 @@ export default function HomePage() {
             {sectionCardData.map((card) => (
               <SectionCard
                 key={card.title}
+                path={card.path}
                 title={card.title}
                 description={card.description}
-                image={card.image}
               />
             ))}
           </div>
@@ -100,7 +99,6 @@ export default function HomePage() {
           </Link>
         </div>
       </div>
-      <Background />
     </main>
   );
 }

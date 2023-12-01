@@ -1,22 +1,22 @@
 export const sectionCardData = [
   {
+    path: "/about",
     title: "About me",
     description: "Who I am and what I do",
-    image: "/about.png",
   },
   {
+    path: "/tech-stack",
     title: "Tech Stack",
     description: "The dev tools I use",
-    image: "/tech-stack.png",
   },
   {
+    path: "/projects",
     title: "Projects",
     description: "My work and projects",
-    image: "/work.png",
   },
   {
+    path: "/blog",
     title: "Blog",
     description: "My thoughts on the web",
-    image: "/blog.png",
   },
 ];

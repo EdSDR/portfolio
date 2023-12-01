@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import HeaderNav from "~/components/HeaderNav";
 import FooterNav from "~/components/FooterNav";
+import Background from "~/components/Background";
 
 export const metadata = {
   title: "EdSDR",
@@ -21,6 +22,7 @@ export default function RootLayout({
         <HeaderNav />
         {children}
         <FooterNav />
+        <Background />
       </body>
     </html>
   );

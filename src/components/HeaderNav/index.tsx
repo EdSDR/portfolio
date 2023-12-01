@@ -17,8 +17,8 @@ export default function HeaderNav() {
           <Link href="/tech-stack" className="hover:text-blue-800">
             Tech Stack
           </Link>
-          <Link href="/work" className="hover:text-blue-800">
-            Work
+          <Link href="/projects" className="hover:text-blue-800">
+            Projects
           </Link>
           <Link href="/blog" className="hover:text-blue-800">
             Blog
