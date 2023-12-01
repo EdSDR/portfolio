@@ -1,6 +1,7 @@
+import { sectionCardData } from "~/data";
 import Background from "~/components/Background";
 import SectionCard from "~/components/SectionCard";
-import { sectionCardData } from "~/data";
+import DownloadResumeButton from "~/components/DownloadResumeButton";
 
 export default function HomePage() {
   return (
@@ -16,12 +17,13 @@ export default function HomePage() {
             real-world problems.
           </p>
           <div className="flex gap-3">
-            <button className=" rounded-md bg-blue-950 px-8 py-4 text-white transition duration-500 hover:bg-blue-900">
-              Resume
-            </button>
-            <button className="rounded-md bg-white bg-opacity-30 px-8 py-4 text-blue-950 transition duration-500 hover:bg-opacity-60">
+            <DownloadResumeButton />
+            <a
+              href="mailto:contact@edsdr.com?subject=Hi, Let's work together"
+              className="rounded-md bg-white bg-opacity-30 px-8 py-4 text-blue-950 transition duration-500 hover:bg-opacity-60"
+            >
               Get in touch
-            </button>
+            </a>
           </div>
         </div>
         <div className="flex flex-col gap-6">
@@ -47,9 +49,12 @@ export default function HomePage() {
               ready when you are.
             </p>
           </div>
-          <button className="rounded-md bg-gradient-to-t from-blue-900 to-blue-700 px-10 py-4 text-white transition duration-500 hover:bg-gradient-to-t hover:from-blue-800 hover:to-blue-600">
+          <a
+            href="mailto:contact@edsdr.com?subject=Hi, Let's work together"
+            className="rounded-md bg-gradient-to-t from-blue-900 to-blue-700 px-10 py-4 text-white transition duration-500 hover:bg-gradient-to-t hover:from-blue-800 hover:to-blue-600"
+          >
             Get in touch
-          </button>
+          </a>
         </div>
       </div>
       <Background />
