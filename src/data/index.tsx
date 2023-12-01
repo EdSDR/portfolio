@@ -6,17 +6,17 @@ export const sectionCardData = [
   },
   {
     title: "Tech Stack",
-    description: "The dev tools, apps and devices I use on a daily basis",
+    description: "The dev tools I use",
     image: "/tech-stack.png",
   },
   {
-    title: "Work",
-    description: "Some of my projects and work",
+    title: "Projects",
+    description: "My work and projects",
     image: "/work.png",
   },
   {
     title: "Blog",
-    description: "My thoughts on the web and tech",
+    description: "My thoughts on the web",
     image: "/blog.png",
   },
 ];
