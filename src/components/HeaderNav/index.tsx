@@ -1,6 +1,6 @@
 export default function HeaderNav() {
   return (
-    <div className="blur-40 fixed inset-x-0 left-3 right-3 top-3 mx-auto flex h-14 max-w-6xl justify-between rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-40 px-4 text-blue-950 backdrop-blur-md">
+    <div className="blur-40 fixed inset-x-0 left-3 right-3 top-3 mx-auto flex h-14 max-w-6xl justify-between rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 px-4 text-blue-950 backdrop-blur-md">
       <div className="flex items-center space-x-6">
         <picture>
           <img src="logo.svg" alt="Logo" className="h-7 w-auto" />

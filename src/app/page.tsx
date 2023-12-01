@@ -19,7 +19,7 @@ export default function HomePage() {
             <button className=" rounded-md bg-blue-950 px-8 py-4 text-white transition duration-500 hover:bg-blue-900">
               Resume
             </button>
-            <button className="rounded-md bg-white bg-opacity-40 px-8 py-4 text-blue-950 transition duration-500 hover:bg-opacity-70">
+            <button className="rounded-md bg-white bg-opacity-30 px-8 py-4 text-blue-950 transition duration-500 hover:bg-opacity-60">
               Get in touch
             </button>
           </div>
@@ -36,6 +36,20 @@ export default function HomePage() {
               />
             ))}
           </div>
+        </div>
+        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+          <div className="flex flex-col gap-3">
+            <h3 className="text-4xl font-bold text-blue-950">
+              Let’s work together
+            </h3>
+            <p className="max-w-md text-lg text-blue-950">
+              Want to discuss an opportunity to create something great? I’m
+              ready when you are.
+            </p>
+          </div>
+          <button className="rounded-md bg-gradient-to-t from-blue-900 to-blue-700 px-10 py-4 text-white transition duration-500 hover:bg-gradient-to-t hover:from-blue-800 hover:to-blue-600">
+            Get in touch
+          </button>
         </div>
       </div>
       <Background />
