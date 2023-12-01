@@ -5,16 +5,15 @@ export default function DownloadResumeButton() {
     const response = await fetch("/api/file");
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
-
     const link = document.createElement("a");
+
     link.href = url;
     link.setAttribute("download", "resume-edsdr.pdf");
     document.body.appendChild(link);
     link.click();
-    if (link.parentNode) {
-      link.parentNode.removeChild(link);
-    }
+    link.parentNode?.removeChild(link);
     window.URL.revokeObjectURL(url);
+
     return response;
   };
 
