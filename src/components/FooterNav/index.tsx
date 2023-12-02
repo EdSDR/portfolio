@@ -14,7 +14,7 @@ export default function FooterNav() {
             </div>
             <p className="text-sm">© 2023 Ed Castro. All Rights Reserved.</p>
           </div>
-          <div className="flex flex-row justify-between gap-12">
+          <div className="flex gap-36">
             <div className="flex flex-col gap-3">
               <div className="font-bold">Links</div>
               <div className="flex flex-col gap-3">
