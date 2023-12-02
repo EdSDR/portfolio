@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { sectionCardData } from "~/data";
 import SectionCard from "~/components/SectionCard";
-import DownloadResumeButton from "~/components/DownloadResumeButton";
 
 export default function HomePage() {
   return (
@@ -17,7 +16,13 @@ export default function HomePage() {
             real-world problems.
           </p>
           <div className="flex gap-3">
-            <DownloadResumeButton />
+            <Link
+              target="_blank"
+              href="https://read.cv/ed.sdr"
+              className="rounded-md bg-blue-950 px-8 py-4 text-white transition duration-500 hover:bg-blue-900"
+            >
+              Resume
+            </Link>
             <Link
               href="mailto:contact@edsdr.com?subject=Hi, Let's work together"
               className="rounded-md bg-white bg-opacity-30 px-8 py-4 text-blue-950 transition duration-500 hover:bg-opacity-60"
