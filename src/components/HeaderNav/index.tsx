@@ -4,13 +4,12 @@ export default function HeaderNav() {
   return (
     <div className="blur-40 fixed inset-x-0 left-3 right-3 top-3 z-50 mx-auto flex h-14 max-w-6xl justify-between rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 px-4 text-blue-950 backdrop-blur-md">
       <div className="flex items-center space-x-6">
-        <picture>
-          <img src="logo.svg" alt="Logo" className="h-7 w-auto" />
-        </picture>
+        <Link href="/">
+          <picture>
+            <img src="logo.svg" alt="Logo" className="h-7 w-auto" />
+          </picture>
+        </Link>
         <nav className="hidden space-x-6 md:flex">
-          <Link href="/" className="hover:text-blue-800">
-            Home
-          </Link>
           <Link href="/about" className="hover:text-blue-800">
             About
           </Link>

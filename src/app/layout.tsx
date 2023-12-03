@@ -18,9 +18,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="bg-blue-300 px-3 pt-48">
+      <body className="bg-blue-300 px-3 pt-44">
         <HeaderNav />
-        {children}
+        <main className="flex justify-center">
+          <div className="container flex max-w-6xl flex-col">{children}</div>
+        </main>
         <FooterNav />
         <Background />
       </body>
