@@ -24,7 +24,7 @@ export default function FooterNav() {
                 <Link href="/about" className="hover:text-blue-600">
                   About
                 </Link>
-                <Link href="/tech-stack" className="hover:text-blue-600">
+                <Link href="/tools" className="hover:text-blue-600">
                   Tech Stack
                 </Link>
                 <Link href="/projects" className="hover:text-blue-600">

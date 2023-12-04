@@ -10,11 +10,14 @@ export default function HeaderNav() {
           </picture>
         </Link>
         <nav className="hidden space-x-6 md:flex">
+          <Link href="/" className="hover:text-blue-800">
+            Home
+          </Link>
           <Link href="/about" className="hover:text-blue-800">
             About
           </Link>
-          <Link href="/tech-stack" className="hover:text-blue-800">
-            Tech Stack
+          <Link href="/tools" className="hover:text-blue-800">
+            Tools
           </Link>
           <Link href="/projects" className="hover:text-blue-800">
             Projects

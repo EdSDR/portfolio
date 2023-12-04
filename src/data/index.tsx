@@ -5,8 +5,8 @@ export const sectionCardData = [
     description: "Who I am and what I do",
   },
   {
-    path: "/tech-stack",
-    title: "Tech Stack",
+    path: "/tools",
+    title: "Tools",
     description: "The dev tools I use",
   },
   {
