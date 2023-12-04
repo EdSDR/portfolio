@@ -1,4 +1,3 @@
-import Link from "next/link";
 import HeaderContainer from "~/components/HeaderContainer";
 
 export default function BlogPage() {

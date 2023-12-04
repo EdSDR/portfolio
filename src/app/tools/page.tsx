@@ -1,14 +1,23 @@
+import HeaderContainer from "~/components/HeaderContainer";
+import ToolCard from "~/components/ToolCard";
+
 export default function TechStackPage() {
   return (
-    <div className="flex justify-center">
-      <div className="container flex max-w-6xl flex-col gap-36 ">
-        <div className="flex-col justify-between gap-3 rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 p-12 align-middle text-blue-950 transition duration-500 hover:bg-opacity-40">
-          <h1>Tools</h1>
-          <p>
-            <b>W.I.P</b>, but there will be some cool stuff here soon
-          </p>
-        </div>
+    <HeaderContainer title="Tools" description="The dev tools I use.">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-4 md:gap-5">
+        <ToolCard title="Figma" icon="logos/figma.png" category="Design" />
+        <ToolCard title="Tailwind" icon="logos/tailwind.png" category="CSS" />
+        <ToolCard
+          title="TypeScript"
+          icon="logos/typescript.png"
+          category="Language"
+        />
+        <ToolCard
+          title="Next.js"
+          icon="logos/next.png"
+          category="Web Framework"
+        />
       </div>
-    </div>
+    </HeaderContainer>
   );
 }

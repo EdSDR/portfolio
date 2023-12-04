@@ -29,7 +29,7 @@ export default function AboutPage() {
                 FutureMe
               </Link>
               , where I’m helping to build a platform that helps students to
-              choose the best career path for them.
+              choose the best career path.
             </p>
           </div>
           <div className="flex flex-col gap-3">
