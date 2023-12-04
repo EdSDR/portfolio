@@ -9,7 +9,7 @@ export default function HeaderNav() {
             <img src="logo.svg" alt="Logo" className="h-7 w-auto" />
           </picture>
         </Link>
-        <nav className="hidden space-x-6 md:flex">
+        <nav className="hidden space-x-8 md:flex">
           <Link href="/" className="hover:text-blue-800">
             Home
           </Link>

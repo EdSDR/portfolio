@@ -1,13 +1,10 @@
 import Link from "next/link";
+import HeaderContainer from "~/components/HeaderContainer";
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-2 text-blue-950 transition duration-500 hover:bg-opacity-40">
-        <h1 className="text-6xl font-bold">A little bit about me</h1>
-        <p className="text-lg">Who I am and what I do.</p>
-      </div>
-      <div className="flex flex-col-reverse gap-16 border-t border-gray-200 border-opacity-60 pt-10 text-blue-950 md:flex-row">
+    <HeaderContainer title="About me" description="Who I am and what I do.">
+      <div className="flex flex-col-reverse gap-16 md:flex-row">
         <div className="flex flex-col gap-10">
           <div className="flex flex-col gap-3">
             <h2 className="font-bold">WHO I AM</h2>
@@ -62,6 +59,6 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
-    </div>
+    </HeaderContainer>
   );
 }

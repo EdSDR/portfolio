@@ -20,3 +20,14 @@ export const sectionCardData = [
     description: "My thoughts on the web",
   },
 ];
+
+export const projectCardData = [
+  {
+    image: "phone.png",
+    title: "Templo de Loki",
+    description:
+      "A Next.js project I created for a friend, explores Nordic paganism with a fully deployed website.",
+    websitePath: "https://www.templodeloki.site/",
+    repositoryPath: "https://github.com/templo-de-loki/therion",
+  },
+];

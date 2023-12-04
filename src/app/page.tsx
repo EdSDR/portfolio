@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { sectionCardData } from "~/data";
+import { projectCardData, sectionCardData } from "~/data";
 import SectionCard from "~/components/SectionCard";
+import ProjectCard from "~/components/ProjectCard";
 
 export default function HomePage() {
   return (
@@ -45,44 +46,16 @@ export default function HomePage() {
       </div>
       <div className="items-left flex flex-col justify-between gap-6">
         <h3 className="text-4xl font-bold text-blue-950">Highlighted Work</h3>
-        <div className="flex flex-col justify-between rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 px-12 text-blue-950 transition duration-500 hover:bg-opacity-40 sm:flex-row">
-          <div className="flex flex-col justify-between gap-3 py-12">
-            <div className="flex flex-col justify-start gap-3">
-              <h3 className="text-3xl font-bold text-blue-600">
-                Templo de Loki
-              </h3>
-              <p className="max-w-lg text-lg">
-                A Next.js project I created for a friend, explores Nordic
-                paganism with a fully deployed website.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 md:flex-row md:gap-12">
-              <Link
-                href="https://templodeloki.site"
-                target="_blank"
-                className="hover:text-blue-600"
-              >
-                Visit Site →
-              </Link>
-              <Link
-                href="https://github.com/templo-de-loki/therion"
-                target="_blank"
-                className="hover:text-blue-600"
-              >
-                View GitHub Repository →
-              </Link>
-            </div>
-          </div>
-          <div>
-            <picture>
-              <img
-                src="phone.png"
-                alt="Logo"
-                className="h-auto w-72 pt-6 transition duration-300 ease-in-out hover:-translate-y-2 hover:scale-105"
-              />
-            </picture>
-          </div>
-        </div>
+        {projectCardData.map((card) => (
+          <ProjectCard
+            key={card.title}
+            image={card.image}
+            title={card.title}
+            description={card.description}
+            websitePath={card.websitePath}
+            repositoryPath={card.repositoryPath}
+          />
+        ))}
       </div>
       <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
         <div className="flex flex-col gap-3">
