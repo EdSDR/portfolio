@@ -1,3 +1,26 @@
+export const redirectData = [
+  {
+    icon: "home",
+    path: "/",
+  },
+  {
+    icon: "about",
+    path: "/about",
+  },
+  {
+    icon: "work",
+    path: "/projects",
+  },
+  {
+    icon: "tools",
+    path: "/tools",
+  },
+  {
+    icon: "blog",
+    path: "/blog",
+  },
+];
+
 export const sectionCardData = [
   {
     path: "/about",

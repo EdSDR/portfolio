@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { projectCardData, sectionCardData } from "~/data";
 import SectionCard from "~/components/SectionCard";
 import ProjectCard from "~/components/ProjectCard";
+import { projectCardData, sectionCardData } from "~/data";
 
 export default function HomePage() {
   return (
@@ -57,7 +57,7 @@ export default function HomePage() {
           />
         ))}
       </div>
-      <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+      <div className="flex flex-col items-start justify-between gap-6 sm:flex-row">
         <div className="flex flex-col gap-3">
           <h3 className="text-4xl font-bold text-blue-950">
             Let’s work together

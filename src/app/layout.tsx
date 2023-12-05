@@ -4,6 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import HeaderNav from "~/components/HeaderNav";
 import FooterNav from "~/components/FooterNav";
 import Background from "~/components/Background";
+import MobileNav from "~/components/MobileNav";
 
 export const metadata = {
   title: "EdSDR",
@@ -18,8 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="bg-blue-300 px-3 pt-44">
+      <body className="bg-blue-300 px-3 pt-12 md:pt-44">
         <HeaderNav />
+        <MobileNav />
         <main className="flex justify-center">
           <div className="container flex max-w-6xl flex-col">{children}</div>
         </main>
