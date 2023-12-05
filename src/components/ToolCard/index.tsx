@@ -7,11 +7,11 @@ interface ToolCardProps {
 export default function ToolCard(props: ToolCardProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-12 rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 p-6 pt-16 text-blue-950 transition duration-500 hover:bg-opacity-50">
-      <picture className="rounded-2xl bg-white bg-opacity-40 p-4">
+      <picture className="rounded-2xl bg-white bg-opacity-40 p-4 transition duration-300 ease-in-out hover:scale-105">
         <img
-          src={props.icon}
+          src={`logos/${props.icon}.png`}
           alt={props.title}
-          className="h-auto w-16 transition duration-300 ease-in-out hover:scale-105"
+          className="h-auto w-16"
         />
       </picture>
       <div className="flex w-full flex-row justify-between">

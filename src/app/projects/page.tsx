@@ -25,8 +25,12 @@ export default function ProjectsPage() {
             <img src="sparkles.svg" alt="Sparkles" className="h-auto w-14" />
           </picture>
           <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-bold">YOUR PROJECT GOES HERE</h2>
-            <p>Let’s turn your idea into a visual reality</p>
+            <h2 className=" text-sm font-bold md:text-2xl">
+              YOUR PROJECT GOES HERE
+            </h2>
+            <p className=" text-xs md:text-xl">
+              Let’s turn your idea into a reality.
+            </p>
           </div>
           <Link
             href="mailto:contact@edsdr.com?subject=Hi, Let's work together"
