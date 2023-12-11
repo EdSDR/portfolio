@@ -20,7 +20,7 @@ export default function ProjectsPage() {
             repositoryPath={card.repositoryPath}
           />
         ))}
-        <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 p-12 text-blue-950 transition duration-500 hover:bg-opacity-40">
+        <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 p-12 text-blue-950 transition duration-500 hover:bg-opacity-40 dark:border-gray-700 dark:bg-black dark:bg-opacity-20 dark:text-gray-200 dark:hover:bg-opacity-30">
           <picture>
             <img src="sparkles.svg" alt="Sparkles" className="h-auto w-14" />
           </picture>

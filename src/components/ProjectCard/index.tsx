@@ -10,7 +10,7 @@ interface ProjectCardProps {
 
 export default function ProjectCard(props: ProjectCardProps) {
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 px-12 text-blue-950 transition duration-500 hover:bg-opacity-40 sm:flex-row">
+    <div className="flex flex-col justify-between rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 px-12 text-blue-950 transition duration-500 hover:bg-opacity-40 dark:border-gray-700 dark:bg-black dark:bg-opacity-20 dark:text-gray-200 dark:hover:bg-opacity-30 sm:flex-row">
       <div className="flex flex-col justify-between gap-3 py-12">
         <div className="flex flex-col justify-start gap-3">
           <h3 className="text-3xl font-bold text-blue-600">{props.title}</h3>

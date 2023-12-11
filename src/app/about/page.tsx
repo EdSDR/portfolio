@@ -4,7 +4,7 @@ import HeaderContainer from "~/components/HeaderContainer";
 export default function AboutPage() {
   return (
     <HeaderContainer title="About me" description="Who I am and what I do.">
-      <div className="flex flex-col-reverse gap-16 md:flex-row">
+      <div className="flex flex-col-reverse gap-16 md:flex-row ">
         <div className="flex flex-col gap-10">
           <div className="flex flex-col gap-3">
             <h2 className="font-bold">WHO I AM</h2>
@@ -52,7 +52,7 @@ export default function AboutPage() {
           <div className="hidden md:flex">
             <Link
               href="mailto:contact@edsdr.com?subject=Hi, Let's work together"
-              className="rounded-2xl bg-white bg-opacity-30 px-12 py-4 text-center text-blue-950 transition duration-500 hover:bg-opacity-60"
+              className="rounded-2xl bg-white bg-opacity-30 px-12 py-4 text-center text-blue-950 transition duration-500 hover:bg-opacity-60 dark:border-gray-700 dark:bg-black dark:bg-opacity-20 dark:text-gray-200 dark:hover:bg-opacity-30"
             >
               Get in Touch
             </Link>
