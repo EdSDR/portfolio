@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function FooterNav() {
   return (
-    <footer className="mt-36 border-t border-gray-200 border-opacity-60 py-12 pb-32 text-blue-950 md:pb-12">
+    <footer className="mt-36 border-t border-gray-200 border-opacity-60 py-12 pb-32 text-blue-950 dark:text-gray-200 md:pb-12">
       <div className="flex justify-center">
         <div className="container flex max-w-6xl flex-col-reverse justify-between gap-10 md:flex-row">
           <div className="flex flex-col justify-between gap-4">

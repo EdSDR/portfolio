@@ -1,8 +1,9 @@
 import Link from "next/link";
+import ThemeSwitch from "../ThemeSwitch";
 
 export default function HeaderNav() {
   return (
-    <div className="blur-40 fixed left-3 right-3 top-3 z-50 mx-auto hidden h-14 max-w-6xl justify-between rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 px-4 text-blue-950 backdrop-blur-md md:flex">
+    <div className="blur-40 fixed left-3 right-3 top-3 z-50 mx-auto hidden h-14 max-w-6xl justify-between rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 px-4 text-blue-950 backdrop-blur-md  dark:border-gray-700 dark:bg-black dark:bg-opacity-20 dark:text-gray-200 dark:hover:bg-opacity-30 md:flex">
       <div className="flex items-center space-x-6">
         <Link href="/">
           <picture>
@@ -46,6 +47,8 @@ export default function HeaderNav() {
             />
           </picture>
         </a>
+        <div className="h-6 w-px bg-blue-950 dark:bg-gray-200" />
+        <ThemeSwitch />
       </div>
     </div>
   );

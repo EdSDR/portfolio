@@ -1,23 +1,26 @@
 "use client";
-import React from "react";
-import { gradient } from "./Gradient";
 
-function Background({ darkMode }: { darkMode?: boolean }) {
+import React from "react";
+import { Theme } from "~/types";
+import { gradient } from "./Gradient";
+import { useTheme } from "~/providers/ThemeContext";
+
+export default function Background() {
+  const { theme } = useTheme();
+
   React.useEffect(() => {
     gradient.initGradient(
-      darkMode ? "#dark-gradient-canvas" : "#gradient-canvas",
+      theme === Theme.light ? "#gradient-canvas" : "#dark-gradient-canvas",
     );
-  }, [darkMode]);
+  }, [theme]);
 
   return (
     <canvas
-      id={darkMode ? "dark-gradient-canvas" : "gradient-canvas"}
+      id={theme === Theme.light ? "gradient-canvas" : "dark-gradient-canvas"}
       data-transition-in
       className={`fixed left-0 top-0 z-[-1] h-full w-full ${
-        darkMode ? "bg-gray-800" : "bg-blue-200"
+        theme === Theme.light ? "bg-blue-200" : "bg-gray-900"
       }`}
     />
   );
 }
-
-export default Background;
