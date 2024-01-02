@@ -54,3 +54,126 @@ export const projectCardData = [
     repositoryPath: "https://github.com/templo-de-loki/therion",
   },
 ];
+
+export const toolsData = [
+  {
+    icon: "figma",
+    title: "Figma",
+    category: "Design",
+  },
+  {
+    icon: "tailwind",
+    title: "Tailwind",
+    category: "CSS",
+  },
+  {
+    icon: "typescript",
+    title: "TypeScript",
+    category: "Language",
+  },
+  {
+    icon: "next",
+    title: "Next.js",
+    category: "Web Framework",
+  },
+  {
+    icon: "aftereffects",
+    title: "After Effects",
+    category: "Design",
+  },
+  {
+    icon: "azure",
+    title: "Azure",
+    category: "Cloud",
+  },
+  {
+    icon: "blender",
+    title: "Blender",
+    category: "3D",
+  },
+  {
+    icon: "docker",
+    title: "Docker",
+    category: "DevOps",
+  },
+  {
+    icon: "express",
+    title: "Express",
+    category: "Web Framework",
+  },
+  {
+    icon: "git",
+    title: "Git",
+    category: "Version Control",
+  },
+  {
+    icon: "github",
+    title: "GitHub",
+    category: "Version Control",
+  },
+  {
+    icon: "go",
+    title: "Go",
+    category: "Language",
+  },
+  {
+    icon: "html5",
+    title: "HTML5",
+    category: "Language (lol)",
+  },
+  {
+    icon: "javascript",
+    title: "JavaScript",
+    category: "Language",
+  },
+  {
+    icon: "nodejs",
+    title: "Node.js",
+    category: "Runtime",
+  },
+  {
+    icon: "oracle",
+    title: "Oracle",
+    category: "Cloud",
+  },
+  {
+    icon: "photoshop",
+    title: "Photoshop",
+    category: "Design",
+  },
+  {
+    icon: "postgresql",
+    title: "PostgreSQL",
+    category: "Database",
+  },
+  {
+    icon: "premiere",
+    title: "Premiere",
+    category: "Design",
+  },
+  {
+    icon: "python",
+    title: "Python",
+    category: "Language",
+  },
+  {
+    icon: "react",
+    title: "React",
+    category: "Web Framework",
+  },
+  {
+    icon: "redux",
+    title: "Redux",
+    category: "State Management",
+  },
+  {
+    icon: "threejs",
+    title: "Three.js",
+    category: "3D",
+  },
+  {
+    icon: "c",
+    title: "C",
+    category: "Language",
+  },
+];
