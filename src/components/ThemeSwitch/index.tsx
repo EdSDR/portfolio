@@ -30,7 +30,7 @@ export default function ThemeSwitch() {
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1.5}
-          stroke="currentColor"
+          stroke="#e5e7eb"
           className="h-5 w-5"
         >
           <path

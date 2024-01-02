@@ -8,18 +8,18 @@ const ThemeContext = React.createContext<{
   toggleTheme: () => void;
 }>({
   theme: Theme.light,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  toggleTheme: () => {},
+  toggleTheme: () => {
+    return;
+  },
 });
 
 export default function ThemeProvider({
-  initialTheme,
   children,
 }: {
   initialTheme: Theme;
   children: React.ReactNode;
 }) {
-  const [theme, setTheme] = React.useState(initialTheme);
+  const [theme, setTheme] = React.useState(Theme.light);
 
   const toggleTheme = () => {
     const root = document.getElementsByTagName("html")[0];

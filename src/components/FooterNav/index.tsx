@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SvgImage from "../SvgImage";
 
 export default function FooterNav() {
   return (
@@ -7,9 +8,7 @@ export default function FooterNav() {
         <div className="container flex max-w-6xl flex-col-reverse justify-between gap-10 md:flex-row">
           <div className="flex flex-col justify-between gap-4">
             <div className="flex flex-col gap-4">
-              <picture>
-                <img src="logo.svg" alt="Logo" className="h-16 w-auto" />
-              </picture>
+              <SvgImage src="logo" height="16" href="/" />
               <p>Thanks for visiting ッ</p>
             </div>
             <p className="text-sm">© 2023 Ed Castro. All Rights Reserved.</p>
