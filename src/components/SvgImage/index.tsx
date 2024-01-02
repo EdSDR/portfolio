@@ -22,7 +22,7 @@ export default function SvgImage({
       <picture>
         <img
           alt="Image"
-          className={`h-${height} w-auto hover:opacity-90`}
+          className={`${height} w-auto hover:opacity-90`}
           src={theme === Theme.light ? `${src}.svg` : `${src}-dark.svg`}
         />
       </picture>
