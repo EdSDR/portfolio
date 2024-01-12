@@ -34,7 +34,7 @@ export default function ProjectsPage() {
           </div>
           <Link
             href="mailto:contact@edsdr.com?subject=Hi, Let's work together"
-            className="rounded-md bg-blue-950 px-8 py-4 text-white transition duration-500 hover:bg-blue-900"
+            className="rounded-md bg-blue-950 px-8 py-4 text-white transition duration-500 hover:bg-blue-900 dark:bg-blue-900"
           >
             Get in touch
           </Link>

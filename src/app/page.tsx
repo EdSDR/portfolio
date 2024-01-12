@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SectionCard from "~/components/SectionCard";
 import ProjectCard from "~/components/ProjectCard";
+import ResumeButton from "~/components/ResumeButton";
 import { projectCardData, sectionCardData } from "~/data";
 
 export default function HomePage() {
@@ -16,13 +17,7 @@ export default function HomePage() {
           problems.
         </p>
         <div className="flex gap-3">
-          <Link
-            target="_blank"
-            href="https://read.cv/ed.sdr"
-            className="rounded-md bg-blue-950 px-8 py-4 text-white transition duration-500 hover:bg-blue-900"
-          >
-            Resume
-          </Link>
+          <ResumeButton />
           <Link
             href="mailto:contact@edsdr.com?subject=Hi, Let's work together"
             className="rounded-md bg-white bg-opacity-30 px-8 py-4 text-blue-950 transition duration-500 hover:bg-opacity-60 dark:border-gray-700 dark:bg-black dark:bg-opacity-20 dark:text-gray-200 dark:hover:bg-opacity-30"

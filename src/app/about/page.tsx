@@ -28,8 +28,14 @@ export default function AboutPage() {
               >
                 FutureMe
               </Link>
-              , where I’m helping to build a platform that helps students to
-              choose the best career path.
+              .
+            </p>
+            <p className="text-lg">
+              Led comprehensive web development projects utilizing TypeScript,
+              React, and Node.js, with a focus on optimizing performance through
+              strategic adoption of Next.js and Prisma. Spearheaded the UI/UX
+              development using Figma, playing a pivotal role in a successful
+              code rewrite that significantly enhanced platform efficiency.
             </p>
           </div>
           <div className="flex flex-col gap-3">
