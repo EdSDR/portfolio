@@ -6,7 +6,9 @@ interface ToolCardProps {
 
 export default function ToolCard(props: ToolCardProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-12 rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 p-6 pt-16 text-blue-950 transition duration-500 hover:bg-opacity-50 dark:border-gray-700 dark:bg-black dark:bg-opacity-20 dark:text-gray-200 dark:hover:bg-opacity-30">
+    <div
+      className={`dark:hover:bg-opacity-30" flex animate-fade-up flex-col items-center justify-center gap-12 rounded-2xl border border-white border-opacity-40 bg-white bg-opacity-30 p-6 pt-16 text-blue-950 transition duration-200 hover:bg-opacity-50 dark:border-gray-700 dark:bg-black dark:bg-opacity-20 dark:text-gray-200`}
+    >
       <picture className="rounded-2xl bg-white bg-opacity-40 p-4 transition duration-300 ease-in-out hover:scale-105 dark:border-gray-700 dark:bg-black dark:bg-opacity-20 dark:text-gray-200">
         <img
           src={`logos/${props.icon}.png`}

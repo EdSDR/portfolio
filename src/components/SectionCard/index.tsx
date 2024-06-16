@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface SectionCardProps {
   path: string;
@@ -16,12 +17,14 @@ export default function SectionCard(props: SectionCardProps) {
         <h3 className="text-3xl font-bold text-blue-600">{props.title}</h3>
         <p className="text-lg">{props.description}</p>
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={`${props.path}.png`}
-        alt="Section Card Image"
-        className="h-auto w-28 transition duration-300 ease-in-out hover:scale-105 dark:opacity-60 sm:w-44"
-      />
+      <div className="h-auto w-28 transition duration-300 ease-in-out hover:scale-105 dark:opacity-60 sm:w-44">
+        <Image
+          src={`${props.path}.svg`}
+          alt="Section Card Image"
+          width={1000}
+          height={1000}
+        />
+      </div>
     </Link>
   );
 }

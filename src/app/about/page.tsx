@@ -6,39 +6,35 @@ export default function AboutPage() {
     <HeaderContainer title="About me" description="Who I am and what I do.">
       <div className="flex flex-col-reverse gap-16 md:flex-row ">
         <div className="flex flex-col gap-10">
-          <div className="flex flex-col gap-3">
+          <div className="flex animate-fade-up flex-col gap-3">
             <h2 className="font-bold">WHO I AM</h2>
             <p className="text-lg">
-              I always thought that my biggest dream was to become a commercial
-              pilot, but since my first contact with programming, a greater
-              desire grew within me, the desire to develop whatever my
-              imagination allows. Since then, I have been learning to make this
-              dream a reality.
+              I always wanted to become a commercial pilot, but since my first
+              contact with programming, a greater desire grew within me, the
+              desire to develop whatever my imagination allows. Since then,
+              I&apos;ve been working to make this dream a reality.
             </p>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex animate-fade-up flex-col gap-3 animate-delay-100">
             <h2 className="font-bold">WHAT I DO</h2>
             <p className="text-lg">
-              Currently I’m working as a Software Engineer at a cool startup in
-              Brazil called{" "}
+              Currently I&apos;m working as a <b>Full-Stack Web3 Developer</b>{" "}
+              at{" "}
               <Link
-                href="https://www.futureme.tech/"
+                href="https://github.com/agicommies"
                 target="_blank"
                 className="underline hover:text-blue-600"
               >
-                FutureMe
+                agicommies
               </Link>
               .
             </p>
             <p className="text-lg">
-              Led comprehensive web development projects utilizing TypeScript,
-              React, and Node.js, with a focus on optimizing performance through
-              strategic adoption of Next.js and Prisma. Spearheaded the UI/UX
-              development using Figma, playing a pivotal role in a successful
-              code rewrite that significantly enhanced platform efficiency.
+              Here I&apos;m developing multiple applications that improve user
+              experience and interaction with the Commune AI ecosystem.
             </p>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex animate-fade-up flex-col gap-3 animate-delay-200">
             <h2 className="font-bold">WHAT I DID</h2>
             <p className="text-lg">
               I’ve been working as a Software Engineer since 2020, and I’ve
@@ -47,7 +43,7 @@ export default function AboutPage() {
             </p>
           </div>
         </div>
-        <div className="flex min-w-fit flex-col items-center gap-4">
+        <div className="flex min-w-fit animate-fade-right flex-col items-center gap-4">
           <picture>
             <img
               src="me.png"

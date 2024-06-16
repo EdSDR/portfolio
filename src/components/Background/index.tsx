@@ -18,7 +18,7 @@ export default function Background() {
     <canvas
       id={theme === Theme.light ? "gradient-canvas" : "dark-gradient-canvas"}
       data-transition-in
-      className={`fixed left-0 top-0 z-[-1] h-full w-full ${
+      className={`animate-fade animate-delay-700 fixed left-0 top-0 z-[-1] h-full w-full ${
         theme === Theme.light ? "bg-blue-200" : "bg-gray-900"
       }`}
     />

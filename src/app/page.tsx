@@ -8,15 +8,15 @@ export default function HomePage() {
   return (
     <div className="flex flex-col gap-28">
       <div className="items-left flex flex-col gap-8">
-        <h1 className="text-6xl font-extrabold text-blue-950 dark:text-gray-200">
+        <h1 className="animate-fade-up text-6xl font-extrabold text-blue-950 dark:text-gray-200">
           Hi, I’m <span className="text-blue-600">Ed</span>.
         </h1>
-        <p className="max-w-2xl text-lg text-blue-950 dark:text-gray-200">
-          Self-taught <b>Full Stack</b> Developer and <b>UI/UX</b> designer with
-          a deep interest in building web applications that solve real-world
-          problems.
+        <p className="max-w-2xl animate-fade-up text-lg text-blue-950 animate-delay-100 dark:text-gray-200">
+          <b>Full Stack</b> Developer and <b>UI/UX</b> designer with a deep
+          interest in building stuff that can change the way people understand
+          and interact with complex software.
         </p>
-        <div className="flex gap-3">
+        <div className="flex animate-fade-up gap-3 animate-delay-200">
           <ResumeButton />
           <Link
             href="mailto:contact@edsdr.com?subject=Hi, Let's work together"
@@ -26,7 +26,7 @@ export default function HomePage() {
           </Link>
         </div>
       </div>
-      <div className="flex flex-col gap-6">
+      <div className="flex animate-fade-up flex-col gap-6 animate-delay-300">
         <h3 className="text-4xl font-bold text-blue-950 dark:text-gray-200">
           Get to know me
         </h3>
@@ -41,7 +41,7 @@ export default function HomePage() {
           ))}
         </div>
       </div>
-      <div className="items-left flex flex-col justify-between gap-6">
+      <div className="items-left flex animate-fade-up flex-col justify-between gap-6 animate-delay-500">
         <h3 className="text-4xl font-bold text-blue-950 dark:text-gray-200">
           Highlighted Work
         </h3>
@@ -56,7 +56,7 @@ export default function HomePage() {
           />
         ))}
       </div>
-      <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+      <div className="flex animate-fade-up flex-col items-center justify-between gap-6 animate-delay-700 sm:flex-row">
         <div className="flex flex-col gap-3">
           <h3 className="text-4xl font-bold text-blue-950 dark:text-gray-200">
             Let’s work together
