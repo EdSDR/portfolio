@@ -6,6 +6,9 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { type GraphNode, generateGraph } from "@/lib/graph-data";
 
+/** All links, arrows, and particles share one whitish tint. */
+const LINK_TINT = "#e6ebf2";
+
 /**
  * Torus hero contents: a force-directed graph approximating an on-chain agent
  * network. Nodes are bright, unlit ("toneMapped:false") spheres so the Bloom
@@ -94,11 +97,12 @@ export default function TorusScene() {
 					warmupTicks={80}
 					cooldownTicks={260}
 					d3AlphaDecay={0.025}
-					linkColor={(l) =>
-						String((l as { color?: string }).color ?? "#94a3b8")
-					}
+					linkColor={LINK_TINT}
 					linkOpacity={0.3}
 					linkWidth={0.5}
+					linkDirectionalArrowLength={3.5}
+					linkDirectionalArrowRelPos={1}
+					linkDirectionalArrowColor={LINK_TINT}
 					linkDirectionalParticles={(l) =>
 						Number((l as { particles?: number }).particles ?? 0)
 					}
@@ -106,9 +110,7 @@ export default function TorusScene() {
 					linkDirectionalParticleSpeed={(l) =>
 						Number((l as { speed?: number }).speed ?? 0.005)
 					}
-					linkDirectionalParticleColor={(l) =>
-						String((l as { color?: string }).color ?? "#94a3b8")
-					}
+					linkDirectionalParticleColor={LINK_TINT}
 				/>
 			</group>
 		</>
