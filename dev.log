@@ -1409,3 +1409,10 @@ React will try to recreate this component tree from scratch using the error boun
 [Client] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 12:19:05 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 [Client] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+12:39:01 PM [vite] (client) hmr update /src/styles.css?direct, /src/routes/__root.tsx
+12:39:01 PM [vite] (ssr) page reload src/styles.css
+[vite] program reload
+[Client] [vite] hot updated: /src/routes/__root.tsx
+[Client] [vite] css hot updated: /src/styles.css
+12:40:50 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[Client] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.

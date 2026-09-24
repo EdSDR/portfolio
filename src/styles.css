@@ -151,6 +151,12 @@
     min-height: 100%;
   }
 
+  html {
+    /* Always reserve the scrollbar gutter so expanding a card (short page →
+       no scrollbar) doesn't shift the layout horizontally. */
+    scrollbar-gutter: stable;
+  }
+
   body {
     margin: 0;
     overflow-x: hidden;
