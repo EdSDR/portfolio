@@ -2,6 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { CardView } from "@/components/canvas/card-view";
+import {
+	DEFAULT_SCENE_BG,
+	dedicatedCanvases,
+	sceneBackground,
+} from "@/components/canvas/scenes/dedicated";
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
 import { hasEnteredOnce } from "@/lib/entrance";
@@ -35,9 +40,10 @@ export function ProjectCard({
 	// open/close snap in instantly). Cards come in after the sidebar cascade.
 	const firstLoad = useRef(!hasEnteredOnce()).current;
 	const enterDelay = firstLoad ? 0.9 + index * 0.16 : 0;
-	const isTorus = project.slug === "torus";
-	// Must match each scene's <color attach="background">.
-	const sceneBg = isTorus ? "#1a1a1a" : "#222222";
+	// Dedicated-canvas scenes render in their own DOM canvas, so they fade with the
+	// card and don't need the entrance hold. The cover matches the scene bg.
+	const isDedicated = project.slug in dedicatedCanvases;
+	const sceneBg = sceneBackground[project.slug] ?? DEFAULT_SCENE_BG;
 
 	// Shared-canvas scenes (drei <View>) render on the fixed canvas and can't fade
 	// with the DOM card, so on first load they'd pop in and track the sliding rect
@@ -75,7 +81,7 @@ export function ProjectCard({
 		mounted &&
 		!reduced &&
 		(active || fine) &&
-		(isTorus || active || entranceDone);
+		(isDedicated || active || entranceDone);
 	const viewState = active ? "visible" : state;
 
 	return (

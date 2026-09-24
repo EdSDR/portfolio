@@ -1,0 +1,33 @@
+---
+name: "Governance"
+description: "The Torus DAO governance interface — proposals, voting, and whitelist review, fronted by a 3D statue of Themis."
+date: "2025-11-01"
+accent: "#c9b678"
+tags: ["Three.js", "React Three Fiber", "DAO", "Governance"]
+links:
+  - text: "torus.network"
+    url: "https://torus.network"
+---
+
+## Overview
+
+The governance app is where the Torus DAO does its work: submitting and voting on
+proposals, reviewing whitelist applications, and tracking the cadre. The landing
+is anchored by a slowly lit statue of Themis — the figure of justice — set in fog
+and starlight.
+
+## The idea
+
+Governance UIs are usually dense tables. I wanted the entry point to feel weighty
+and deliberate: a single sculpted figure emerging from the dark, lit by a drifting
+spotlight, before you drop into the actual tooling.
+
+- A real 3D model (glTF) lit with soft shadows and a moving key light.
+- Volumetric clouds and a starfield for depth.
+- Calm, continuous motion — no spin, just a gentle sway.
+
+## Under the hood
+
+Built with React Three Fiber and drei (SoftShadows, Clouds, Stars). The statue is
+a glTF mesh with a simple stone material; the drama is all light, fog, and
+composition rather than geometry.

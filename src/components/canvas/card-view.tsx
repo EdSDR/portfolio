@@ -1,16 +1,14 @@
 import { View } from "@react-three/drei";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import type { InViewState } from "@/lib/use-in-view";
+import { dedicatedCanvases } from "./scenes/dedicated";
 import { sceneRegistry } from "./scenes/registry";
-
-// Torus opts into its own <Canvas> so it can run a real Bloom pass.
-const TorusCanvas = lazy(() => import("./scenes/torus-canvas"));
 
 /**
  * Renders a card's scene. Most scenes tunnel into the shell's single shared
  * <Canvas> via a drei <View> (non-track mode: the View owns/measures its own
- * element). Torus is the exception — it needs post-processing, so it mounts a
- * dedicated canvas instead.
+ * element). Some scenes (Torus, statue) need capabilities the shared canvas can't
+ * provide (post-processing, shadows/fog), so they mount their own dedicated canvas.
  *
  * Lifecycle gating: `far` → nothing (frees the scene); `near`/`visible` → mounted.
  */
@@ -23,10 +21,11 @@ export function CardView({
 }) {
 	if (state === "far") return null;
 
-	if (slug === "torus") {
+	const Dedicated = dedicatedCanvases[slug];
+	if (Dedicated) {
 		return (
 			<Suspense fallback={null}>
-				<TorusCanvas />
+				<Dedicated />
 			</Suspense>
 		);
 	}
