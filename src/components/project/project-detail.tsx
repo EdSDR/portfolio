@@ -1,14 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { type ComponentType, lazy, Suspense, useMemo } from "react";
+import { Suspense } from "react";
 import type { Project } from "@/content";
 
 /** The writeup that appears under the expanded hero: meta + the compiled MDX. */
 export function ProjectDetail({ project }: { project: Project }) {
-	const Body = useMemo<ComponentType>(
-		() => lazy(() => project.loadBody()),
-		[project],
-	);
+	const { Body } = project;
 
 	return (
 		<motion.div

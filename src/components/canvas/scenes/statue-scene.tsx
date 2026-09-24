@@ -1,22 +1,30 @@
 import { Cloud, Clouds, Stars, useGLTF } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Suspense, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
 import * as THREE from "three";
-import { MatchContainerSize } from "./match-container-size";
+
+/** Self-hosted Draco decoder (public/draco) — no runtime fetch from Google's CDN. */
+const DRACO_PATH = "/draco/";
 
 /**
  * The Themis (justice) statue, lit by a slowly orbiting spotlight, wrapped in
  * volumetric clouds, a starfield and black fog. Cards are non-interactive, so the
  * reference's pointer parallax is replaced with a gentle auto-sway.
+ *
+ * Shadows (VSM) and the camera are configured on the canvas via the registry.
  */
 function Statue() {
 	const group = useRef<THREE.Group>(null);
 	const light = useRef<THREE.SpotLight>(null);
-	const { nodes } = useGLTF("/themis.glb");
+	// Own time base: R3F resets clock.elapsedTime whenever the card pauses and
+	// resumes (frameloop change), which would make the light jump.
+	const time = useRef(0);
+	const { nodes } = useGLTF("/themis.glb", DRACO_PATH);
 	const themis = nodes.themis as THREE.Mesh;
 
-	useFrame((state, delta) => {
-		const t = state.clock.elapsedTime;
+	useFrame((_, delta) => {
+		time.current += delta;
+		const t = time.current;
 		if (group.current) {
 			const targetRotY = Math.sin(t * 0.18) * 0.28;
 			group.current.rotation.y +=
@@ -88,30 +96,15 @@ function Statue() {
 	);
 }
 
-/** Dedicated canvas for the statue — it needs shadows + fog the shared canvas can't do. */
-export default function StatueCanvas() {
+export default function StatueScene() {
 	return (
-		<Canvas
-			shadows={{ type: THREE.VSMShadowMap }}
-			dpr={[1, 1.5]}
-			gl={{
-				antialias: true,
-				alpha: false,
-				powerPreference: "high-performance",
-			}}
-			camera={{ position: [0, 1.5, 14], fov: 42 }}
-			style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-		>
-			<MatchContainerSize />
-			<color attach="background" args={["#000000"]} />
+		<>
 			<fog attach="fog" args={["black", 0, 20]} />
 			<pointLight position={[10, -10, -20]} intensity={6} />
 			<pointLight position={[-10, -10, -20]} intensity={6} />
-			<Suspense fallback={null}>
-				<Statue />
-			</Suspense>
-		</Canvas>
+			<Statue />
+		</>
 	);
 }
 
-useGLTF.preload("/themis.glb");
+useGLTF.preload("/themis.glb", DRACO_PATH);

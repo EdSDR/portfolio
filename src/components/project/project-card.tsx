@@ -1,12 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
-import { CardView } from "@/components/canvas/card-view";
+import {
+	lazy,
+	Suspense,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import {
 	DEFAULT_SCENE_BG,
-	dedicatedCanvases,
-	sceneBackground,
-} from "@/components/canvas/scenes/dedicated";
+	posterUrl,
+	scenes,
+} from "@/components/canvas/scenes/registry";
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
 import { hasEnteredOnce } from "@/lib/entrance";
@@ -16,11 +22,14 @@ import { useInView } from "@/lib/use-in-view";
 import { useMounted } from "@/lib/use-mounted";
 import { ProjectDetail } from "./project-detail";
 
+// Lazy so three/R3F stay out of the entry bundle (phones may never load them).
+const SceneCanvas = lazy(() => import("@/components/canvas/scene-canvas"));
+
 /**
- * One project card. The media hosts a drei <View> (in CardView) that renders its
- * own element filling this box and tunnels the scene into the shell canvas behind
- * it. drei re-measures that element every frame, so the scene follows the Motion
- * `layout` animation as the card grows into its expanded (route) state.
+ * One project card. Its media box shows a poster (a pre-rendered still) and,
+ * when live, the card's own <SceneCanvas> underneath, revealed by fading the
+ * poster once the scene has drawn its first frame. The card grows into its
+ * expanded (route) state with a Motion `layout` animation.
  */
 export function ProjectCard({
 	project,
@@ -40,16 +49,11 @@ export function ProjectCard({
 	// open/close snap in instantly). Cards come in after the sidebar cascade.
 	const firstLoad = useRef(!hasEnteredOnce()).current;
 	const enterDelay = firstLoad ? 0.9 + index * 0.16 : 0;
-	// Dedicated-canvas scenes render in their own DOM canvas, so they fade with the
-	// card and don't need the entrance hold. The cover matches the scene bg.
-	const isDedicated = project.slug in dedicatedCanvases;
-	const sceneBg = sceneBackground[project.slug] ?? DEFAULT_SCENE_BG;
+	const sceneBg = scenes[project.slug]?.background ?? DEFAULT_SCENE_BG;
 
-	// Shared-canvas scenes (drei <View>) render on the fixed canvas and can't fade
-	// with the DOM card, so on first load they'd pop in and track the sliding rect
-	// before the card settles. Hold them until the entrance finishes; the poster
-	// (DOM, fades with the card) covers the gap. Torus uses its own canvas that
-	// fades with the card, so it doesn't wait.
+	// On first load, hold scene start-up (chunk parse, context, shader compile)
+	// until this card's entrance has played so it doesn't jank the cascade; the
+	// poster covers the gap.
 	const [entranceDone, setEntranceDone] = useState(!firstLoad);
 	useEffect(() => {
 		if (!firstLoad) return;
@@ -60,29 +64,21 @@ export function ProjectCard({
 		return () => clearTimeout(t);
 	}, [firstLoad, enterDelay]);
 
-	// Mount the <View> only once the media has a real height, so drei's one-time
-	// portal sizing is correct.
-	const [sized, setSized] = useState(false);
-	useEffect(() => {
-		const el = ref.current;
-		if (!el || sized) return;
-		const ro = new ResizeObserver((entries) => {
-			if ((entries[0]?.contentRect.height ?? 0) > 1) setSized(true);
-		});
-		ro.observe(el);
-		return () => ro.disconnect();
-	}, [ref, sized]);
-
-	// Live 3D on desktop pointers, or whenever a card is opened. Mobile /
-	// reduced-motion stay on the poster. Shared-canvas scenes also wait for the
-	// entrance to finish (torus/active are exempt).
+	// Live 3D on desktop pointers while near/visible, or whenever a card is
+	// opened. Mobile / reduced-motion stay on the poster.
 	const live =
-		sized &&
 		mounted &&
 		!reduced &&
-		(active || fine) &&
-		(isDedicated || active || entranceDone);
-	const viewState = active ? "visible" : state;
+		project.slug in scenes &&
+		(active || (fine && entranceDone && state !== "far"));
+	const paused = !active && state !== "visible";
+
+	// The poster fades only after the scene has drawn, so there's never a blank frame.
+	const [ready, setReady] = useState(false);
+	const markReady = useCallback(() => setReady(true), []);
+	useEffect(() => {
+		if (!live) setReady(false);
+	}, [live]);
 
 	return (
 		<motion.article
@@ -96,34 +92,53 @@ export function ProjectCard({
 			}}
 			className="relative w-full"
 		>
-			{/* Rectangular clip. The scene lives on the shared canvas behind this
-			    window; the mask overlay below rounds the corners by painting the
-			    notches with the page background. */}
+			{/* borderRadius lives in `style` so Motion corrects it during layout
+			    animations (a class radius would stretch with the scale transform). */}
 			<motion.div
 				layout
 				ref={ref}
+				data-scene-media
+				data-scene-ready={ready || undefined}
+				style={{ borderRadius: 16 }}
 				className={cn(
-					"relative w-full overflow-hidden",
+					"relative w-full overflow-hidden border border-border",
 					active ? "aspect-video" : "aspect-16/10",
 				)}
 			>
-				{/* Solid cover in the scene's own background color. Held opaque until
-				    the scene is live, then it crossfades out to reveal the scene — no
-				    gradient→black→scene flash, and it's the fallback on mobile /
-				    reduced-motion (a plain dark card). */}
+				{live && (
+					<Suspense fallback={null}>
+						<SceneCanvas
+							slug={project.slug}
+							paused={paused}
+							onReady={markReady}
+						/>
+					</Suspense>
+				)}
+
+				{/* Poster over the canvas in the scene's own background color. Stays
+				    for mobile / reduced-motion; on desktop it crossfades out once the
+				    live scene is ready. */}
 				<motion.div
 					aria-hidden
 					className="pointer-events-none absolute inset-0"
 					style={{ background: sceneBg }}
 					initial={false}
-					animate={{ opacity: live ? 0 : 1 }}
+					animate={{ opacity: live && ready ? 0 : 1 }}
 					transition={{ duration: 0.6, ease: "easeOut" }}
-				/>
+				>
+					<img
+						src={posterUrl(project.slug)}
+						alt=""
+						decoding="async"
+						loading={index < 2 ? "eager" : "lazy"}
+						className="size-full object-cover"
+						onError={(e) => {
+							e.currentTarget.hidden = true;
+						}}
+					/>
+				</motion.div>
 
-				{/* Live scene: a drei <View> filling this media, tunneled to the shell canvas. */}
-				{live && <CardView slug={project.slug} state={viewState} />}
-
-				{/* Clickable label, painted above the canvas. */}
+				{/* Clickable label, painted above the scene. */}
 				<Link
 					to="/work/$slug"
 					params={{ slug: project.slug }}
@@ -131,19 +146,13 @@ export function ProjectCard({
 					onClick={active ? undefined : rememberHomeScroll}
 					className="absolute inset-0 flex items-end p-4"
 				>
-					<span className="hidden items-center gap-2 rounded-full bg-black/40 px-3 py-1 font-medium text-white text-xs backdrop-blur lg:inline-flex">
+					<span
+						data-card-label
+						className="hidden items-center gap-2 rounded-full bg-black/40 px-3 py-1 font-medium text-white text-xs backdrop-blur lg:inline-flex"
+					>
 						{project.name}
 					</span>
 				</Link>
-
-				{/* Corner mask + rounded border. The huge spread is clipped to this
-				    media box by the parent's overflow-hidden, so it fills only the
-				    corner notches (not neighbouring cards). */}
-				<div
-					aria-hidden
-					className="pointer-events-none absolute inset-0 rounded-2xl border border-border"
-					style={{ boxShadow: "0 0 0 9999px var(--background)" }}
-				/>
 			</motion.div>
 
 			{active && <ProjectDetail project={project} />}

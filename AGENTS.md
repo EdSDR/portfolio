@@ -18,7 +18,7 @@ and `torus-ts/` (the real Torus codebase, reference for the Torus scene).
 - **MDX** compiled at build via `@mdx-js/rollup` + `remark-frontmatter` +
   `remark-mdx-frontmatter`; frontmatter validated with **Zod 4**
 - **Tailwind v4** (CSS-first, tokens in `src/styles.css`), **Biome**, **Bun**,
-  Geist via `@fontsource-variable/geist` (self-hosted)
+  Geist via `@fontsource-variable/geist` (self-hosted, latin face preloaded)
 
 ## Commands (use Bun)
 
@@ -27,6 +27,9 @@ and `torus-ts/` (the real Torus codebase, reference for the Torus scene).
 - `bunx tsc --noEmit` — typecheck
 - `bunx biome check --write src` — lint + format (also `bun run check|lint|format`)
 - `bun run deploy` — build + `wrangler deploy`
+- `bun run posters [slug…]` — re-capture card posters + OG images into `public/posters/`
+  (headless system Chrome via playwright-core; uses/starts the dev server). Re-run
+  after changing a scene's look or adding a project.
 
 Before handing work back: run `bunx tsc --noEmit` and `bunx biome check --write src`.
 
@@ -43,35 +46,43 @@ Before handing work back: run `bunx tsc --noEmit` and `bunx biome check --write 
 
 ```
 src/
-  routes/__root.tsx          html shell (forced `dark` class), devtools, renders <AppShell>
+  routes/__root.tsx          html shell (forced `dark` class), default/OG meta, font preload,
+                             devtools, renders <AppShell>
   routes/index.tsx           home (list is in the shell, route renders nothing)
-  routes/work.$slug.tsx      URL + loader (notFound) + head/OG meta only; component → null
+  routes/work.$slug.tsx      URL + loader (notFound, prefetches MDX body) + head/OG/canonical;
+                             component → null
   components/layout/
-    app-shell.tsx            persistent shell: shared <SceneCanvas>, sidebar, <ProjectList>,
-                             eventSource root ref, MotionConfig reducedMotion="user"
+    app-shell.tsx            persistent shell: sidebar + <ProjectList>, MotionConfig
+                             reducedMotion="user"
     sidebar.tsx              bio/links (copy is hand-edited by the user)
     fade.tsx                 top/bottom viewport fade strips
   components/project/
     project-list.tsx         reads slug param; filters to the active card; scroll restore
-    project-card.tsx         card: in-view state, live gate, cover crossfade, corner mask,
-                             Motion `layout` expand, renders <ProjectDetail> when active
+    project-card.tsx         card: in-view state, live gate, poster crossfade, lazy
+                             <SceneCanvas>, Motion `layout` expand, <ProjectDetail> when active
     project-detail.tsx       meta + lazy MDX body under the expanded hero
   components/canvas/
-    scene-canvas.tsx         the ONE shared fixed <Canvas> + <View.Port/>
-    card-view.tsx            dispatch: dedicated canvas vs shared drei <View>
-    scenes/registry.ts       slug → lazy shared-View scene (polaris, smoothui)
-    scenes/dedicated.tsx     slug → lazy dedicated canvas (torus, governance) + sceneBackground
-    scenes/*-scene.tsx       scene content only (meshes/lights/camera)
-    scenes/*-canvas.tsx      dedicated <Canvas> wrappers (torus → Bloom, statue → shadows/fog)
-    scenes/match-container-size.tsx  per-frame canvas resize for dedicated canvases
+    scene-canvas.tsx         a card's own <Canvas> (lazy default export): frameloop from
+                             `paused`, bg color, MatchContainerSize, Prewarm (compileAsync →
+                             first frame → onReady)
+    scenes/registry.ts       slug → { lazy Scene, background, canvas opts }; posterUrl/ogImageUrl.
+                             No runtime three imports (read by the entry bundle).
+    scenes/*-scene.tsx       scene content only (meshes/lights/camera/effects), default export
+    scenes/match-container-size.tsx  per-frame canvas resize (Motion layout transforms)
   content/
     schema.ts                Zod frontmatter (name, description, date, accent, tags, links)
     index.ts                 eager frontmatter glob + lazy body glob; sorted by date desc
     projects/*.mdx           one file per project; filename = slug
   lib/                       use-in-view, use-device (pointer/reduced-motion), use-mounted,
                              entrance (first-load stagger flag), scroll-memory, motion
-                             variants, graph-data (seeded synthetic Torus graph), cn
-public/themis.glb            Draco-compressed statue (mesh node `themis`, scale 0.06)
+                             variants, graph-data (seeded synthetic Torus graph), site
+                             (SITE_URL for absolute OG/canonical URLs), cn
+scripts/capture-posters.ts   `bun run posters`
+public/
+  posters/<slug>.webp        card cover; <slug>-og.jpg = 1200×630 og:image
+  themis.glb                 Draco-compressed statue (mesh node `themis`, scale 0.06)
+  draco/                     self-hosted Draco decoder (copied from three/examples)
+  avatar.png                 sidebar avatar (self-hosted, 96px)
 ```
 
 ## Architecture invariants (do not break)
@@ -82,58 +93,56 @@ public/themis.glb            Draco-compressed statue (mesh node `themis`, scale 
 - **Expanded state is the route.** `ProjectList` reads the `slug` param; the active card
   expands in place via Motion `layout` (others exit via `AnimatePresence`). Back button
   closes; home scroll position is restored on close. Every `/work/$slug` is prerendered.
-- **Two render paths for a card scene** (`card-view.tsx`):
-  1. **Shared (default):** one fixed `<Canvas>` in the shell (`pointer-events:none`,
-     `eventSource` = app-root ref, `dpr={[1, 1.5]}`), one drei `<View>` per live card.
-     Register in `scenes/registry.ts`. Never add another shared canvas.
-  2. **Dedicated:** only when a scene needs what the scissored View pass can't do —
-     **post-processing** or **shadows/fog**. Register in `scenes/dedicated.tsx` with a
-     matching `sceneBackground` color, include `<MatchContainerSize />`, keep
-     `dpr={[1, 1.5]}` and `pointerEvents: "none"`. Mounted only while the card is live.
-- **IntersectionObserver** (`use-in-view.ts`) drives discrete `far`/`near`/`visible`
-  states; `far` unmounts the scene. **Never set React state on scroll events.**
-- **Live gate** (`project-card.tsx`): scene mounts only when sized + client-mounted +
-  not reduced-motion + (fine pointer or card open). Shared-View scenes also wait for the
-  first-load entrance to finish. Until live, a solid cover in the scene's bg color is
-  shown, then crossfades out.
-- Honor `prefers-reduced-motion` (no live scene; cover only).
-- Mobile/low-power (coarse pointer): list shows the static cover; the live scene mounts
-  on open.
+- **One `<Canvas>` per live card** (`scene-canvas.tsx`), never a shared/fixed canvas.
+  The scene is a normal DOM child of the card: it scrolls, clips and fades with it,
+  and any scene may use post-processing or shadows. Always `dpr={[1, 1.5]}`,
+  `pointerEvents: "none"`. (A shared canvas + drei `<View>` was used until Sep 2026 and
+  removed: two of four scenes needed their own canvas anyway, and it cost a
+  full-viewport 60fps render, three.js in the entry bundle, scroll lag, and several
+  workarounds. Revisit only if the list becomes a grid of many small live scenes.)
+- **3D never enters the entry bundle.** `SceneCanvas` is `lazy()`-imported by the card,
+  scenes are `lazy()` in the registry, and `registry.ts` must stay free of runtime
+  three/R3F/drei imports (type-only is fine).
+- **IntersectionObserver** (`use-in-view.ts`) drives `far`/`near`/`visible`:
+  `visible` → `frameloop="always"`; `near` → mounted, `frameloop="never"`, shaders
+  compiled + one frame drawn; `far` → unmounted (context freed). Hysteresis: mount at
+  150% viewport margin, unmount only past 300%. **Never set React state on scroll events.**
+- **Live gate** (`project-card.tsx`): canvas mounts when client-mounted + not
+  reduced-motion + (card open, or fine pointer + not `far` + first-load entrance done).
+  The poster (scene-bg color + `posters/<slug>.webp`) sits above the canvas and fades
+  only after `onReady` (first frame drawn), so there's never a blank frame.
+- Honor `prefers-reduced-motion` (poster only, no live scene).
+- Mobile (coarse pointer): list shows posters; the live scene mounts on open.
+- R3F resets `clock.elapsedTime` when `frameloop` changes (pause/resume). Animate with
+  `delta` or your own accumulated time (see `statue-scene.tsx`), not `clock.elapsedTime`.
 
-**Planned, not yet implemented** (original spec — don't assume these exist):
-`frameloop="demand"` on the shared canvas; pausing `near` scenes via `<Activity>` and
-prewarming with `gl.compileAsync` (today `near` and `visible` both just mount); real
-poster images instead of the solid cover; light/dark toggle (forced dark for now).
+**Planned, not yet implemented:** light/dark toggle (forced dark for now).
 
 ## Adding a project
 
 1. `src/content/projects/<slug>.mdx` with frontmatter matching `content/schema.ts`.
-2. Scene: `scenes/<slug>-scene.tsx` (default export, content only) → `registry.ts`;
-   or, if it needs post/shadows, `scenes/<name>-canvas.tsx` → `dedicated.tsx` +
-   `sceneBackground`.
+2. Scene: `scenes/<slug>-scene.tsx` (default export, content only — post-processing
+   like `<EffectComposer>` goes inside the scene) → add to `registry.ts` with its
+   `background` and any `canvas` options (`shadows`, `camera`).
 3. If the scene pulls a new lazily-imported 3D dep, add it to `optimizeDeps.include`
    in `vite.config.ts` (see gotchas).
+4. `bun run posters <slug>` to generate its cover + OG image.
 
 ## Hard-won gotchas (don't rediscover these)
 
-- **drei `<View>` in DOM mode ignores `track`** and renders/tracks its own element.
-  Style the View itself: `<View className="absolute inset-0 block h-full w-full">`.
-  (track mode gave a 0-height portal → blank scenes.) The card also waits for a
-  non-zero height (`sized`) before mounting the View.
-- **Dedicated canvases need `MatchContainerSize`** — R3F's ResizeObserver misses Motion
-  layout-transform size changes (black bar on close). Don't "fix" resize lag with a
-  constant-aspect hack; that was rejected.
+- **Every canvas needs `MatchContainerSize`** (built into `SceneCanvas`) — R3F's
+  ResizeObserver misses Motion layout-transform size changes (black bar on close).
+  Don't "fix" resize lag with a constant-aspect hack; that was rejected.
 - **drei `<SoftShadows>` is broken on three 0.186** (PCSS GLSL uses removed
   `unpackRGBAToDepth`/`vogelDiskSample`; `PCFSoftShadowMap` removed). Symptom: material
   shader fails to compile (`useProgram: program not valid`) and the mesh silently isn't
-  drawn. The statue uses `shadows={{ type: THREE.VSMShadowMap }}` + `shadow-radius` /
+  drawn. The statue uses VSM (`shadows: "variance"` in the registry) + `shadow-radius` /
   `shadow-blurSamples` instead.
+- `useGLTF` must get the self-hosted decoder path (`useGLTF(url, "/draco/")`), else
+  drei fetches Draco from gstatic.com at runtime.
 - **Vite "Invalid hook call / useState null" in dev** = dep re-optimization loaded two
   React copies. Pre-bundle lazy deps in `vite.config.ts` `optimizeDeps.include`, then
   restart dev.
-- Shared-View scenes render on the fixed canvas and can't fade with DOM, hence the
-  entrance hold + cover crossfade in `project-card.tsx`. Dedicated canvases are DOM
-  children and fade with the card.
 
 ## Repo hygiene
 

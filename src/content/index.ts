@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import { type ComponentType, lazy } from "react";
 import { type Frontmatter, frontmatterSchema } from "./schema";
 
 type BodyModule = { default: ComponentType };
@@ -17,7 +17,10 @@ const bodies = import.meta.glob("./projects/*.mdx") as Record<
 
 export type Project = Frontmatter & {
 	slug: string;
+	/** Imports the compiled MDX body (the route loader calls it to prefetch). */
 	loadBody: () => Promise<BodyModule>;
+	/** The body as a lazy component — one per project, so it's cached across opens. */
+	Body: ComponentType;
 };
 
 function toSlug(path: string): string {
@@ -34,6 +37,7 @@ export const projects: Project[] = Object.entries(frontmatters)
 		slug: toSlug(path),
 		...frontmatterSchema.parse(raw),
 		loadBody: bodies[path],
+		Body: lazy(bodies[path]),
 	}))
 	.sort((a, b) => b.date.getTime() - a.date.getTime());
 

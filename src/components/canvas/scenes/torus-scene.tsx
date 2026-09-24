@@ -1,5 +1,6 @@
 import { PerspectiveCamera } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import type { GraphMethods, NodeObject } from "r3f-forcegraph";
 import R3fForceGraph from "r3f-forcegraph";
 import { useEffect, useMemo, useRef } from "react";
@@ -35,17 +36,19 @@ const FORCE = { charge: -100, linkDistance: 42, center: 0.55 };
 /**
  * Torus hero contents: a force-directed graph approximating an on-chain agent
  * network. Nodes are bright, unlit ("toneMapped:false") spheres so the Bloom
- * pass in <TorusCanvas> turns them into a real glow. Links are straight, some
+ * pass below turns them into a real glow. Links are straight, some
  * carrying directional particles. The sim warms up, cools down (freezes), then
  * the whole graph slowly rotates.
- *
- * This renders inside a dedicated <Canvas> (not a drei <View>) so it can use
- * real post-processing Bloom.
  */
 export default function TorusScene() {
 	const fg = useRef<GraphMethods | undefined>(undefined);
 	const groupRef = useRef<THREE.Group>(null);
 	const appliedForces = useRef("");
+	// The graph builds its d3 layout asynchronously after mount. Touching the sim
+	// before that (reheat sets it "running" with no layout yet) throws inside
+	// tickFrame — which a remount hits, since cached shaders let the first frame
+	// run immediately.
+	const graphReady = useRef(false);
 
 	const data = useMemo(() => generateGraph(), []);
 
@@ -89,7 +92,7 @@ export default function TorusScene() {
 
 	useFrame((_, dt) => {
 		const g = fg.current;
-		if (g?.d3Force) {
+		if (graphReady.current && g?.d3Force) {
 			const key = `${FORCE.charge}|${FORCE.linkDistance}|${FORCE.center}`;
 			if (appliedForces.current !== key) {
 				g.d3Force("charge")?.strength(FORCE.charge);
@@ -106,7 +109,6 @@ export default function TorusScene() {
 
 	return (
 		<>
-			<color attach="background" args={["#1a1a1a"]} />
 			<PerspectiveCamera
 				makeDefault
 				position={[0, 0, 480]}
@@ -120,6 +122,9 @@ export default function TorusScene() {
 				<R3fForceGraph
 					ref={fg}
 					graphData={data}
+					onFinishUpdate={() => {
+						graphReady.current = true;
+					}}
 					nodeThreeObject={nodeThreeObject}
 					warmupTicks={80}
 					cooldownTicks={260}
@@ -141,6 +146,14 @@ export default function TorusScene() {
 					linkDirectionalParticleColor={LINK_TINT}
 				/>
 			</group>
+			<EffectComposer>
+				<Bloom
+					mipmapBlur
+					luminanceThreshold={0.2}
+					intensity={1.25}
+					radius={0.75}
+				/>
+			</EffectComposer>
 		</>
 	);
 }
