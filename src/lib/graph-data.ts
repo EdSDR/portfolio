@@ -36,9 +36,9 @@ const NODE_STYLE: Record<NodeType, { color: string; val: number }> = {
 	hub: { color: "#ffffff", val: 22 },
 	root: { color: "#63cbff", val: 9 },
 	agent: { color: "#1fdb77", val: 6 },
-	signal: { color: "#69ff5c", val: 5 },
-	user: { color: "#d946ef", val: 7 },
-	perm: { color: "#f2b907", val: 4 },
+	signal: { color: "#69ff5c", val: 6 },
+	user: { color: "#d946ef", val: 8 },
+	perm: { color: "#f2b907", val: 5 },
 };
 
 // Light link colors so they read on the dark background.
