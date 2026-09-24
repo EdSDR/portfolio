@@ -1,7 +1,7 @@
 import { Float, PerspectiveCamera, RoundedBox } from "@react-three/drei";
 
-/** Placeholder hero: soft floating rounded cards. */
-export default function SmoothUIScene() {
+/** The very first scene: two floating rounded cards, kept as a nod to where this started. */
+export default function TestAnimationScene() {
 	return (
 		<>
 			<PerspectiveCamera makeDefault position={[0, 0, 4]} fov={45} />

@@ -17,12 +17,8 @@ export interface SceneEntry {
 }
 
 export const scenes: Record<string, SceneEntry> = {
-	polaris: {
-		Scene: lazy(() => import("./polaris-scene")),
-		background: "#222222",
-	},
-	smoothui: {
-		Scene: lazy(() => import("./smoothui-scene")),
+	"test-animation": {
+		Scene: lazy(() => import("./test-animation-scene")),
 		background: "#222222",
 	},
 	torus: {

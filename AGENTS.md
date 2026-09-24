@@ -97,7 +97,7 @@ public/
   The scene is a normal DOM child of the card: it scrolls, clips and fades with it,
   and any scene may use post-processing or shadows. Always `dpr={[1, 1.5]}`,
   `pointerEvents: "none"`. (A shared canvas + drei `<View>` was used until Sep 2026 and
-  removed: two of four scenes needed their own canvas anyway, and it cost a
+  removed: two of the scenes needed their own canvas anyway, and it cost a
   full-viewport 60fps render, three.js in the entry bundle, scroll lag, and several
   workarounds. Revisit only if the list becomes a grid of many small live scenes.)
 - **3D never enters the entry bundle.** `SceneCanvas` is `lazy()`-imported by the card,

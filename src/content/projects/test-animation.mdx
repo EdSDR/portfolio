@@ -1,0 +1,82 @@
+---
+name: "Test Animation"
+description: "Two rounded boxes floating in the void. The first scene this portfolio ever rendered, and the story of how the rest of it got built."
+date: "2025-06-15"
+accent: "#a78bfa"
+tags: ["TanStack Start", "React Three Fiber", "Motion", "Cloudflare Workers"]
+links:
+  - text: "Source on GitHub"
+    url: "https://github.com/EdSDR/portfolio"
+---
+
+## Oh, you made it all the way down here
+
+You scrolled past a live on-chain hypergraph and a statue of Themis wrapped in
+volumetric clouds, and you clicked on... two boxes. Respect.
+
+This was the first scene I ever put in this portfolio. Its whole job was to answer
+one question: *can a card on a web page hold a live 3D scene that grows into a full
+page without anything breaking?* The boxes floated, the card expanded, nothing
+caught fire, and it has been showing off ever since. It stays on the list because
+every project deserves a humble beginning, and this one is mine.
+
+So since you're here, let me tell you how the site you're scrolling actually works.
+
+## The idea
+
+Every project gets a live scene instead of a screenshot. Click a card and it expands
+in place into its own page, scene on top and writeup below. The back button closes
+it and drops you right where you were in the list. No modal, no page flash, no
+reloaded WebGL.
+
+## The stack
+
+- **TanStack Start** with the Vite plugin, statically prerendered, so every project
+  page ships as real HTML with its own meta and link preview.
+- **React 19** and **React Three Fiber** with drei for the 3D.
+- **Motion** for every transition, including the card that grows into a page.
+- **MDX** for the writeups, with frontmatter checked by **Zod** at build time.
+- **Tailwind v4**, **Biome** and **Bun**, deployed to **Cloudflare Workers**.
+
+## The part where things went wrong (and got fixed)
+
+**One canvas to rule them all.** The original plan was the textbook one: a single
+fixed WebGL canvas behind the whole page, with each card cutting out its own window
+into it. One context, very elegant. Then the Torus graph wanted real bloom and the
+statue wanted shadows and fog, and neither works inside those cut-out windows. So
+they got their own canvases, and now the "one canvas" architecture had three. At
+that point the shared canvas was mostly paying for itself in workarounds: a full
+screen redrawn 60 times a second, three.js in the first download, scenes trailing
+the page by a frame when you scroll, and a 9999px box-shadow pretending to be
+rounded corners. So I deleted it. Every card now owns its own canvas. It renders
+while you can see it, pauses when it's just off screen, and disappears entirely
+when it's far away. The first JavaScript download went from about 430 KB to
+under 190 KB (gzipped), and the rounded corners are real now.
+
+**The invisible statue.** For a while the governance scene looked perfect: clouds,
+stars, fog, lighting. It just had no statue in it. The soft-shadow helper I used
+injects shader code that the latest three.js no longer supports, so the statue's
+material failed to compile and the mesh quietly skipped drawing itself. Swapping to
+variance shadow maps brought her back.
+
+**The graph that wouldn't come back.** Open another project, close it, and the
+hypergraph would sit there as a still image. When a card remounts, its shaders are
+already cached, so the first frame fires instantly, before the graph library has
+built its layout. The scene poked the physics simulation too early, crashed, and
+never told the card it was ready. Now it waits for the graph to say it's done.
+
+**The canvas that couldn't count.** When Motion animates a card open, it scales the
+element with a transform, and the canvas's resize observer never notices. The
+result was a thin black bar along the edge of the scene. A tiny component now checks
+the container size every frame and fixes the canvas when they disagree.
+
+**The posters.** On phones, or if you've asked your OS to reduce motion, you see a
+still frame instead of a live scene. Those aren't screenshots I took by hand. A
+script opens the site in headless Chrome, waits for each scene to settle, and saves
+a cover image plus a link-preview image for every project.
+
+## What this card taught me
+
+Build the dumbest version first. These two boxes found every hard problem in the
+architecture before anything expensive depended on it. They aren't much to look at,
+but everything else on this page runs because they went first.
