@@ -1,0 +1,35 @@
+---
+name: "Torus"
+description: "A live 3D visualization of an on-chain agent network — a force-directed hypergraph of emission flows between agents."
+date: "2026-02-01"
+accent: "#63cbff"
+tags: ["Three.js", "React Three Fiber", "Substrate", "Web3"]
+links:
+  - text: "torus.network"
+    url: "https://torus.network"
+---
+
+## Overview
+
+Torus is a Substrate-based network where autonomous agents delegate stake and
+route emissions to one another. To make that structure legible, I built a live
+3D map of it: a force-directed graph where every node is an agent and every edge
+is a permission or emission stream, with particles flowing along the links to
+show value moving through the network in real time.
+
+## The idea
+
+A hypergraph of thousands of agents is hard to reason about in a table. Rendered
+in space — clustered by relationship, glowing by role, animated by flow — it
+becomes something you can actually explore.
+
+- Nodes sized and colored by role (allocators, roots, agents, signals).
+- Curved links carry directional particles that trace live emission flows.
+- A d3 force simulation lays the graph out, then settles so it reads clearly.
+
+## Under the hood
+
+Built with React Three Fiber and `three-forcegraph`, fed by typed chain data
+transpiled from the Rust Substrate runtime into TypeScript. The hero you see
+here is a self-contained, synthetic approximation of that system — same visual
+language, generated data.

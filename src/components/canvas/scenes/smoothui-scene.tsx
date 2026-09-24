@@ -1,10 +1,11 @@
-import { Float, RoundedBox } from "@react-three/drei";
+import { Float, PerspectiveCamera, RoundedBox } from "@react-three/drei";
 
 /** Placeholder hero: soft floating rounded cards. */
 export default function SmoothUIScene() {
 	return (
 		<>
 			<color attach="background" args={["#222222"]} />
+			<PerspectiveCamera makeDefault position={[0, 0, 4]} fov={45} />
 			<Float speed={1.5} rotationIntensity={0.3} floatIntensity={1}>
 				<RoundedBox args={[1.7, 1.05, 0.2]} radius={0.09} smoothness={6}>
 					<meshStandardMaterial
