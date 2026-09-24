@@ -67,7 +67,7 @@ export function ProjectCard({
 					<div
 						className="absolute inset-0"
 						style={{
-							background: `radial-gradient(120% 120% at 50% 20%, ${project.accent}33, #06070a 62%)`,
+							background: `radial-gradient(120% 120% at 50% 20%, ${project.accent}33, #222222 62%)`,
 						}}
 					/>
 				)}

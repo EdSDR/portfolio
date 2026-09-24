@@ -12,3 +12,6 @@ dist-ssr
 .plan
 __unconfig*
 todos.json
+
+# local dev server log
+dev.log

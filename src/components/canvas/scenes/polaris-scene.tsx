@@ -13,7 +13,7 @@ export default function PolarisScene() {
 
 	return (
 		<>
-			<color attach="background" args={["#05070a"]} />
+			<color attach="background" args={["#222222"]} />
 			<Stars radius={40} depth={30} count={1200} factor={3} fade speed={0.5} />
 			<Float speed={1.2} rotationIntensity={0.6} floatIntensity={0.8}>
 				<mesh ref={knot}>
