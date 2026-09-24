@@ -1,6 +1,8 @@
 import { useParams } from "@tanstack/react-router";
 import { AnimatePresence, LayoutGroup } from "motion/react";
+import { useEffect, useRef } from "react";
 import { projects } from "@/content";
+import { restoreHomeScroll } from "@/lib/scroll-memory";
 import { ProjectCard } from "./project-card";
 
 /**
@@ -12,6 +14,20 @@ import { ProjectCard } from "./project-card";
 export function ProjectList() {
 	const { slug } = useParams({ strict: false }) as { slug?: string };
 	const visible = slug ? projects.filter((p) => p.slug === slug) : projects;
+
+	// On close (slug clears), restore the home scroll position after the list has
+	// re-expanded, so the card collapses back into its spot instead of the page
+	// jumping to the top.
+	const prevSlug = useRef(slug);
+	useEffect(() => {
+		const wasOpen = prevSlug.current;
+		prevSlug.current = slug;
+		if (wasOpen && !slug) {
+			requestAnimationFrame(() =>
+				requestAnimationFrame(() => restoreHomeScroll()),
+			);
+		}
+	}, [slug]);
 
 	return (
 		<LayoutGroup>

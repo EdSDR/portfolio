@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CardView } from "@/components/canvas/card-view";
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
+import { rememberHomeScroll } from "@/lib/scroll-memory";
 import { usePointerFine, usePrefersReducedMotion } from "@/lib/use-device";
 import { useInView } from "@/lib/use-in-view";
 import { useMounted } from "@/lib/use-mounted";
@@ -80,6 +81,7 @@ export function ProjectCard({
 					to="/work/$slug"
 					params={{ slug: project.slug }}
 					aria-label={`Open ${project.name}`}
+					onClick={active ? undefined : rememberHomeScroll}
 					className="absolute inset-0 flex items-end p-4"
 				>
 					<span className="hidden items-center gap-2 rounded-full bg-black/40 px-3 py-1 font-medium text-white text-xs backdrop-blur lg:inline-flex">

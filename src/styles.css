@@ -188,6 +188,11 @@
     /* Always reserve the scrollbar gutter so expanding a card (short page →
        no scrollbar) doesn't shift the layout horizontally. */
     scrollbar-gutter: stable;
+    /* TODO (Remove this): Disable the overscroll rubber-band: it's a compositor effect that moves
+       the DOM cards but not the viewport-fixed scene canvas (and doesn't update
+       getBoundingClientRect), so the scenes can't track it — the bounce would
+       leave a scene "stopped" while its card border stretches away from it. */
+    overscroll-behavior: none;
   }
 
   body {
