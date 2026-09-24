@@ -2,11 +2,11 @@ import { cn } from "@/lib/cn";
 
 const profile = {
 	name: "Ed Castro",
-	role: "Senior Software Engineer",
+	role: "Software Engineer & Frontend Specialist",
 	avatar: "https://github.com/EdSDR.png",
 	available: true,
 	availableText: "Available for new projects",
-	bio: "Senior software engineer with 5 years building TypeScript, React, and Next.js products end to end — from solo zero-to-one delivery to leading a team shipping cross-chain apps. Fully remote from Rio de Janeiro.",
+	bio: "Passionate software developer with 5+ years of experience creating fun and innovative ways to interact with complex software and visualizations.",
 	buttons: {
 		call: { text: "Book a call", url: "mailto:contact@edsdr.com" },
 		chat: { text: "Chat", url: "mailto:contact@edsdr.com" },
@@ -31,11 +31,10 @@ const profile = {
 	socials: [
 		{ label: "GitHub", url: "https://github.com/EdSDR" },
 		{ label: "LinkedIn", url: "https://linkedin.com/in/edsdr" },
-		{ label: "Website", url: "https://edsdr.com" },
 		{ label: "Email", url: "mailto:contact@edsdr.com" },
 	],
 	footer:
-		"Based in Rio de Janeiro, Brazil. Working remotely with teams across US-East and EU timezones.",
+		"Based in Rio de Janeiro, Brazil. Working remotely with teams across the world.",
 	copyright: "© 2026 Ed Castro. All rights reserved.",
 };
 

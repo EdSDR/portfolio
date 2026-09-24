@@ -59,7 +59,7 @@ export function ProjectCard({
 				ref={ref}
 				className={cn(
 					"relative w-full overflow-hidden",
-					active ? "aspect-[16/9]" : "aspect-[16/10]",
+					active ? "aspect-video" : "aspect-16/10",
 				)}
 			>
 				{/* Poster fallback: mobile, reduced-motion, and pre-hydration. */}
