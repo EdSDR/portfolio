@@ -15,3 +15,6 @@ todos.json
 
 # local dev server log
 dev.log
+
+# personal resume (contains private contact details) — never commit to the public repo
+resume.md

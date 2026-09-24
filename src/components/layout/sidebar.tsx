@@ -1,48 +1,42 @@
 import { cn } from "@/lib/cn";
 
-// Placeholder profile — edit freely. Structure mirrors the visual reference.
 const profile = {
-	name: "Ed",
-	role: "Designer & Frontend Developer",
+	name: "Ed Castro",
+	role: "Senior Software Engineer",
 	avatar: "https://github.com/EdSDR.png",
 	available: true,
 	availableText: "Available for new projects",
-	bio: "Frontend developer and designer building fast, tactile web experiences where interface and motion do the talking.",
+	bio: "Senior software engineer with 5 years building TypeScript, React, and Next.js products end to end — from solo zero-to-one delivery to leading a team shipping cross-chain apps. Fully remote from Rio de Janeiro.",
 	buttons: {
 		call: { text: "Book a call", url: "mailto:contact@edsdr.com" },
 		chat: { text: "Chat", url: "mailto:contact@edsdr.com" },
 	},
 	experience: [
 		{
-			company: "Vercel",
-			year: "2022 — Present",
-			note: "Design + frontend for digital products and design systems.",
+			company: "Renlabs",
+			year: "2024 — Present",
+			note: "Lead a 5-person web team; built a Torus→Base token bridge that has moved $5M+ with zero security incidents.",
 		},
 		{
-			company: "Cloudflare",
-			year: "2020 — 2022",
-			note: "User-centered product design and web development.",
+			company: "Nitro Academy",
+			year: "2024",
+			note: "Sole developer — took an edtech platform from zero to production serving 10,000+ students in 5 months.",
 		},
 		{
-			company: "Stripe",
-			year: "2018 — 2020",
-			note: "Visual identity and web solutions across teams.",
-		},
-		{
-			company: "GitHub",
-			year: "2016 — 2018",
-			note: "Corporate communications and digital assets.",
+			company: "FutureMe",
+			year: "2022 — 2024",
+			note: "Grew a gamified career-discovery platform to 5,000+ students; led the Next.js Pages → App Router rewrite.",
 		},
 	],
 	socials: [
 		{ label: "GitHub", url: "https://github.com/EdSDR" },
 		{ label: "LinkedIn", url: "https://linkedin.com/in/edsdr" },
-		{ label: "X", url: "https://x.com/edsdr" },
+		{ label: "Website", url: "https://edsdr.com" },
 		{ label: "Email", url: "mailto:contact@edsdr.com" },
 	],
 	footer:
-		"Based in Spain. Collaborating with teams worldwide to build exceptional digital experiences.",
-	copyright: "© 2026 Ed. All rights reserved.",
+		"Based in Rio de Janeiro, Brazil. Working remotely with teams across US-East and EU timezones.",
+	copyright: "© 2026 Ed Castro. All rights reserved.",
 };
 
 export function Sidebar() {
