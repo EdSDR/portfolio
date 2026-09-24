@@ -1,6 +1,6 @@
 # portfolio
 
-Personal portfolio for Eduardo (EdSDR). A sticky bio sidebar sits beside a
+Personal portfolio for Ed (EdSDR). A sticky bio sidebar sits beside a
 page-scrolling list of project cards; each card's hero is a **live React Three
 Fiber scene**, and opening a card expands it into its own route (`/work/$slug`)
 with the scene on top and an MDX writeup below.
@@ -21,13 +21,13 @@ bun install
 bun run dev        # http://localhost:3000
 ```
 
-| Script            | Does                                    |
-| ----------------- | --------------------------------------- |
-| `bun run dev`     | Dev server on :3000                     |
-| `bun run build`   | Production build + static prerender     |
-| `bun run preview` | Preview the built app                   |
-| `bun run check`   | Biome format + lint                     |
-| `bun run deploy`  | Build and `wrangler deploy` to Workers  |
+| Script            | Does                                   |
+| ----------------- | -------------------------------------- |
+| `bun run dev`     | Dev server on :3000                    |
+| `bun run build`   | Production build + static prerender    |
+| `bun run preview` | Preview the built app                  |
+| `bun run check`   | Biome format + lint                    |
+| `bun run deploy`  | Build and `wrangler deploy` to Workers |
 
 ## Layout
 

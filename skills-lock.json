@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "motion-react": {
+      "source": "bm629/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/motion-react/SKILL.md",
+      "computedHash": "3b81770938bb489a92cf425ddcb297ebea4b5f3f4ca51b322a1ed71d94e93e32"
+    },
     "r3f-animation": {
       "source": "enzed/r3f-skills",
       "sourceType": "github",
@@ -25,11 +31,29 @@
       "skillPath": "skills/r3f-shaders/SKILL.md",
       "computedHash": "58004fddf7475598c1cbabc2c892bc4392cf3779bebfbbbe4104cd3b84ccf7be"
     },
+    "tanstack-router": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/tanstack-router/skills/tanstack-router/SKILL.md",
+      "computedHash": "24beccc4016f91bab65547209cfd849ea5e66f3d5d92820683a9dd84669ced56"
+    },
+    "tanstack-start": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/tanstack-start/skills/tanstack-start/SKILL.md",
+      "computedHash": "e9d8355fe3e47b118e739081f1123c52aa0ecde57da840722177e1ad5caf9908"
+    },
     "threejs-fundamentals": {
       "source": "cloudai-x/threejs-skills",
       "sourceType": "github",
       "skillPath": "skills/threejs-fundamentals/SKILL.md",
       "computedHash": "e08d49571071f0f54ef2a76fdfcb96c16673e4fda478067727def4659feb80ca"
+    },
+    "zod": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.curated/zod/SKILL.md",
+      "computedHash": "c69b5133b65643317236707f2cd3e521b4fc6e5ee5fd6c6c00cf62a37dfd0144"
     }
   }
 }

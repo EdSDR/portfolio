@@ -51,15 +51,24 @@ MDX writeup below. Visual reference (structure/type/color only, not code) lives 
 
 ## Skills
 
-On-demand TanStack docs (current APIs — prefer these over memory):
+Installed in `.claude/skills/` (committed, auto-discovered by the agent):
 
-- `npx -y @tanstack/intent list` — list available package skills
-- `npx -y @tanstack/intent load <package>#<skill>` — load one, e.g.
+- **TanStack:** `tanstack-start`, `tanstack-router`
+- **R3F / three.js:** `r3f-fundamentals`, `r3f-animation`, `r3f-shaders`,
+  `r3f-postprocessing`, `threejs-fundamentals` — target Fiber 9 / React 19; do
+  **not** adopt Fiber 10 alpha APIs.
+- **Motion:** `motion-react` (the `motion` package / `motion/react` import)
+- **Validation:** `zod`
+
+For the most current, **version-matched** TanStack API details, prefer Intent
+over the static snapshot above:
+
+- `npx -y @tanstack/intent list`
+- `npx -y @tanstack/intent load <package>#<skill>` — e.g.
   `@tanstack/router-core#router-core/path-params`,
-  `@tanstack/start-client-core#start-core/ssr`,
-  `@tanstack/react-start#react-start`
+  `@tanstack/start-client-core#start-core/ssr`
 
-Installed R3F / three.js skills (in `.claude/skills/`, auto-discovered):
-`r3f-fundamentals`, `r3f-animation`, `r3f-shaders`, `r3f-postprocessing`,
-`threejs-fundamentals`. They target Fiber 9 / React 19 — match the installed
-versions; do not adopt Fiber 10 alpha APIs.
+Not installed as repo skills (use ambient/session skills or docs instead):
+**Cloudflare/Workers/Wrangler** (ambient `cloudflare`, `workers-best-practices`,
+`wrangler`), **Tailwind v4** (registry skills are v3-era; our setup is CSS-first
+in `src/styles.css`), **MDX** (build plugin only; configured in `vite.config.ts`).
