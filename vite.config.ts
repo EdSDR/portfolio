@@ -10,6 +10,20 @@ import { defineConfig } from "vite";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
+	// Pre-bundle deps only reached via lazy/dynamic imports (scenes, MDX runtime).
+	// Otherwise Vite discovers them mid-session and its re-optimize + reload can
+	// momentarily load two copies of React into the SSR graph, throwing an
+	// "Invalid hook call" during dev.
+	optimizeDeps: {
+		include: [
+			"@mdx-js/react",
+			"r3f-forcegraph",
+			"three-forcegraph",
+			"d3-force-3d",
+			"@react-three/postprocessing",
+			"postprocessing",
+		],
+	},
 	plugins: [
 		// Devtools must remain the first plugin.
 		devtools(),
