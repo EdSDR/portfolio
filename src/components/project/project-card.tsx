@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CardView } from "@/components/canvas/card-view";
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
+import { hasEnteredOnce } from "@/lib/entrance";
 import { rememberHomeScroll } from "@/lib/scroll-memory";
 import { usePointerFine, usePrefersReducedMotion } from "@/lib/use-device";
 import { useInView } from "@/lib/use-in-view";
@@ -19,14 +20,39 @@ import { ProjectDetail } from "./project-detail";
 export function ProjectCard({
 	project,
 	active,
+	index,
 }: {
 	project: Project;
 	active: boolean;
+	index: number;
 }) {
 	const [ref, state] = useInView<HTMLDivElement>();
 	const mounted = useMounted();
 	const fine = usePointerFine();
 	const reduced = usePrefersReducedMotion();
+
+	// Staggered entrance, only on the first page load (cards re-appearing after an
+	// open/close snap in instantly). Cards come in after the sidebar cascade.
+	const firstLoad = useRef(!hasEnteredOnce()).current;
+	const enterDelay = firstLoad ? 0.9 + index * 0.16 : 0;
+	const isTorus = project.slug === "torus";
+	// Must match each scene's <color attach="background">.
+	const sceneBg = isTorus ? "#1a1a1a" : "#222222";
+
+	// Shared-canvas scenes (drei <View>) render on the fixed canvas and can't fade
+	// with the DOM card, so on first load they'd pop in and track the sliding rect
+	// before the card settles. Hold them until the entrance finishes; the poster
+	// (DOM, fades with the card) covers the gap. Torus uses its own canvas that
+	// fades with the card, so it doesn't wait.
+	const [entranceDone, setEntranceDone] = useState(!firstLoad);
+	useEffect(() => {
+		if (!firstLoad) return;
+		const t = setTimeout(
+			() => setEntranceDone(true),
+			(enterDelay + 0.65) * 1000,
+		);
+		return () => clearTimeout(t);
+	}, [firstLoad, enterDelay]);
 
 	// Mount the <View> only once the media has a real height, so drei's one-time
 	// portal sizing is correct.
@@ -42,14 +68,26 @@ export function ProjectCard({
 	}, [ref, sized]);
 
 	// Live 3D on desktop pointers, or whenever a card is opened. Mobile /
-	// reduced-motion stay on the poster.
-	const live = sized && mounted && !reduced && (active || fine);
+	// reduced-motion stay on the poster. Shared-canvas scenes also wait for the
+	// entrance to finish (torus/active are exempt).
+	const live =
+		sized &&
+		mounted &&
+		!reduced &&
+		(active || fine) &&
+		(isTorus || active || entranceDone);
 	const viewState = active ? "visible" : state;
 
 	return (
 		<motion.article
 			layout
-			transition={{ type: "spring", stiffness: 220, damping: 30 }}
+			initial={firstLoad ? { opacity: 0, y: 18 } : false}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{
+				layout: { type: "spring", stiffness: 220, damping: 30 },
+				opacity: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: enterDelay },
+				y: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: enterDelay },
+			}}
 			className="relative w-full"
 		>
 			{/* Rectangular clip. The scene lives on the shared canvas behind this
@@ -63,15 +101,18 @@ export function ProjectCard({
 					active ? "aspect-video" : "aspect-16/10",
 				)}
 			>
-				{/* Poster fallback: mobile, reduced-motion, and pre-hydration. */}
-				{!live && (
-					<div
-						className="absolute inset-0"
-						style={{
-							background: `radial-gradient(120% 120% at 50% 20%, ${project.accent}33, #222222 62%)`,
-						}}
-					/>
-				)}
+				{/* Solid cover in the scene's own background color. Held opaque until
+				    the scene is live, then it crossfades out to reveal the scene — no
+				    gradient→black→scene flash, and it's the fallback on mobile /
+				    reduced-motion (a plain dark card). */}
+				<motion.div
+					aria-hidden
+					className="pointer-events-none absolute inset-0"
+					style={{ background: sceneBg }}
+					initial={false}
+					animate={{ opacity: live ? 0 : 1 }}
+					transition={{ duration: 0.6, ease: "easeOut" }}
+				/>
 
 				{/* Live scene: a drei <View> filling this media, tunneled to the shell canvas. */}
 				{live && <CardView slug={project.slug} state={viewState} />}

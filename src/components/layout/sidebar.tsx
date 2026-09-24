@@ -1,5 +1,7 @@
+import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { fadeUp, staggerContainer } from "@/lib/motion";
 
 // Lucide outline icons (matching the reference's @lucide set).
 const lucideProps = {
@@ -81,9 +83,17 @@ const profile = {
 
 export function Sidebar() {
 	return (
-		<aside className="flex w-full shrink-0 flex-col gap-8 px-4 py-8 lg:sticky lg:top-0 lg:h-screen lg:max-w-sm lg:justify-between">
-			<div className="flex w-full flex-col gap-6">
-				<div className="flex items-center gap-3">
+		<motion.aside
+			variants={staggerContainer(0.55, 0.12)}
+			initial="hidden"
+			animate="show"
+			className="flex w-full shrink-0 flex-col gap-8 px-4 py-8 lg:sticky lg:top-0 lg:h-screen lg:max-w-sm lg:justify-between"
+		>
+			<motion.div
+				variants={staggerContainer(0.05)}
+				className="flex w-full flex-col gap-6"
+			>
+				<motion.div variants={fadeUp} className="flex items-center gap-3">
 					<img
 						src={profile.avatar}
 						alt={profile.name}
@@ -110,9 +120,9 @@ export function Sidebar() {
 							{profile.availableText}
 						</span>
 					</div>
-				</div>
+				</motion.div>
 
-				<div className="flex flex-col gap-3">
+				<motion.div variants={fadeUp} className="flex flex-col gap-3">
 					<h1 className="text-balance font-semibold text-2xl">
 						{profile.name}
 					</h1>
@@ -120,9 +130,9 @@ export function Sidebar() {
 						{profile.role}
 					</h2>
 					<p className="text-muted-foreground text-sm">{profile.bio}</p>
-				</div>
+				</motion.div>
 
-				<div className="flex items-center gap-3">
+				<motion.div variants={fadeUp} className="flex items-center gap-3">
 					<a
 						href={profile.buttons.call.url}
 						className="inline-flex h-9 items-center rounded-lg bg-foreground px-4 font-medium text-background text-sm transition-transform active:scale-[0.97]"
@@ -135,12 +145,16 @@ export function Sidebar() {
 					>
 						{profile.buttons.chat.text}
 					</a>
-				</div>
+				</motion.div>
 
-				<div className="flex w-full flex-col gap-1">
+				<motion.div
+					variants={staggerContainer(0.04)}
+					className="flex w-full flex-col gap-1"
+				>
 					{profile.experience.map((exp) => (
-						<div
+						<motion.div
 							key={exp.company}
+							variants={fadeUp}
 							className="group relative flex cursor-default flex-col rounded-lg px-3 py-3 transition-colors duration-300 hover:bg-muted"
 						>
 							<div className="flex w-full items-center justify-between">
@@ -154,16 +168,23 @@ export function Sidebar() {
 									{exp.note}
 								</p>
 							</div>
-						</div>
+						</motion.div>
 					))}
-				</div>
-			</div>
+				</motion.div>
+			</motion.div>
 
-			<footer className="flex flex-col gap-3">
-				<div className="flex flex-wrap items-center gap-4">
+			<motion.footer
+				variants={staggerContainer(0.04)}
+				className="flex flex-col gap-3"
+			>
+				<motion.div
+					variants={staggerContainer(0.03)}
+					className="flex flex-wrap items-center gap-4"
+				>
 					{profile.socials.map((s) => (
-						<a
+						<motion.a
 							key={s.label}
+							variants={fadeUp}
 							href={s.url}
 							target="_blank"
 							rel="noreferrer"
@@ -171,14 +192,19 @@ export function Sidebar() {
 							className="[&>svg]:size-4.5 text-muted-foreground transition-colors hover:text-foreground"
 						>
 							{SOCIAL_ICONS[s.icon]}
-						</a>
+						</motion.a>
 					))}
-				</div>
-				<p className="text-muted-foreground text-xs leading-relaxed">
+				</motion.div>
+				<motion.p
+					variants={fadeUp}
+					className="text-muted-foreground text-xs leading-relaxed"
+				>
 					{profile.footer}
-				</p>
-				<p className="text-muted-foreground text-xs">{profile.copyright}</p>
-			</footer>
-		</aside>
+				</motion.p>
+				<motion.p variants={fadeUp} className="text-muted-foreground text-xs">
+					{profile.copyright}
+				</motion.p>
+			</motion.footer>
+		</motion.aside>
 	);
 }

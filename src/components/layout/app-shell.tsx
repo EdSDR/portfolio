@@ -1,3 +1,4 @@
+import { MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
 import { useRef } from "react";
 import { SceneCanvas } from "@/components/canvas/scene-canvas";
@@ -18,19 +19,21 @@ export function AppShell({ children }: { children: ReactNode }) {
 	const mounted = useMounted();
 
 	return (
-		<div ref={rootRef} className="relative min-h-screen">
-			{/* One WebGL context for the whole app, client-only, behind the DOM. */}
-			{mounted && <SceneCanvas eventSource={rootRef} />}
+		<MotionConfig reducedMotion="user">
+			<div ref={rootRef} className="relative min-h-screen">
+				{/* One WebGL context for the whole app, client-only, behind the DOM. */}
+				{mounted && <SceneCanvas eventSource={rootRef} />}
 
-			<div className="relative z-10 mx-auto flex w-full max-w-[1600px] flex-col gap-8 lg:flex-row">
-				<Sidebar />
-				<main className="relative min-w-0 flex-1 p-4">
-					<ProjectList />
-					<div className="hidden">{children}</div>
-				</main>
+				<div className="relative z-10 mx-auto flex w-full max-w-[1600px] flex-col gap-8 lg:flex-row">
+					<Sidebar />
+					<main className="relative min-w-0 flex-1 p-4">
+						<ProjectList />
+						<div className="hidden">{children}</div>
+					</main>
+				</div>
+
+				<Fade />
 			</div>
-
-			<Fade />
-		</div>
+		</MotionConfig>
 	);
 }

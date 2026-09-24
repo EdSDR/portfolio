@@ -2,6 +2,7 @@ import { useParams } from "@tanstack/react-router";
 import { AnimatePresence, LayoutGroup } from "motion/react";
 import { useEffect, useRef } from "react";
 import { projects } from "@/content";
+import { hasEnteredOnce, markEntered } from "@/lib/entrance";
 import { restoreHomeScroll } from "@/lib/scroll-memory";
 import { ProjectCard } from "./project-card";
 
@@ -14,6 +15,12 @@ import { ProjectCard } from "./project-card";
 export function ProjectList() {
 	const { slug } = useParams({ strict: false }) as { slug?: string };
 	const visible = slug ? projects.filter((p) => p.slug === slug) : projects;
+
+	// Play the staggered entrance only on the very first render.
+	const firstMount = useRef(!hasEnteredOnce());
+	useEffect(() => {
+		markEntered();
+	}, []);
 
 	// On close (slug clears), restore the home scroll position after the list has
 	// re-expanded, so the card collapses back into its spot instead of the page
@@ -32,12 +39,13 @@ export function ProjectList() {
 	return (
 		<LayoutGroup>
 			<div className="flex flex-col gap-4">
-				<AnimatePresence mode="popLayout" initial={false}>
-					{visible.map((project) => (
+				<AnimatePresence mode="popLayout" initial={firstMount.current}>
+					{visible.map((project, i) => (
 						<ProjectCard
 							key={project.slug}
 							project={project}
 							active={project.slug === slug}
+							index={i}
 						/>
 					))}
 				</AnimatePresence>
