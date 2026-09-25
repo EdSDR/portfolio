@@ -36,7 +36,7 @@ const NODE_STYLE: Record<NodeType, { color: string; val: number }> = {
 	hub: { color: "#ffffff", val: 22 },
 	root: { color: "#63cbff", val: 9 },
 	agent: { color: "#1fdb77", val: 6 },
-	signal: { color: "#69ff5c", val: 6 },
+	signal: { color: "#ce5cff", val: 6 },
 	user: { color: "#d946ef", val: 8 },
 	perm: { color: "#f2b907", val: 5 },
 };
@@ -61,7 +61,7 @@ function makeRng(seed: number): () => number {
 	};
 }
 
-export function generateGraph(seed = 1337): GraphData {
+export function generateGraph(seed = 6767): GraphData {
 	const rng = makeRng(seed);
 	const pick = <T>(arr: T[]): T => arr[Math.floor(rng() * arr.length)];
 	const rangeInt = (min: number, max: number) =>
@@ -85,13 +85,13 @@ export function generateGraph(seed = 1337): GraphData {
 	// The hub is pinned at the origin so it stays centered in the view.
 	const hub = "hub";
 	nodes.push({ id: hub, type: "hub", ...NODE_STYLE.hub, fx: 0, fy: 0, fz: 0 });
-	const rootCount = 9;
+	const rootCount = 16;
 
 	for (let r = 0; r < rootCount; r++) {
 		const root = node(`root-${r}`, "root");
 		link(hub, root, LINK_COLOR.allocation, 2, 0.006);
 
-		const childCount = rangeInt(8, 15);
+		const childCount = rangeInt(10, 20);
 		for (let c = 0; c < childCount; c++) {
 			const type = pick<NodeType>([
 				"agent",

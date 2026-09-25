@@ -31,7 +31,7 @@ const PARTICLE_SPEED_SCALE = 0.18;
  * Force-simulation layout. Edit and hot-reload — the graph re-applies these and
  * reheats the sim so changes are visible (it re-settles, then freezes again).
  */
-const FORCE = { charge: -100, linkDistance: 42, center: 0.55 };
+const FORCE = { charge: -60, linkDistance: 42, center: 0.55 };
 
 /**
  * Torus hero contents: a force-directed graph approximating an on-chain agent
