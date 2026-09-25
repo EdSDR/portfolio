@@ -3,5 +3,11 @@
   "name": "portfolio",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry"
+  "main": "@tanstack/react-start/server-entry",
+  "assets": {
+    // Serve prerendered /work/<slug>/index.html at /work/<slug> (no redirect),
+    // matching router links and canonical URLs.
+    "html_handling": "drop-trailing-slash"
+  },
+  "observability": { "enabled": true }
 }
