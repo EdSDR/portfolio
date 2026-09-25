@@ -45,7 +45,7 @@ const profile = {
 	avatar: "/avatar.png",
 	available: true,
 	availableText: "Available for new projects",
-	bio: "Passionate software developer with 5+ years of experience creating fun and innovative ways to interact with complex software and visualizations.",
+	bio: "I'm a passionate software developer. 5+ years of experience creating fun and innovative ways to interact with complex software and visualizations.",
 	buttons: {
 		call: { text: "Book a call", url: "mailto:contact@edsdr.com" },
 		chat: { text: "Chat", url: "mailto:contact@edsdr.com" },
@@ -77,7 +77,7 @@ const profile = {
 		{ label: "Email", url: "mailto:contact@edsdr.com", icon: "email" },
 	],
 	footer:
-		"Based in Rio de Janeiro, Brazil. Working remotely with teams across the world.",
+		"Based in Rio de Janeiro, Brazil. Working remotely with teams all across the globe.",
 	copyright: "© 2026 Ed Castro. All rights reserved.",
 };
 
