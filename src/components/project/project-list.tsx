@@ -1,8 +1,8 @@
 import { useParams } from "@tanstack/react-router";
-import { AnimatePresence, LayoutGroup } from "motion/react";
+import { LayoutGroup } from "motion/react";
 import { useEffect, useRef } from "react";
 import { projects } from "@/content";
-import { hasEnteredOnce, markEntered } from "@/lib/entrance";
+import { markEntered } from "@/lib/entrance";
 import { restoreHomeScroll } from "@/lib/scroll-memory";
 import { ProjectCard } from "./project-card";
 
@@ -16,8 +16,7 @@ export function ProjectList() {
 	const { slug } = useParams({ strict: false }) as { slug?: string };
 	const visible = slug ? projects.filter((p) => p.slug === slug) : projects;
 
-	// Play the staggered entrance only on the very first render.
-	const firstMount = useRef(!hasEnteredOnce());
+	// Cards play their staggered entrance only on the very first render.
 	useEffect(() => {
 		markEntered();
 	}, []);
@@ -39,16 +38,18 @@ export function ProjectList() {
 	return (
 		<LayoutGroup>
 			<div className="flex flex-col gap-4">
-				<AnimatePresence mode="popLayout" initial={firstMount.current}>
-					{visible.map((project, i) => (
-						<ProjectCard
-							key={project.slug}
-							project={project}
-							active={project.slug === slug}
-							index={i}
-						/>
-					))}
-				</AnimatePresence>
+				{/* No AnimatePresence: cards have no exit animation, and holding exiting
+				    cards in the flow for a frame made Motion measure the opened card's
+				    target too low (it dipped before rising). They unmount in the same
+				    commit, so the layout Motion measures is already final. */}
+				{visible.map((project, i) => (
+					<ProjectCard
+						key={project.slug}
+						project={project}
+						active={project.slug === slug}
+						index={i}
+					/>
+				))}
 			</div>
 		</LayoutGroup>
 	);

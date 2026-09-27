@@ -2,9 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import {
 	lazy,
+	type MouseEvent,
 	Suspense,
 	useCallback,
 	useEffect,
+	useLayoutEffect,
 	useRef,
 	useState,
 } from "react";
@@ -16,7 +18,11 @@ import {
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
 import { hasEnteredOnce } from "@/lib/entrance";
-import { rememberHomeScroll } from "@/lib/scroll-memory";
+import {
+	holdScrollForOpen,
+	releaseScrollHold,
+	rememberHomeScroll,
+} from "@/lib/scroll-memory";
 import { usePointerFine, usePrefersReducedMotion } from "@/lib/use-device";
 import { useInView } from "@/lib/use-in-view";
 import { useMounted } from "@/lib/use-mounted";
@@ -31,6 +37,14 @@ const SceneCanvas = lazy(() => import("@/components/canvas/scene-canvas"));
  * poster once the scene has drawn its first frame. The card grows into its
  * expanded (route) state with a Motion `layout` animation.
  */
+/** Plain left clicks navigate in place; modified ones open a new tab. */
+function openCard(e: MouseEvent<HTMLAnchorElement>) {
+	if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+		return;
+	rememberHomeScroll();
+	holdScrollForOpen();
+}
+
 export function ProjectCard({
 	project,
 	active,
@@ -50,6 +64,15 @@ export function ProjectCard({
 	const firstLoad = useRef(!hasEnteredOnce()).current;
 	const enterDelay = firstLoad ? 0.9 + index * 0.16 : 0;
 	const sceneBg = scenes[project.slug]?.background ?? DEFAULT_SCENE_BG;
+
+	// Opening: the click scrolled to the top and held the page visually in place
+	// (see holdScrollForOpen). Release it at commit — before Motion measures the
+	// new layout and before paint — so the expand starts from the on-screen spot.
+	const wasActive = useRef(active);
+	useLayoutEffect(() => {
+		if (active && !wasActive.current) releaseScrollHold();
+		wasActive.current = active;
+	}, [active]);
 
 	// On first load, hold scene start-up (chunk parse, context, shader compile)
 	// until this card's entrance has played so it doesn't jank the cascade; the
@@ -143,7 +166,9 @@ export function ProjectCard({
 					to="/work/$slug"
 					params={{ slug: project.slug }}
 					aria-label={`Open ${project.name}`}
-					onClick={active ? undefined : rememberHomeScroll}
+					onClick={active ? undefined : openCard}
+					// The click already scrolled to the top (holdScrollForOpen).
+					resetScroll={false}
 					className="absolute inset-0 flex items-end p-4"
 				>
 					<span

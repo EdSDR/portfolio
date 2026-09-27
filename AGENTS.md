@@ -91,8 +91,9 @@ public/
   loader + head/OG meta. The list, cards, and all canvases live in the persistent
   shell above `<Outlet/>` — that's what prevents WebGL/clock resets on navigation.
 - **Expanded state is the route.** `ProjectList` reads the `slug` param; the active card
-  expands in place via Motion `layout` (others exit via `AnimatePresence`). Back button
-  closes; home scroll position is restored on close. Every `/work/$slug` is prerendered.
+  expands in place via Motion `layout`; the others unmount in the same commit (no
+  `AnimatePresence`, so Motion measures the final layout). Back button closes; home
+  scroll position is restored on close. Every `/work/$slug` is prerendered.
 - **One `<Canvas>` per live card** (`scene-canvas.tsx`), never a shared/fixed canvas.
   The scene is a normal DOM child of the card: it scrolls, clips and fades with it,
   and any scene may use post-processing or shadows. Always `dpr={[1, 1.5]}`,
@@ -133,6 +134,13 @@ public/
 - **Every canvas needs `MatchContainerSize`** (built into `SceneCanvas`) — R3F's
   ResizeObserver misses Motion layout-transform size changes (black bar on close).
   Don't "fix" resize lag with a constant-aspect hack; that was rejected.
+- **Motion layout animations use page coordinates.** Opening a card scrolls to the
+  top; if that scroll lands after Motion's "before" snapshot, the card starts its
+  expand `scrollY` px lower (it "came from below"). The click handler scrolls first
+  and holds the columns in place with CSS `translate` (`holdScrollForOpen` in
+  `lib/scroll-memory.ts`); the card releases it at commit. The card Link uses
+  `resetScroll={false}`. A separate `y` counter-animation doesn't work: Motion holds
+  `y` animations while a layout animation runs.
 - **drei `<SoftShadows>` is broken on three 0.186** (PCSS GLSL uses removed
   `unpackRGBAToDepth`/`vogelDiskSample`; `PCFSoftShadowMap` removed). Symptom: material
   shader fails to compile (`useProgram: program not valid`) and the mesh silently isn't

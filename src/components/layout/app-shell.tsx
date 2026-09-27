@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 			<div className="relative min-h-screen">
 				<div className="relative mx-auto flex w-full max-w-[1600px] flex-col gap-8 lg:flex-row">
 					<Sidebar />
-					<main className="relative min-w-0 flex-1 p-4">
+					<main data-scroll-anchor className="relative min-w-0 flex-1 p-4">
 						<ProjectList />
 						<div className="hidden">{children}</div>
 					</main>

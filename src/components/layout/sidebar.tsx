@@ -84,6 +84,7 @@ const profile = {
 export function Sidebar() {
 	return (
 		<motion.aside
+			data-scroll-anchor
 			variants={staggerContainer(0.55, 0.12)}
 			initial="hidden"
 			animate="show"
