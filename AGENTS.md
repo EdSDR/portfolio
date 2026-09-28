@@ -80,7 +80,8 @@ src/
     scenes/match-container-size.tsx  per-frame canvas resize (Motion layout transforms)
   content/
     schema.ts                Zod frontmatter (name, description, date, accent, tags, links)
-    index.ts                 eager frontmatter glob + lazy body glob; sorted by date desc
+    index.ts                 eager `?frontmatter` glob (no MDX bodies in the entry) + lazy body
+                             chunks via `loadBody()` (cached; read with React `use()`)
     projects/*.mdx           one file per project; filename = slug
     gallery.ts               glob of gallery/ → items (id, hashed src, size, alt, caption)
     gallery/                 gallery image files (currently placeholder-* crops of posters)
@@ -89,6 +90,7 @@ src/
                              graph-data (seeded synthetic Torus graph), site (SITE_URL for
                              absolute OG/canonical URLs), cn
 scripts/capture-posters.ts   `bun run posters`
+vite-plugins/mdx-frontmatter.ts  `import fm from "./x.mdx?frontmatter"` → frontmatter object only
 vite-plugins/image-size.ts   `import s from "./x.png?size"` → { width, height } (header parse,
                              no deps; PNG/JPEG+EXIF/WebP/GIF/AVIF)
 public/

@@ -1,12 +1,15 @@
 declare module "*.mdx" {
 	import type { ComponentType } from "react";
 
-	// Raw frontmatter exposed by remark-mdx-frontmatter; validated with Zod in
-	// src/content/index.ts, so it is intentionally loose here.
-	export const frontmatter: Record<string, unknown>;
-
 	const MDXComponent: ComponentType;
 	export default MDXComponent;
+}
+
+// `?frontmatter` MDX imports (vite-plugins/mdx-frontmatter.ts); validated with
+// Zod in src/content/index.ts, so intentionally loose here.
+declare module "*.mdx?frontmatter" {
+	const frontmatter: unknown;
+	export default frontmatter;
 }
 
 // `?size` image imports (vite-plugins/image-size.ts).

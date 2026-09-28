@@ -5,9 +5,9 @@ import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import remarkFrontmatter from "remark-frontmatter";
-import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { defineConfig } from "vite";
 import { imageSize } from "./vite-plugins/image-size.ts";
+import { mdxFrontmatter } from "./vite-plugins/mdx-frontmatter.ts";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
@@ -30,12 +30,15 @@ const config = defineConfig({
 		devtools(),
 		// `import size from "./img.png?size"` → { width, height } (gallery layout).
 		imageSize(),
+		// `import fm from "./post.mdx?frontmatter"` → just the frontmatter object,
+		// so the project list doesn't bundle the MDX bodies.
+		mdxFrontmatter(),
 		// MDX must run before the React/Start transforms so `.mdx` compiles to JS first.
 		{
 			enforce: "pre",
 			...mdx({
-				// Exposes typed frontmatter as a named `frontmatter` export per file.
-				remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
+				// Strips the YAML block from the rendered body (it's read via ?frontmatter).
+				remarkPlugins: [remarkFrontmatter],
 				// Lets writeups use shared components via <MDXProvider>.
 				providerImportSource: "@mdx-js/react",
 			}),

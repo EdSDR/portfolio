@@ -1,12 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { Suspense } from "react";
+import { Suspense, use } from "react";
 import type { Project } from "@/content";
 
 /** The writeup that appears under the expanded hero: meta + the compiled MDX. */
 export function ProjectDetail({ project }: { project: Project }) {
-	const { Body } = project;
-
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 12 }}
@@ -61,9 +59,15 @@ export function ProjectDetail({ project }: { project: Project }) {
 						<p className="text-muted-foreground text-sm">Loading writeup…</p>
 					}
 				>
-					<Body />
+					<Writeup project={project} />
 				</Suspense>
 			</article>
 		</motion.div>
 	);
+}
+
+/** The compiled MDX body; renders immediately once the route loader has fetched it. */
+function Writeup({ project }: { project: Project }) {
+	const { default: Body } = use(project.loadBody());
+	return <Body />;
 }

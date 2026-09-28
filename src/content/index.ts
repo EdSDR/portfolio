@@ -1,26 +1,23 @@
-import { type ComponentType, lazy } from "react";
+import type { ComponentType, FulfilledReactPromise, ReactPromise } from "react";
 import { type Frontmatter, frontmatterSchema } from "./schema";
 
 type BodyModule = { default: ComponentType };
 
-// Frontmatter is cheap — load it eagerly to build the list. The MDX body
-// (heavier) stays lazy and is imported only when a project is opened.
-const frontmatters = import.meta.glob("./projects/*.mdx", {
+// Only the frontmatter is eager (`?frontmatter`, vite-plugins/mdx-frontmatter.ts),
+// so listing projects doesn't pull every writeup into the entry bundle. Each
+// MDX body is its own chunk, imported when its project is opened.
+const frontmatters = import.meta.glob<unknown>("./projects/*.mdx", {
 	eager: true,
-	import: "frontmatter",
-}) as Record<string, unknown>;
+	query: "?frontmatter",
+	import: "default",
+});
 
-const bodies = import.meta.glob("./projects/*.mdx") as Record<
-	string,
-	() => Promise<BodyModule>
->;
+const bodies = import.meta.glob<BodyModule>("./projects/*.mdx");
 
 export type Project = Frontmatter & {
 	slug: string;
-	/** Imports the compiled MDX body (the route loader calls it to prefetch). */
-	loadBody: () => Promise<BodyModule>;
-	/** The body as a lazy component — one per project, so it's cached across opens. */
-	Body: ComponentType;
+	/** Imports the compiled MDX body once; the route loader calls it to prefetch. */
+	loadBody: () => ReactPromise<BodyModule>;
 };
 
 function toSlug(path: string): string {
@@ -32,12 +29,36 @@ function toSlug(path: string): string {
 	);
 }
 
+/**
+ * Imports a body once. After it has loaded, returns a fulfilled promise that
+ * React's `use()` reads synchronously, so a body the route loader already
+ * fetched renders without suspending: no "Loading" flash on open, and the
+ * prerendered HTML contains the writeup itself instead of a fallback.
+ */
+function cachedBody(
+	load: () => Promise<BodyModule>,
+): () => ReactPromise<BodyModule> {
+	let pending: Promise<BodyModule> | undefined;
+	let loaded: FulfilledReactPromise<BodyModule> | undefined;
+	return () => {
+		if (loaded) return loaded;
+		pending ??= load().then((value) => {
+			const settled: { status: "fulfilled"; value: BodyModule } = {
+				status: "fulfilled",
+				value,
+			};
+			loaded = Object.assign(Promise.resolve(value), settled);
+			return value;
+		});
+		return pending;
+	};
+}
+
 export const projects: Project[] = Object.entries(frontmatters)
 	.map(([path, raw]) => ({
 		slug: toSlug(path),
 		...frontmatterSchema.parse(raw),
-		loadBody: bodies[path],
-		Body: lazy(bodies[path]),
+		loadBody: cachedBody(bodies[path]),
 	}))
 	.sort((a, b) => b.date.getTime() - a.date.getTime());
 
