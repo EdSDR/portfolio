@@ -199,8 +199,12 @@ files once real images are in.
 - `useGLTF` must get the self-hosted decoder path (`useGLTF(url, "/draco/")`), else
   drei fetches Draco from gstatic.com at runtime.
 - **Vite "Invalid hook call / useState null" in dev** = dep re-optimization loaded two
-  React copies. Pre-bundle lazy deps in `vite.config.ts` `optimizeDeps.include`, then
-  restart dev.
+  React copies. Pre-bundle lazy deps in `vite.config.ts` `optimizeDeps.include` (nested
+  `parent > child` syntax for transitive ones), then restart dev. Check with a cold cache:
+  a dev server whose `cacheDir` points at an empty temp dir must start without
+  "dependency optimized … reloading".
+- **Changes to `vite-plugins/*` need a dev-server restart** (the running server keeps the
+  plugin code it started with).
 
 ## Repo hygiene
 

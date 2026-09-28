@@ -12,16 +12,15 @@ import { mdxFrontmatter } from "./vite-plugins/mdx-frontmatter.ts";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
-	// Pre-bundle deps only reached via lazy/dynamic imports (scenes, MDX runtime).
+	// Pre-bundle deps only reached via lazy/dynamic imports (the 3D scenes).
 	// Otherwise Vite discovers them mid-session and its re-optimize + reload can
 	// momentarily load two copies of React into the SSR graph, throwing an
 	// "Invalid hook call" during dev.
 	optimizeDeps: {
 		include: [
-			"@mdx-js/react",
 			"r3f-forcegraph",
-			"three-forcegraph",
-			"d3-force-3d",
+			"r3f-forcegraph > three-forcegraph",
+			"r3f-forcegraph > three-forcegraph > d3-force-3d",
 			"@react-three/postprocessing",
 			"postprocessing",
 		],
@@ -41,8 +40,6 @@ const config = defineConfig({
 			...mdx({
 				// Strips the YAML block from the rendered body (it's read via ?frontmatter).
 				remarkPlugins: [remarkFrontmatter],
-				// Lets writeups use shared components via <MDXProvider>.
-				providerImportSource: "@mdx-js/react",
 			}),
 		},
 		cloudflare({ viteEnvironment: { name: "ssr" } }),
