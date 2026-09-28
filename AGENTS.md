@@ -203,6 +203,11 @@ files once real images are in.
   `parent > child` syntax for transitive ones), then restart dev. Check with a cold cache:
   a dev server whose `cacheDir` points at an empty temp dir must start without
   "dependency optimized … reloading".
+- **Don't pass `resize={{ scroll: false }}` to the card `<Canvas>`.** R3F's
+  scroll-debounced measurement is what defers WebGL creation for re-mounted cards until
+  the smooth scroll-back after a close finishes; without it the ~150 ms canvas/scene
+  start-up lands mid-collapse and visibly stalls it (measured: long task at ~125 ms vs
+  ~490 ms after Back).
 - **Changes to `vite-plugins/*` need a dev-server restart** (the running server keeps the
   plugin code it started with).
 
