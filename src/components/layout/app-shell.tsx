@@ -3,6 +3,7 @@ import { MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
 import { GalleryView } from "@/components/gallery/gallery-view";
 import { ProjectList } from "@/components/project/project-list";
+import { ErrorView } from "./error-view";
 import { Fade } from "./fade";
 import { NotFound } from "./not-found";
 import { Sidebar } from "./sidebar";
@@ -19,12 +20,14 @@ import { type View, ViewTabs } from "./view-tabs";
  */
 export function AppShell({ children }: { children: ReactNode }) {
 	const view = useRouterState({
-		select: (s): View | "notFound" =>
+		select: (s): View | "notFound" | "error" =>
 			s.matches.some((m) => m.status === "notFound")
 				? "notFound"
-				: s.location.pathname.startsWith("/gallery")
-					? "gallery"
-					: "scenes",
+				: s.matches.some((m) => m.status === "error")
+					? "error"
+					: s.location.pathname.startsWith("/gallery")
+						? "gallery"
+						: "scenes",
 	});
 
 	return (
@@ -41,6 +44,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 							<GalleryView />
 						) : view === "notFound" ? (
 							<NotFound />
+						) : view === "error" ? (
+							<ErrorView />
 						) : (
 							<ProjectList />
 						)}
@@ -48,7 +53,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 					</main>
 				</div>
 
-				<ViewTabs view={view === "notFound" ? undefined : view} />
+				<ViewTabs
+					view={view === "notFound" || view === "error" ? undefined : view}
+				/>
 				<Fade />
 			</div>
 		</MotionConfig>

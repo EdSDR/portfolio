@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { Suspense, use } from "react";
+import { ErrorBoundary } from "@/components/error-boundary";
 import type { Project } from "@/content";
 
 /** The writeup that appears under the expanded hero: meta + the compiled MDX. */
@@ -54,13 +55,21 @@ export function ProjectDetail({ project }: { project: Project }) {
 			)}
 
 			<article className="prose-custom mt-8">
-				<Suspense
+				<ErrorBoundary
 					fallback={
-						<p className="text-muted-foreground text-sm">Loading writeup…</p>
+						<p className="text-muted-foreground text-sm">
+							This writeup couldn't load. Try reloading the page.
+						</p>
 					}
 				>
-					<Writeup project={project} />
-				</Suspense>
+					<Suspense
+						fallback={
+							<p className="text-muted-foreground text-sm">Loading writeup…</p>
+						}
+					>
+						<Writeup project={project} />
+					</Suspense>
+				</ErrorBoundary>
 			</article>
 		</motion.div>
 	);

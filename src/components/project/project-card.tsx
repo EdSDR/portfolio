@@ -16,6 +16,7 @@ import {
 	preloadScene,
 	scenes,
 } from "@/components/canvas/scenes/registry";
+import { ErrorBoundary } from "@/components/error-boundary";
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
 import { FLY_PENDING, flyIn } from "@/lib/fly-in";
@@ -141,14 +142,18 @@ export function ProjectCard({
 					active ? "aspect-video" : "aspect-16/10",
 				)}
 			>
+				{/* A scene that can't start (no WebGL, missing chunk or asset) just
+				    leaves the poster in place instead of taking the page down. */}
 				{live && (
-					<Suspense fallback={null}>
-						<SceneCanvas
-							slug={project.slug}
-							paused={paused}
-							onReady={markReady}
-						/>
-					</Suspense>
+					<ErrorBoundary fallback={null}>
+						<Suspense fallback={null}>
+							<SceneCanvas
+								slug={project.slug}
+								paused={paused}
+								onReady={markReady}
+							/>
+						</Suspense>
+					</ErrorBoundary>
 				)}
 
 				{/* Poster over the canvas in the scene's own background color. Stays

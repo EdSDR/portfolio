@@ -58,6 +58,7 @@ src/
     app-shell.tsx            persistent shell: sidebar, <ViewTabs>, and the active view
                              (<ProjectList> or <GalleryView>, by pathname); MotionConfig
                              reducedMotion="user"
+    error-view.tsx           route-error view (reload) + router defaultErrorComponent
     not-found.tsx            404 view (shell renders it when any match has status "notFound")
     view-tabs.tsx            Scenes/Gallery pill, absolute top-right of <main>, sliding
                              indicator (layoutId)
@@ -72,6 +73,7 @@ src/
     gallery-view.tsx         wires ?image= to the lightbox (open pushes, close pops history)
     masonry.tsx              Motion port of reactbits' GSAP masonry (same props)
     lightbox.tsx             full view; shares the tile's layoutId; Esc/backdrop/back close
+  components/error-boundary.tsx  tiny boundary: scene → poster stays; writeup → message
   components/canvas/
     scene-canvas.tsx         a card's own <Canvas> (lazy default export): frameloop from
                              `paused`, bg color, MatchContainerSize, Prewarm (compileAsync →
