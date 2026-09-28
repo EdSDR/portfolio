@@ -6,7 +6,7 @@ declare module "*.mdx" {
 }
 
 // `?frontmatter` MDX imports (vite-plugins/mdx-frontmatter.ts); validated with
-// Zod in src/content/index.ts, so intentionally loose here.
+// Zod at build time (vite.config.ts), so intentionally loose here.
 declare module "*.mdx?frontmatter" {
 	const frontmatter: unknown;
 	export default frontmatter;

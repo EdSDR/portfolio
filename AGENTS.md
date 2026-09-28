@@ -16,23 +16,26 @@ and `torus-ts/` (the real Torus codebase, reference for the Torus scene).
 - **R3F v9** + **drei 10** (WebGL — never the Fiber v10 alpha) + **three 0.186**
 - **@react-three/postprocessing** (Bloom), **r3f-forcegraph** (Torus graph)
 - **Motion** (`motion/react`) for all transitions
-- **MDX** compiled at build via `@mdx-js/rollup` + `remark-frontmatter` +
-  `remark-mdx-frontmatter`; frontmatter validated with **Zod 4**
+- **MDX** compiled at build via `@mdx-js/rollup` + `remark-frontmatter`; frontmatter read
+  by `vite-plugins/mdx-frontmatter.ts` and validated with **Zod 4** at build time (zod
+  never ships to the client)
 - **Tailwind v4** (CSS-first, tokens in `src/styles.css`), **Biome**, **Bun**,
   Geist via `@fontsource-variable/geist` (self-hosted, latin face preloaded)
 
 ## Commands (use Bun)
 
 - `bun run dev` — dev server on :3000
-- `bun run build` — production build + static prerender
-- `bunx tsc --noEmit` — typecheck
-- `bunx biome check --write src` — lint + format (also `bun run check|lint|format`)
+- `bun run build` — production build + static prerender (+ sitemap.xml)
+- `bun run typecheck` — `tsc --noEmit`
+- `bun run fix` — Biome lint + format, applying fixes (`check`/`lint`/`format` only report)
 - `bun run deploy` — build + `wrangler deploy`
 - `bun run posters [slug…]` — re-capture card posters + OG images into `public/posters/`
-  (headless system Chrome via playwright-core; uses/starts the dev server). Re-run
-  after changing a scene's look or adding a project.
+  (headless system Chrome via playwright-core; uses/starts the dev server, override with
+  `BASE_URL=…`). Re-run after changing a scene's look or adding a project.
 
-Before handing work back: run `bunx tsc --noEmit` and `bunx biome check --write src`.
+Before handing work back: `bun run typecheck` and `bunx biome ci` (what CI runs, plus
+`bun run build`; `.github/workflows/ci.yml`). Formatting-only commits go in
+`.git-blame-ignore-revs`.
 
 ## Conventions
 
@@ -51,7 +54,7 @@ src/
                              devtools, renders <AppShell>
   routes/index.tsx           home / Scenes tab (list is in the shell, route renders nothing)
   routes/$.tsx               catch-all: throws notFound() (404) → shell shows <NotFound/>
-  routes/gallery.tsx         Gallery tab; `?image=<id>` = open lightbox (zod-validated search)
+  routes/gallery.tsx         Gallery tab; `?image=<id>` = open lightbox (typed validateSearch)
   routes/work.$slug.tsx      URL + loader (notFound, prefetches MDX body) + head/OG/canonical;
                              no component (routes render nothing; the shell owns the UI)
   components/layout/
@@ -99,7 +102,8 @@ vite-plugins/image-size.ts   `import s from "./x.png?size"` → { width, height 
                              no deps; PNG/JPEG+EXIF/WebP/GIF/AVIF)
 public/
   posters/<slug>.webp        card cover; <slug>-og.jpg = 1200×630 og:image
-  themis.glb                 Draco-compressed statue (mesh node `themis`, scale 0.06)
+  themis.glb                 Draco statue, decimated to ~193k tris (mesh node `themis`, scale
+                             0.06); keep new models welded + simplified (see git log 82b33e1)
   draco/                     self-hosted Draco decoder (copied from three/examples)
   favicon.svg                site icon
   avatar.webp                sidebar avatar (self-hosted, 96px)
