@@ -122,7 +122,9 @@ public/
   compiled + one frame drawn; `far` → unmounted (context freed). Hysteresis: mount at
   150% viewport margin, unmount only past 300%. **Never set React state on scroll events.**
 - **Live gate** (`project-card.tsx`): canvas mounts when client-mounted + not
-  reduced-motion + (card open, or fine pointer + not `far` + its fly-in finished).
+  reduced-motion + (card open, or fine pointer + not `far`). It does **not** wait for the
+  card's fly-in (that runs on the compositor), and the card calls `preloadScene()` at
+  mount so three/R3F + the scene chunk download in parallel (no canvas→scene waterfall).
   The poster (scene-bg color + `posters/<slug>.webp`) sits above the canvas and fades
   only after `onReady` (first frame drawn), so there's never a blank frame.
 - Honor `prefers-reduced-motion` (poster only, no live scene).
@@ -134,13 +136,19 @@ public/
   Gallery, else Scenes). Switching tabs unmounts the other view (frees the scenes'
   WebGL contexts) and fades the new one in. The lightbox is the `?image=` search param.
 
-- **One entrance style** (`lib/fly-in.ts`): rise from just off-screen + blur into
-  focus, power3.out, staggered — gallery tiles and scene cards via `flyIn()` (cards on
-  the list's first render only: page load / tab switch, not after a close), sidebar and
-  tabs via `flyUpSequence()` variants with an explicit `custom` order (Motion doesn't
-  carry a parent's stagger into nested containers). Always end at `filter: none`: a
-  leftover `blur(0px)` keeps a filter layer over live canvases. Entrance values that
-  depend on props (index, delay) are pinned at mount — opening a card re-indexes the list.
+- **One entrance style** (`lib/fly-in.ts` + `.fly-up` in `styles.css`): rise from just
+  off-screen + blur into focus, power3.out, staggered. Cards and gallery tiles use
+  `flyIn()` (Web Animations; start hidden via `data-fly="pending"` so SSR HTML doesn't
+  flash); sidebar and tabs use the CSS `.fly-up` class + `flyUpStyle({ i })` (plays from
+  first paint, before hydration). Cards fly in on the list's first render only (page
+  load / tab switch, not after a close); entrance values that depend on props (index,
+  delay) are pinned at mount — opening a card re-indexes the list.
+- **Keep entrances on the compositor.** Motion (opacity + `translate`) and blur are
+  separate animations: a blur can't be composited, and one non-composited property drags
+  the whole animation onto the main thread, where scene start-up (~150–300ms tasks)
+  would stall it. Keyframes define only the start state, so nothing lingers (a leftover
+  `blur(0px)` would keep a filter layer over live canvases). Don't reintroduce
+  JS-driven (Motion `x`/`y`) entrances.
 
 **Planned, not yet implemented:** light/dark toggle (forced dark for now).
 
@@ -173,6 +181,9 @@ files once real images are in.
   `lib/scroll-memory.ts`); the card releases it at commit. The card Link uses
   `resetScroll={false}`. A separate `y` counter-animation doesn't work: Motion holds
   `y` animations while a layout animation runs.
+- **Checking what's composited:** record a Chrome trace (categories `blink.animations`,
+  `devtools.timeline`); `Animation` events carry `compositeFailed` (4096 = filter may
+  move pixels, i.e. blur — expected for the blur half only).
 - **Motion skips `layout` animations caused by window resizes** (by design). The
   masonry re-flows on resize, so tiles animate `x`/`y`/`width`/`height` directly.
 - **Shared `layoutId` + raised z-index:** a gallery tile is lifted above the lightbox

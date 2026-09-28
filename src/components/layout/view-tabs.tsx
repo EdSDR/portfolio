@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { cn } from "@/lib/cn";
-import { flyUpSequence } from "@/lib/fly-in";
+import { flyUpStyle } from "@/lib/fly-in";
 
-// Rises in with the sidebar and cards.
-const navEntrance = flyUpSequence({ start: 0.2, distance: 16, blur: 6 });
+// Rises in with the sidebar and cards (CSS, from first paint).
+const entrance = flyUpStyle({ start: 0.2, distance: 16, blur: 6 });
 
 export type View = "scenes" | "gallery";
 
@@ -25,16 +25,13 @@ export function ViewTabs({ view }: { view: View }) {
 	return (
 		<div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 lg:top-8 lg:bottom-auto">
 			<div className="mx-auto flex w-full max-w-[1600px] justify-center lg:justify-end lg:px-8">
-				<motion.nav
+				<nav
 					aria-label="View"
-					variants={navEntrance}
-					custom={0}
-					initial="hidden"
-					animate="show"
+					style={entrance}
 					// Glass: translucent tint + heavy backdrop blur/saturation, a hairline
 					// edge, an inner top highlight, and a soft drop shadow. Equal columns so
 					// the sliding pill keeps one size.
-					className="pointer-events-auto grid grid-cols-2 rounded-full border border-foreground/10 bg-foreground/[0.06] p-1 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08),0_10px_30px_-10px_rgb(0_0_0/0.6)] backdrop-blur-xl backdrop-saturate-150"
+					className="fly-up pointer-events-auto grid grid-cols-2 rounded-full border border-foreground/10 bg-foreground/[0.06] p-1 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08),0_10px_30px_-10px_rgb(0_0_0/0.6)] backdrop-blur-xl backdrop-saturate-150"
 				>
 					{TABS.map((tab) => {
 						const active = tab.view === view;
@@ -63,7 +60,7 @@ export function ViewTabs({ view }: { view: View }) {
 							</Link>
 						);
 					})}
-				</motion.nav>
+				</nav>
 			</div>
 		</div>
 	);

@@ -1,12 +1,12 @@
-import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import { flyUpSequence } from "@/lib/fly-in";
+import { flyUpStyle } from "@/lib/fly-in";
 
-// Sidebar entrance: one sequence top to bottom (0.1s → ~0.8s), interleaved with
-// the cards' fly-in (from 0.25s). Icons travel less.
-const flyUp = flyUpSequence({ start: 0.1 });
-const flyUpSmall = flyUpSequence({ start: 0.1, distance: 20, blur: 6 });
+// Sidebar entrance (CSS `.fly-up`, plays from first paint): one sequence top to
+// bottom (0.1s → ~0.8s), interleaved with the cards' fly-in. Icons travel less.
+const flyUp = (i: number) => flyUpStyle({ i, start: 0.1 });
+const flyUpSmall = (i: number) =>
+	flyUpStyle({ i, start: 0.1, distance: 20, blur: 6 });
 
 // Lucide outline icons (matching the reference's @lucide set).
 const lucideProps = {
@@ -88,18 +88,12 @@ const profile = {
 
 export function Sidebar() {
 	return (
-		<motion.aside
+		<aside
 			data-scroll-anchor
-			initial="hidden"
-			animate="show"
 			className="flex w-full shrink-0 flex-col gap-8 px-4 py-8 lg:sticky lg:top-0 lg:h-screen lg:max-w-sm lg:justify-between"
 		>
-			<motion.div className="flex w-full flex-col gap-6">
-				<motion.div
-					variants={flyUp}
-					custom={0}
-					className="flex items-center gap-3"
-				>
+			<div className="flex w-full flex-col gap-6">
+				<div style={flyUp(0)} className="fly-up flex items-center gap-3">
 					<img
 						src={profile.avatar}
 						alt={profile.name}
@@ -126,38 +120,28 @@ export function Sidebar() {
 							{profile.availableText}
 						</span>
 					</div>
-				</motion.div>
+				</div>
 
 				{/* Name, role and bio land one after another. */}
-				<motion.div className="flex flex-col gap-3">
-					<motion.h1
-						variants={flyUp}
-						custom={1}
-						className="text-balance font-semibold text-2xl"
+				<div className="flex flex-col gap-3">
+					<h1
+						style={flyUp(1)}
+						className="fly-up text-balance font-semibold text-2xl"
 					>
 						{profile.name}
-					</motion.h1>
-					<motion.h2
-						variants={flyUp}
-						custom={2}
-						className="text-balance font-normal text-2xl text-muted-foreground"
+					</h1>
+					<h2
+						style={flyUp(2)}
+						className="fly-up text-balance font-normal text-2xl text-muted-foreground"
 					>
 						{profile.role}
-					</motion.h2>
-					<motion.p
-						variants={flyUp}
-						custom={3}
-						className="text-muted-foreground text-sm"
-					>
+					</h2>
+					<p style={flyUp(3)} className="fly-up text-muted-foreground text-sm">
 						{profile.bio}
-					</motion.p>
-				</motion.div>
+					</p>
+				</div>
 
-				<motion.div
-					variants={flyUp}
-					custom={4}
-					className="flex items-center gap-3"
-				>
+				<div style={flyUp(4)} className="fly-up flex items-center gap-3">
 					<a
 						href={profile.buttons.call.url}
 						className="inline-flex h-9 items-center rounded-lg bg-foreground px-4 font-medium text-background text-sm transition-transform active:scale-[0.97]"
@@ -170,15 +154,14 @@ export function Sidebar() {
 					>
 						{profile.buttons.chat.text}
 					</a>
-				</motion.div>
+				</div>
 
-				<motion.div className="flex w-full flex-col gap-1">
+				<div className="flex w-full flex-col gap-1">
 					{profile.experience.map((exp, i) => (
-						<motion.div
+						<div
 							key={exp.company}
-							variants={flyUp}
-							custom={5 + i}
-							className="group relative flex cursor-default flex-col rounded-lg px-3 py-3 transition-colors duration-300 hover:bg-muted"
+							style={flyUp(5 + i)}
+							className="fly-up group relative flex cursor-default flex-col rounded-lg px-3 py-3 transition-colors duration-300 hover:bg-muted"
 						>
 							<div className="flex w-full items-center justify-between">
 								<h3 className="font-medium text-sm">{exp.company}</h3>
@@ -191,43 +174,37 @@ export function Sidebar() {
 									{exp.note}
 								</p>
 							</div>
-						</motion.div>
+						</div>
 					))}
-				</motion.div>
-			</motion.div>
+				</div>
+			</div>
 
-			<motion.footer className="flex flex-col gap-3">
-				<motion.div className="flex flex-wrap items-center gap-4">
+			<footer className="flex flex-col gap-3">
+				<div className="flex flex-wrap items-center gap-4">
 					{profile.socials.map((s, i) => (
-						<motion.a
+						<a
 							key={s.label}
-							variants={flyUpSmall}
-							custom={8 + i}
 							href={s.url}
 							target="_blank"
 							rel="noreferrer"
 							aria-label={s.label}
-							className="[&>svg]:size-4.5 text-muted-foreground transition-colors hover:text-foreground"
+							style={flyUpSmall(8 + i)}
+							className="fly-up [&>svg]:size-4.5 text-muted-foreground transition-colors hover:text-foreground"
 						>
 							{SOCIAL_ICONS[s.icon]}
-						</motion.a>
+						</a>
 					))}
-				</motion.div>
-				<motion.p
-					variants={flyUp}
-					custom={11}
-					className="text-muted-foreground text-xs leading-relaxed"
+				</div>
+				<p
+					style={flyUp(11)}
+					className="fly-up text-muted-foreground text-xs leading-relaxed"
 				>
 					{profile.footer}
-				</motion.p>
-				<motion.p
-					variants={flyUp}
-					custom={12}
-					className="text-muted-foreground text-xs"
-				>
+				</p>
+				<p style={flyUp(12)} className="fly-up text-muted-foreground text-xs">
 					{profile.copyright}
-				</motion.p>
-			</motion.footer>
-		</motion.aside>
+				</p>
+			</footer>
+		</aside>
 	);
 }

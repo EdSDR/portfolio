@@ -7,7 +7,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { type FlyFrom, flyIn, POWER3_OUT } from "@/lib/fly-in";
+import { FLY_PENDING, type FlyFrom, flyIn, POWER3_OUT } from "@/lib/fly-in";
 
 const POWER2_OUT: Easing = [0.25, 0.46, 0.45, 0.94];
 
@@ -205,7 +205,7 @@ function Tile({
 			style={{ zIndex: raised ? 60 : undefined }}
 		>
 			{/* Entrance wrapper: hidden until its image has loaded. */}
-			<div ref={scope} className="size-full" style={{ opacity: 0 }}>
+			<div ref={scope} data-fly={FLY_PENDING} className="size-full">
 				<motion.button
 					type="button"
 					aria-label={item.alt}

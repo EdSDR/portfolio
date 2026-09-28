@@ -9,6 +9,8 @@ import { SITE_URL } from "@/lib/site";
  * into the entry bundle.
  */
 export interface SceneEntry {
+	/** Imports the scene module (call early to prefetch; `Scene` reuses it). */
+	load: () => Promise<{ default: ComponentType }>;
 	Scene: ComponentType;
 	/** Clear color. Also the card's cover color, so the reveal crossfades cleanly. */
 	background: string;
@@ -16,17 +18,19 @@ export interface SceneEntry {
 	canvas?: Pick<CanvasProps, "shadows" | "camera">;
 }
 
+const lazyScene = (load: SceneEntry["load"]) => ({ load, Scene: lazy(load) });
+
 export const scenes: Record<string, SceneEntry> = {
 	"test-animation": {
-		Scene: lazy(() => import("./test-animation-scene")),
+		...lazyScene(() => import("./test-animation-scene")),
 		background: "#222222",
 	},
 	torus: {
-		Scene: lazy(() => import("./torus-scene")),
+		...lazyScene(() => import("./torus-scene")),
 		background: "#1a1a1a",
 	},
 	governance: {
-		Scene: lazy(() => import("./statue-scene")),
+		...lazyScene(() => import("./statue-scene")),
 		background: "#000000",
 		// VSM: drei <SoftShadows> (PCSS) doesn't compile on three 0.186.
 		canvas: {
@@ -37,6 +41,15 @@ export const scenes: Record<string, SceneEntry> = {
 };
 
 export const DEFAULT_SCENE_BG = "#222222";
+
+/**
+ * Starts downloading/evaluating a card's 3D code — the shared canvas chunk
+ * (three + R3F) and the scene — in parallel, before the canvas mounts.
+ */
+export function preloadScene(slug: string): void {
+	import("../scene-canvas");
+	scenes[slug]?.load();
+}
 
 /** Pre-rendered still of each scene (`bun run posters`), used as the card cover. */
 export const posterUrl = (slug: string) => `/posters/${slug}.webp`;

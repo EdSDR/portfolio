@@ -1,44 +1,54 @@
-import {
-	type AnimationPlaybackControls,
-	animate,
-	type Easing,
-	type Variants,
-} from "motion/react";
+import type { Easing } from "motion/react";
+import type { CSSProperties } from "react";
 
 /**
  * The site's entrance: elements rise in from just off-screen and blur into
  * focus, staggered. Started by the Gallery masonry (ported from reactbits'
- * GSAP version) and shared by the scene cards and the sidebar.
+ * GSAP version) and shared by the scene cards, sidebar and tabs.
+ *
+ * The motion (opacity + translate) runs on the compositor, so the heavy
+ * main-thread work of starting WebGL scenes can overlap it without stutter.
+ * The blur is a separate animation: blur can't be composited ("may move
+ * pixels"), and one non-composited property would pull the whole animation
+ * onto the main thread. A main-thread stall then only holds the focus a beat.
+ * Keyframes only define the start state and end at the element's own style:
+ * nothing lingers (no filter layer over live canvases, no transform).
  */
 
 /** GSAP's `power3.out`. */
 export const POWER3_OUT: Easing = [0.215, 0.61, 0.355, 1];
-
-/** Resting state of an element before its fly-in (use as SSR/initial style). */
-export const FLY_HIDDEN = { opacity: 0 } as const;
+const POWER3_OUT_CSS = "cubic-bezier(0.215, 0.61, 0.355, 1)";
 
 /**
- * Sequenced blur-rise (the site entrance) for declarative elements: pass the
- * element's position in the sequence as `custom`. A flat sequence, because
- * Motion doesn't carry a parent's stagger into nested containers.
+ * Markup attribute that keeps an element hidden until its JS fly-in starts
+ * (styles.css), so server-rendered HTML doesn't flash it in place first.
+ * `flyIn` removes it once the animation holds the start state.
  */
-export function flyUpSequence({
+export const FLY_PENDING = "pending";
+
+/**
+ * Style for a CSS fly-up (`.fly-up` in styles.css): position `i` in a sequence
+ * starting at `start`s, `step`s apart. Pure CSS, so it plays from first paint,
+ * before JS hydrates. Negative `distance` drops in from above.
+ */
+export function flyUpStyle({
+	i = 0,
 	start = 0,
 	step = 0.055,
 	distance = 40,
 	blur = 8,
-} = {}): Variants {
+}: {
+	i?: number;
+	start?: number;
+	step?: number;
+	distance?: number;
+	blur?: number;
+} = {}): CSSProperties {
 	return {
-		hidden: { opacity: 0, y: distance, filter: `blur(${blur}px)` },
-		show: (i: number) => ({
-			opacity: 1,
-			y: 0,
-			filter: "blur(0px)",
-			// A lingering `blur(0px)` still costs a filter layer; drop it at rest.
-			transitionEnd: { filter: "none" },
-			transition: { duration: 0.8, ease: POWER3_OUT, delay: start + i * step },
-		}),
-	};
+		"--fly-delay": `${start + i * step}s`,
+		"--fly-distance": `${distance}px`,
+		"--fly-blur": `${blur}px`,
+	} as CSSProperties;
 }
 
 export type FlyFrom = "bottom" | "top" | "left" | "right" | "center" | "random";
@@ -93,9 +103,9 @@ export function flyInOffset(
 }
 
 /**
- * Plays the fly-in on `el` (which should start at FLY_HIDDEN). With `reduced`
- * it only fades. Clears the filter afterwards so no blur layer lingers (it
- * would sit above live WebGL canvases).
+ * Plays the fly-in on `el` with the Web Animations API. The element should
+ * carry `data-fly="pending"` until now. With `reduced` it only fades. Cancel
+ * the returned handle to undo it (e.g. effect cleanup).
  */
 export function flyIn(
 	el: HTMLElement,
@@ -114,41 +124,41 @@ export function flyIn(
 		reduced?: boolean;
 		bounds?: Box;
 	} = {},
-): AnimationPlaybackControls {
+): { cancel: () => void } {
+	const timing: KeyframeAnimationOptions = {
+		duration: (reduced ? 0.4 : duration) * 1000,
+		delay: delay * 1000,
+		easing: POWER3_OUT_CSS,
+		// Holds the start state through the delay; nothing is kept at the end.
+		fill: "backwards",
+	};
+	const animations: Animation[] = [];
 	if (reduced) {
-		return animate(el, { opacity: [0, 1] }, { duration: 0.4, delay });
+		animations.push(el.animate([{ opacity: 0 }, { opacity: 1 }], timing));
+	} else {
+		const { x, y } = flyInOffset(el.getBoundingClientRect(), from, bounds);
+		animations.push(
+			el.animate(
+				[
+					{ opacity: 0, translate: `${x}px ${y}px` },
+					{ opacity: 1, translate: "0px 0px" },
+				],
+				timing,
+			),
+		);
+		if (blur > 0) {
+			animations.push(
+				el.animate(
+					[{ filter: `blur(${blur}px)` }, { filter: "blur(0px)" }],
+					timing,
+				),
+			);
+		}
 	}
-	const { x, y } = flyInOffset(restingRect(el), from, bounds);
-	const controls = animate(
-		el,
-		{
-			opacity: [0, 1],
-			x: [x, 0],
-			y: [y, 0],
-			...(blur > 0 && { filter: [`blur(${blur}px)`, "blur(0px)"] }),
-		},
-		{ duration, ease: POWER3_OUT, delay },
-	);
-	// Set through Motion so a motion component doesn't re-apply its blur value.
-	if (blur > 0)
-		controls.then(() => animate(el, { filter: "none" }, { duration: 0 }));
-	return controls;
-}
-
-/**
- * The element's box without its current translation, i.e. where it rests.
- * (A restarted fly-in, e.g. React StrictMode re-running effects, would
- * otherwise measure it already shifted to its start offset.)
- */
-function restingRect(el: HTMLElement): Box {
-	const r = el.getBoundingClientRect();
-	const t = getComputedStyle(el).transform;
-	if (!t || t === "none") return r;
-	const m = new DOMMatrixReadOnly(t);
+	el.removeAttribute("data-fly");
 	return {
-		top: r.top - m.m42,
-		left: r.left - m.m41,
-		width: r.width,
-		height: r.height,
+		cancel: () => {
+			for (const animation of animations) animation.cancel();
+		},
 	};
 }

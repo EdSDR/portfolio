@@ -197,6 +197,48 @@
   }
 }
 
+/* Site entrance (src/lib/fly-in.ts): rise + blur into focus. Motion (opacity +
+   translate) and blur are separate animations so the motion stays on the
+   compositor (a blur can't be composited and would drag it to the main thread,
+   where WebGL start-up could stutter it). Keyframes set only the start state,
+   so the end state is the element's own style (no lingering filter/transform). */
+[data-fly="pending"] {
+  opacity: 0;
+}
+
+@keyframes fly-up {
+  from {
+    opacity: 0;
+    translate: 0 var(--fly-distance, 40px);
+  }
+}
+
+@keyframes fly-blur {
+  from {
+    filter: blur(var(--fly-blur, 8px));
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.fly-up {
+  animation:
+    fly-up 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) var(--fly-delay, 0s)
+      backwards,
+    fly-blur 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) var(--fly-delay, 0s)
+      backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fly-up {
+    animation: fade-in 0.4s ease-out var(--fly-delay, 0s) backwards;
+  }
+}
+
 /* Long-form MDX writeup styling (ported from the reference `.prose-custom`). */
 @layer components {
   .prose-custom {

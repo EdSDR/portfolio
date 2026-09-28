@@ -13,11 +13,12 @@ import {
 import {
 	DEFAULT_SCENE_BG,
 	posterUrl,
+	preloadScene,
 	scenes,
 } from "@/components/canvas/scenes/registry";
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
-import { FLY_HIDDEN, flyIn } from "@/lib/fly-in";
+import { FLY_PENDING, flyIn } from "@/lib/fly-in";
 import {
 	holdScrollForOpen,
 	releaseScrollHold,
@@ -71,11 +72,11 @@ export function ProjectCard({
 	useLayoutEffect(() => {
 		const el = articleRef.current;
 		if (!entering || !el) return;
-		const controls = flyIn(el, {
+		const animation = flyIn(el, {
 			delay: enterDelay,
 			reduced: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
 		});
-		return () => controls.stop();
+		return () => animation.cancel();
 	}, [entering, enterDelay]);
 	const sceneBg = scenes[project.slug]?.background ?? DEFAULT_SCENE_BG;
 
@@ -88,25 +89,20 @@ export function ProjectCard({
 		wasActive.current = active;
 	}, [active]);
 
-	// Hold scene start-up (chunk parse, context, shader compile) until this card
-	// has landed, so it doesn't jank the fly-in; the poster covers the gap.
-	const [entranceDone, setEntranceDone] = useState(!entering);
-	useEffect(() => {
-		if (!entering) return;
-		const t = setTimeout(
-			() => setEntranceDone(true),
-			(enterDelay + 0.8) * 1000,
-		);
-		return () => clearTimeout(t);
-	}, [entering, enterDelay]);
-
 	// Live 3D on desktop pointers while near/visible, or whenever a card is
-	// opened. Mobile / reduced-motion stay on the poster.
-	const live =
-		mounted &&
-		!reduced &&
-		project.slug in scenes &&
-		(active || (fine && entranceDone && state !== "far"));
+	// opened. Mobile / reduced-motion stay on the poster. No waiting for the
+	// fly-in: it runs on the compositor, so the scene starts up underneath the
+	// poster while the card is still flying, and the poster fades as soon as the
+	// first frame is drawn.
+	const wantsScene =
+		mounted && !reduced && project.slug in scenes && (active || fine);
+	const live = wantsScene && (active || state !== "far");
+
+	// Fetch + evaluate the 3D code as soon as it'll be wanted, in parallel with
+	// the fly-in and the IntersectionObserver's first report.
+	useEffect(() => {
+		if (wantsScene) preloadScene(project.slug);
+	}, [wantsScene, project.slug]);
 	const paused = !active && state !== "visible";
 
 	// The poster fades only after the scene has drawn, so there's never a blank frame.
@@ -120,7 +116,7 @@ export function ProjectCard({
 		<motion.article
 			ref={articleRef}
 			layout
-			initial={entering ? FLY_HIDDEN : false}
+			data-fly={entering ? FLY_PENDING : undefined}
 			transition={{ layout: { type: "spring", stiffness: 220, damping: 30 } }}
 			className="relative w-full"
 		>
@@ -156,7 +152,7 @@ export function ProjectCard({
 					style={{ background: sceneBg }}
 					initial={false}
 					animate={{ opacity: live && ready ? 0 : 1 }}
-					transition={{ duration: 0.6, ease: "easeOut" }}
+					transition={{ duration: 0.4, ease: "easeOut" }}
 				>
 					<img
 						src={posterUrl(project.slug)}
