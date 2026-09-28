@@ -3,7 +3,8 @@
 Personal portfolio for Ed (EdSDR). A sticky bio sidebar sits beside a
 page-scrolling list of project cards; each card's hero is a **live React Three
 Fiber scene**, and opening a card expands it into its own route (`/work/$slug`)
-with the scene on top and an MDX writeup below.
+with the scene on top and an MDX writeup below. A second tab, **Gallery**
+(`/gallery`), shows still images of the work in a masonry grid with a lightbox.
 
 ## Stack
 
@@ -26,18 +27,21 @@ bun run dev        # http://localhost:3000
 | `bun run dev`     | Dev server on :3000                    |
 | `bun run build`   | Production build + static prerender    |
 | `bun run preview` | Preview the built app                  |
-| `bun run check`   | Biome format + lint                    |
+| `bun run check`   | Biome format + lint (report only)      |
+| `bun run fix`     | Biome format + lint, applying fixes    |
+| `bun run typecheck` | TypeScript (`tsc --noEmit`)          |
+| `bun run posters` | Re-capture card posters + OG images    |
 | `bun run deploy`  | Build and `wrangler deploy` to Workers |
 
 ## Layout
 
 ```
 src/
-  routes/       # __root (persistent shell), index, work.$slug
-  components/   # layout/, canvas/ (Canvas + Views + scenes), project/
-  content/      # MDX writeups + Zod frontmatter schema
+  routes/       # __root (persistent shell), index, work.$slug, gallery
+  components/   # layout/, canvas/ (per-card Canvas + scenes), project/, gallery/
+  content/      # MDX writeups + Zod frontmatter schema, gallery images
   lib/          # hooks + utils
-  styles.css    # Tailwind v4 tokens (OKLCH) + Geist
+  styles.css    # Tailwind v4 tokens + Geist + entrance keyframes
 ```
 
 Contributor and architecture notes live in [AGENTS.md](./AGENTS.md).
