@@ -5,7 +5,7 @@ company: "Renlabs"
 year: "2025"
 date: "2026-02-01"
 accent: "#63cbff"
-tags: ["React Three Fiber", "r3f-forcegraph", "d3-force-3d", "Substrate"]
+tags: ["React Three Fiber", "d3-force-3d", "GLSL", "Substrate"]
 links:
   - text: "Torus Portal"
     url: "https://portal.torus.network"
@@ -20,16 +20,35 @@ agent on the Torus network and how emissions flow between them.
 
 ## The idea
 
-Everything here is generated from a seed: about 600 nodes and 690 links. Spheres are agents,
-icosahedrons are permissions, tetrahedrons are signals, and the white one in the middle is the
-root allocator everything hangs from. Permissions get their own nodes because one permission can
-connect a delegator to several agents at once. That's what makes it a hypergraph.
+Torus runs on permissions. An agent can grant part of its emissions, or access to a namespace, to
+other agents. On chain that's rows of account IDs and percentages, and nobody reads those and comes
+away knowing who depends on whom. We needed a picture people understand before they read anything.
+
+So permissions get their own nodes. One permission can connect a delegator to several agents at
+once, so it can't be a plain line between two dots. As a node, it's something you can point at and
+follow out to everyone it reaches. That's what makes this a hypergraph, and it's also what makes
+it readable.
+
+Spheres are agents, icosahedrons are permissions, tetrahedrons are signals, and the white one in
+the middle is the root allocator everything hangs from. Here it's all generated from a seed: about
+600 nodes and 690 links.
 
 ## Under the hood
 
 Nobody placed these nodes. d3-force-3d pushes every node away from the others, pulls linked ones
-together, and runs until the layout settles, then the whole graph slowly turns. Three numbers
-control the shape: link distance, charge and pull toward the center. I tuned them by eye.
+together, and runs until the layout settles. Three numbers set the shape: link distance, charge
+and pull toward the center. I tuned them by eye.
 
-The glow is a Bloom pass. The nodes use unlit materials with tone mapping turned off, so their
-colors stay bright enough for Bloom to spill them into the dark around them.
+The first version drew it with a graph library that makes a separate object for every node, link
+and particle: about 830 draw calls a frame. Now I keep the simulation and do the drawing myself:
+
+- **Six draw calls.** One instanced mesh per node shape, every link in one line buffer, every
+  pulse in one point cloud.
+- **Pulses on the GPU.** The shader works out where each pulse is from the time and its link, so
+  once the layout settles the CPU only advances one number per frame.
+- **Depth.** Nodes and links dim with distance from the camera, so the graph reads as a volume
+  instead of a flat web.
+- **Glow.** Each node has a bright rim that the Bloom pass spreads into the dark. Bloom
+  multisamples at 4× instead of the default 8×, about half the memory for no visible difference.
+
+The scene's code went from 58 KB to 35 KB gzipped, and each frame costs the GPU about a third less.

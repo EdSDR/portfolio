@@ -14,7 +14,8 @@ and `torus-ts/` (the real Torus codebase, reference for the Torus scene).
 - **Cloudflare Workers** via `@cloudflare/vite-plugin`; static prerender enabled
   (`crawlLinks` discovers each `/work/$slug` from `/`)
 - **R3F v9** + **drei 10** (WebGL — never the Fiber v10 alpha) + **three 0.186**
-- **@react-three/postprocessing** (Bloom), **r3f-forcegraph** (Torus graph)
+- **@react-three/postprocessing** (Torus Bloom), **d3-force-3d** (Torus layout; rendering is
+  our own instanced meshes + GLSL, `scenes/torus-graph.ts`)
 - **Motion** (`motion/react`) for all transitions
 - **MDX** compiled at build via `@mdx-js/rollup` + `remark-frontmatter`; frontmatter read
   by `vite-plugins/mdx-frontmatter.ts` and validated with **Zod 4** at build time (zod
@@ -87,6 +88,11 @@ src/
                              posterUrl/ogImageUrl.
                              No runtime three imports (read by the entry bundle).
     scenes/*-scene.tsx       scene content only (meshes/lights/camera/effects), default export
+    scenes/torus-graph.ts    Torus graph: d3 sim → 4 InstancedMesh (node shapes) + 1 LineSegments
+                             + 1 Points; fresnel nodes, link pulses and depth fade in GLSL
+    scenes/statue-light.tsx  statue's lit air (quarter-res ray march through the spot cone,
+                             reads its VSM shadow map) + dust motes lit only in the beam
+    scenes/film-grade.tsx    vignette + grain as one multiply-blended full-screen triangle
     scenes/match-container-size.tsx  per-frame canvas resize (Motion layout transforms)
   content/
     schema.ts                Zod frontmatter (name, description, date, accent, tags, links)
@@ -185,9 +191,11 @@ public/
 
 Short and interesting beats complete. Sidebar and writeups:
 - Plain, first person, no marketing words (passionate, innovative, seamless, robust…).
-- Scene writeups ~150–250 words: what the viewer is looking at, one line on where it came from,
-  one or two concrete details worth knowing. Short paragraphs under three light headings:
-  `## Overview`, `## The idea`, `## Under the hood`.
+- Scene writeups: what the viewer is looking at, one line on where it came from, the problem it
+  solved (`## The idea`: why it exists, not just what the shapes are), and the real engineering
+  (`## Under the hood`: bold-led bullets, one trick each, with numbers where measured). Short
+  paragraphs under three light headings: `## Overview`, `## The idea`, `## Under the hood`;
+  ~250–400 words when there's that much real work to tell.
   No "my part"/team-credit sections: the scene on the site is the thing being described.
 - Facts only from the resume source of truth (`.plan/ed-resume/original.md`) or this repo.
 - Never put the phone number or other private contact details in the repo.
@@ -200,6 +208,19 @@ caption in the `details` map in `src/content/gallery.ts`. Delete the `placeholde
 files once real images are in.
 
 ## Hard-won gotchas (don't rediscover these)
+
+- **An EffectComposer changes the grade.** It renders without the renderer's tone mapping and
+  applies fog in linear space (three normally tone-maps each material, then fogs in display
+  space): the statue got brighter and its clouds vanished. Scenes that don't need Bloom render
+  straight to the canvas and use `<FilmGrade>` for grain/vignette; the statue's light
+  scattering is its own low-res pass + depth-tested composite, not a composer effect.
+- **Don't dispose imperatively built three objects in a `useEffect` cleanup** of a `useMemo`
+  owner: StrictMode's dev double-mount runs the cleanup on live objects and frees programs
+  mid-`compileAsync` (`glGetProgramiv: Program object expected` warnings). A scene unmounts only
+  with its canvas, which drops the whole WebGL context anyway.
+- **Measure GPU cost with timer queries, not fps.** Uncapped-fps and even best-of-N runs swung
+  ±50% here (other GPU work on the machine); `EXT_disjoint_timer_query_webgl2` around each
+  frame's draws, alternating A/B runs and keeping the lowest median, was stable to ~0.05ms.
 
 - **Every canvas needs `MatchContainerSize`** (built into `SceneCanvas`) — R3F's
   ResizeObserver misses Motion layout-transform size changes (black bar on close).

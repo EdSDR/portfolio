@@ -21,15 +21,31 @@ drifts on its own.
 
 ## The idea
 
+The DAO app is where the network governs itself: proposals get voted on, agents apply to be
+whitelisted, and the DAO decides. Themis holding the scales is the obvious symbol for that. The
+landing used to be a still picture of a Greek statue, and in the scene that replaced it, three
+buttons floated next to her, leading to proposals, the DAO dashboard and whitelist applications.
+The statue was the menu.
+
 There's only one light that matters. It sits off to one side and sweeps slowly, so the folds of
-her robe and the scales she holds fall in and out of shadow. The clouds and stars come from drei,
-the fog is plain three.js fog, and the statue has a plain grey material. All of the mood comes
-from the light.
+her robe and the scales she holds fall in and out of shadow. All of the mood comes from that light.
 
 ## Under the hood
 
-The model used to be 772k triangles and 3 MB to download. I welded and simplified it down to 193k
-triangles and 590 KB. Going lower broke the thin chains on the scales, so that's where it stopped.
+- **A lighter model.** It was 772k triangles and 3 MB. I welded and simplified it to 193k
+  triangles and 590 KB. Going lower broke the thin chains on the scales, so that's where it
+  stopped.
+- **Light in the air.** The haze in the beam is ray-marched: each pixel steps along its view ray
+  through the spotlight's cone, checks the light's shadow map at every step, and adds up what it
+  finds. Each ray is cut to the part inside the cone first, and the march runs at a quarter of the
+  screen resolution, since haze has no sharp edges. It's then added only behind her, so her outline
+  stays sharp and the haze never greys her out.
+- **Dust.** 700 motes drift around her in one draw call. They use the same light and shadow math,
+  so they only glint inside the beam and go dark in her shadow.
+- **No post-processing stack.** An effect composer applies fog and tone mapping in a different
+  order, which brightened her and made the clouds vanish. So the scene draws straight to the
+  screen, and the grain and vignette are one triangle that multiplies the finished frame.
+- **Nothing from other servers.** The Draco decoder and the cloud texture are self-hosted.
 
 For a while she went missing entirely. drei's soft shadows inject shader code that current
 three.js no longer supports, so her material failed to compile and she stopped drawing while the
