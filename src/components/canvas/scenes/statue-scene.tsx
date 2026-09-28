@@ -8,8 +8,8 @@ const DRACO_PATH = "/draco/";
 
 /**
  * The Themis (justice) statue, lit by a slowly orbiting spotlight, wrapped in
- * volumetric clouds, a starfield and black fog. Cards are non-interactive, so the
- * reference's pointer parallax is replaced with a gentle auto-sway.
+ * volumetric clouds, a starfield and black fog. The reference's pointer
+ * parallax is replaced with a gentle auto-sway (the open card orbits instead).
  *
  * Shadows (VSM) and the camera are configured on the canvas via the registry.
  */

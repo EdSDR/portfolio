@@ -82,7 +82,9 @@ src/
     scene-canvas.tsx         a card's own <Canvas> (lazy default export): frameloop from
                              `paused`, bg color, MatchContainerSize, Prewarm (compileAsync →
                              first frame → onReady)
-    scenes/registry.ts       slug → { lazy Scene, background, canvas opts }; posterUrl/ogImageUrl.
+    scene-controls.tsx       open-card orbit controls + camera return on close
+    scenes/registry.ts       slug → { lazy Scene, background, canvas opts, orbit limits };
+                             posterUrl/ogImageUrl.
                              No runtime three imports (read by the entry bundle).
     scenes/*-scene.tsx       scene content only (meshes/lights/camera/effects), default export
     scenes/match-container-size.tsx  per-frame canvas resize (Motion layout transforms)
@@ -121,8 +123,11 @@ public/
   scroll position is restored on close. Every `/work/$slug` is prerendered.
 - **One `<Canvas>` per live card** (`scene-canvas.tsx`), never a shared/fixed canvas.
   The scene is a normal DOM child of the card: it scrolls, clips and fades with it,
-  and any scene may use post-processing or shadows. Always `dpr={[1, 1.5]}`,
-  `pointerEvents: "none"`. (A shared canvas + drei `<View>` was used until Sep 2026 and
+  and any scene may use post-processing or shadows. Always `dpr={[1, 1.5]}`;
+  `pointerEvents: "none"` except on the open card, which orbits (`scene-controls.tsx`:
+  drei OrbitControls around the origin, no pan, per-scene limits in the registry; plain
+  wheel scrolls the page, ⌘/Ctrl or pinch zooms; the camera eases home on close). Every
+  scene must frame its camera on the origin. (A shared canvas + drei `<View>` was used until Sep 2026 and
   removed: two of the scenes needed their own canvas anyway, and it cost a
   full-viewport 60fps render, three.js in the entry bundle, scroll lag, and several
   workarounds. Revisit only if the list becomes a grid of many small live scenes.)

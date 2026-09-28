@@ -117,6 +117,22 @@ export function ProjectCard({
 		if (!live) setReady(false);
 	}, [live]);
 
+	// The orbit hint shows until the first drag/zoom of each opening.
+	const [interacted, setInteracted] = useState(false);
+	const markInteracted = useCallback(() => setInteracted(true), []);
+	useEffect(() => {
+		if (!active) setInteracted(false);
+	}, [active]);
+
+	const label = (
+		<span
+			data-card-label
+			className="hidden items-center gap-2 rounded-full bg-black/40 px-3 py-1 font-medium text-white text-xs backdrop-blur lg:inline-flex"
+		>
+			{project.name}
+		</span>
+	);
+
 	return (
 		<motion.article
 			layout
@@ -149,7 +165,9 @@ export function ProjectCard({
 							<SceneCanvas
 								slug={project.slug}
 								paused={paused}
+								interactive={active}
 								onReady={markReady}
+								onInteract={markInteracted}
 							/>
 						</Suspense>
 					</ErrorBoundary>
@@ -179,23 +197,36 @@ export function ProjectCard({
 					/>
 				</motion.div>
 
-				{/* Clickable label, painted above the scene. */}
-				<Link
-					to="/work/$slug"
-					params={{ slug: project.slug }}
-					aria-label={`Open ${project.name}`}
-					onClick={active ? undefined : openCard}
-					// The click already scrolled to the top (holdScrollForOpen).
-					resetScroll={false}
-					className="absolute inset-0 flex items-end p-4"
-				>
-					<span
-						data-card-label
-						className="hidden items-center gap-2 rounded-full bg-black/40 px-3 py-1 font-medium text-white text-xs backdrop-blur lg:inline-flex"
+				{active ? (
+					// Open: the scene takes the pointer (orbit), so no link over it.
+					<div className="pointer-events-none absolute inset-0 flex items-end justify-between gap-2 p-4">
+						{label}
+						<span
+							aria-hidden
+							className={cn(
+								"ml-auto rounded-full bg-black/40 px-3 py-1 text-white/80 text-xs backdrop-blur transition-opacity duration-500",
+								live && ready && !interacted ? "opacity-100" : "opacity-0",
+							)}
+						>
+							{fine
+								? "Drag to rotate · ⌘/Ctrl + scroll to zoom"
+								: "Drag to rotate · pinch to zoom"}
+						</span>
+					</div>
+				) : (
+					// Clickable label, painted above the scene.
+					<Link
+						to="/work/$slug"
+						params={{ slug: project.slug }}
+						aria-label={`Open ${project.name}`}
+						onClick={openCard}
+						// The click already scrolled to the top (holdScrollForOpen).
+						resetScroll={false}
+						className="absolute inset-0 flex items-end p-4"
 					>
-						{project.name}
-					</span>
-				</Link>
+						{label}
+					</Link>
+				)}
 			</motion.div>
 
 			{active && <ProjectDetail project={project} />}

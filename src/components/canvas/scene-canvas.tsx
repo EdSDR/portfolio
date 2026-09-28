@@ -1,5 +1,6 @@
 import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
+import { SceneControls } from "./scene-controls";
 import { MatchContainerSize } from "./scenes/match-container-size";
 import { scenes } from "./scenes/registry";
 
@@ -11,19 +12,25 @@ import { scenes } from "./scenes/registry";
  *
  * `paused` stops the render loop (near but off-screen cards stay mounted with
  * compiled shaders and a drawn first frame, ready to resume instantly).
+ * `interactive` (the open card) takes pointer input and orbits the camera.
  */
 export default function SceneCanvas({
 	slug,
 	paused,
+	interactive = false,
 	onReady,
+	onInteract,
 }: {
 	slug: string;
 	paused: boolean;
+	interactive?: boolean;
 	onReady?: () => void;
+	/** First drag/zoom of the open scene. */
+	onInteract?: () => void;
 }) {
 	const entry = scenes[slug];
 	if (!entry) return null;
-	const { Scene, background, canvas, antialias = true } = entry;
+	const { Scene, background, canvas, antialias = true, controls } = entry;
 
 	return (
 		<Canvas
@@ -35,12 +42,22 @@ export default function SceneCanvas({
 				powerPreference: "high-performance",
 			}}
 			{...canvas}
-			style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+			style={{
+				position: "absolute",
+				inset: 0,
+				pointerEvents: interactive ? "auto" : "none",
+			}}
+			className={interactive ? "cursor-grab active:cursor-grabbing" : undefined}
 		>
 			<color attach="background" args={[background]} />
 			<MatchContainerSize />
 			<Suspense fallback={null}>
 				<Scene />
+				<SceneControls
+					enabled={interactive}
+					limits={controls}
+					onStart={onInteract}
+				/>
 				<Prewarm onReady={onReady} />
 			</Suspense>
 		</Canvas>

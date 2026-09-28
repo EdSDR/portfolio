@@ -1,3 +1,4 @@
+import type { OrbitControlsProps } from "@react-three/drei";
 import type { CanvasProps } from "@react-three/fiber";
 import { type ComponentType, lazy } from "react";
 import { SITE_URL } from "@/lib/site";
@@ -21,6 +22,16 @@ export interface SceneEntry {
 	 * post-processing composer already antialiases its own render targets.
 	 */
 	antialias?: boolean;
+	/** Orbit limits for the open card (distances in scene units, angles in radians). */
+	controls?: Pick<
+		OrbitControlsProps,
+		| "minDistance"
+		| "maxDistance"
+		| "minPolarAngle"
+		| "maxPolarAngle"
+		| "minAzimuthAngle"
+		| "maxAzimuthAngle"
+	>;
 }
 
 const lazyScene = (load: SceneEntry["load"]) => ({ load, Scene: lazy(load) });
@@ -29,12 +40,14 @@ export const scenes: Record<string, SceneEntry> = {
 	"test-animation": {
 		...lazyScene(() => import("./test-animation-scene")),
 		background: "#222222",
+		controls: { minDistance: 2.5, maxDistance: 8 },
 	},
 	torus: {
 		...lazyScene(() => import("./torus-scene")),
 		background: "#1a1a1a",
 		// The EffectComposer multisamples; the final pass is a full-screen quad.
 		antialias: false,
+		controls: { minDistance: 200, maxDistance: 900 },
 	},
 	governance: {
 		...lazyScene(() => import("./statue-scene")),
@@ -43,6 +56,16 @@ export const scenes: Record<string, SceneEntry> = {
 		canvas: {
 			shadows: "variance",
 			camera: { position: [0, 1.5, 14], fov: 42 },
+		},
+		// Only her front is lit (the key light sits in front), and the fog ends
+		// at 20 units, so the orbit stays in front and inside it.
+		controls: {
+			minDistance: 7,
+			maxDistance: 18,
+			minAzimuthAngle: -0.9,
+			maxAzimuthAngle: 0.9,
+			minPolarAngle: 1.1,
+			maxPolarAngle: 1.75,
 		},
 	},
 };
