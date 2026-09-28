@@ -2,3 +2,5 @@
 export const SITE_URL = "https://edsdr.com";
 
 export const SITE_TITLE = "Ed — Designer & Frontend Developer";
+
+export const NOT_FOUND_TITLE = "Not found — Ed";

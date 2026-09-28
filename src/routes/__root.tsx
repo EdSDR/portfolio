@@ -35,6 +35,7 @@ export const Route = createRootRoute({
 			{ name: "twitter:card", content: "summary_large_image" },
 		],
 		links: [
+			{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
 			{ rel: "stylesheet", href: appCss },
 			// The latin Geist face is needed for first paint; fetch it with the CSS.
 			{

@@ -50,6 +50,7 @@ src/
   routes/__root.tsx          html shell (forced `dark` class), default/OG meta, font preload,
                              devtools, renders <AppShell>
   routes/index.tsx           home / Scenes tab (list is in the shell, route renders nothing)
+  routes/$.tsx               catch-all: throws notFound() (404) → shell shows <NotFound/>
   routes/gallery.tsx         Gallery tab; `?image=<id>` = open lightbox (zod-validated search)
   routes/work.$slug.tsx      URL + loader (notFound, prefetches MDX body) + head/OG/canonical;
                              no component (routes render nothing; the shell owns the UI)
@@ -57,6 +58,7 @@ src/
     app-shell.tsx            persistent shell: sidebar, <ViewTabs>, and the active view
                              (<ProjectList> or <GalleryView>, by pathname); MotionConfig
                              reducedMotion="user"
+    not-found.tsx            404 view (shell renders it when any match has status "notFound")
     view-tabs.tsx            Scenes/Gallery pill, absolute top-right of <main>, sliding
                              indicator (layoutId)
     sidebar.tsx              bio/links (copy is hand-edited by the user)
@@ -97,6 +99,7 @@ public/
   posters/<slug>.webp        card cover; <slug>-og.jpg = 1200×630 og:image
   themis.glb                 Draco-compressed statue (mesh node `themis`, scale 0.06)
   draco/                     self-hosted Draco decoder (copied from three/examples)
+  favicon.svg                site icon
   avatar.webp                sidebar avatar (self-hosted, 96px)
 ```
 

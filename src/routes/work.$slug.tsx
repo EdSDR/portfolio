@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ogImageUrl } from "@/components/canvas/scenes/registry";
 import { getProject } from "@/content";
-import { SITE_URL } from "@/lib/site";
+import { NOT_FOUND_TITLE, SITE_URL } from "@/lib/site";
 
 /**
  * The expanded project state. This route owns only the URL, slug validation, and
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/work/$slug")({
 		};
 	},
 	head: ({ loaderData }) => {
-		if (!loaderData) return {};
+		if (!loaderData) return { meta: [{ title: NOT_FOUND_TITLE }] };
 		const title = `${loaderData.name} — Ed`;
 		const url = `${SITE_URL}/work/${loaderData.slug}`;
 		return {

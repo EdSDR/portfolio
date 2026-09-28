@@ -21,7 +21,7 @@ export type View = (typeof TABS)[number]["view"];
  * The active pill slides between tabs (shared layoutId). Each tab is a route,
  * so views are linkable, prerendered, and the back button switches back.
  */
-export function ViewTabs({ view }: { view: View }) {
+export function ViewTabs({ view }: { view?: View }) {
 	return (
 		<div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 lg:top-8 lg:bottom-auto">
 			<div className="mx-auto flex w-full max-w-[1600px] justify-center lg:justify-end lg:px-8">

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { GalleryView } from "@/components/gallery/gallery-view";
 import { ProjectList } from "@/components/project/project-list";
 import { Fade } from "./fade";
+import { NotFound } from "./not-found";
 import { Sidebar } from "./sidebar";
 import { type View, ViewTabs } from "./view-tabs";
 
@@ -18,8 +19,12 @@ import { type View, ViewTabs } from "./view-tabs";
  */
 export function AppShell({ children }: { children: ReactNode }) {
 	const view = useRouterState({
-		select: (s): View =>
-			s.location.pathname.startsWith("/gallery") ? "gallery" : "scenes",
+		select: (s): View | "notFound" =>
+			s.matches.some((m) => m.status === "notFound")
+				? "notFound"
+				: s.location.pathname.startsWith("/gallery")
+					? "gallery"
+					: "scenes",
 	});
 
 	return (
@@ -32,12 +37,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 						data-scroll-anchor
 						className="relative min-w-0 flex-1 p-4 pb-24 lg:pb-4"
 					>
-						{view === "gallery" ? <GalleryView /> : <ProjectList />}
+						{view === "gallery" ? (
+							<GalleryView />
+						) : view === "notFound" ? (
+							<NotFound />
+						) : (
+							<ProjectList />
+						)}
 						<div className="hidden">{children}</div>
 					</main>
 				</div>
 
-				<ViewTabs view={view} />
+				<ViewTabs view={view === "notFound" ? undefined : view} />
 				<Fade />
 			</div>
 		</MotionConfig>
