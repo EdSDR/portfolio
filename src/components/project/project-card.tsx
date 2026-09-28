@@ -120,6 +120,9 @@ export function ProjectCard({
 		<motion.article
 			ref={articleRef}
 			layout
+			// Only open/close changes the card's layout; without this, Motion
+			// re-measures on every re-render (visibility, pause, ready changes).
+			layoutDependency={active}
 			data-fly={entering ? FLY_PENDING : undefined}
 			transition={{ layout: { type: "spring", stiffness: 220, damping: 30 } }}
 			className="relative w-full"
@@ -128,6 +131,7 @@ export function ProjectCard({
 			    animations (a class radius would stretch with the scale transform). */}
 			<motion.div
 				layout
+				layoutDependency={active}
 				ref={ref}
 				data-scene-media
 				data-scene-ready={ready || undefined}
