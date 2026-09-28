@@ -97,7 +97,7 @@ public/
   posters/<slug>.webp        card cover; <slug>-og.jpg = 1200×630 og:image
   themis.glb                 Draco-compressed statue (mesh node `themis`, scale 0.06)
   draco/                     self-hosted Draco decoder (copied from three/examples)
-  avatar.png                 sidebar avatar (self-hosted, 96px)
+  avatar.webp                sidebar avatar (self-hosted, 96px)
 ```
 
 ## Architecture invariants (do not break)

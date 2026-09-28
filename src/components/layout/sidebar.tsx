@@ -47,7 +47,7 @@ const SOCIAL_ICONS: Record<string, ReactNode> = {
 const profile = {
 	name: "Ed Castro",
 	role: "Software Engineer & Frontend Specialist",
-	avatar: "/avatar.png",
+	avatar: "/avatar.webp",
 	available: true,
 	availableText: "Available for new projects",
 	bio: "I'm a passionate software developer. 5+ years of experience creating fun and innovative ways to interact with complex software and visualizations.",
