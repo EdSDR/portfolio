@@ -47,8 +47,11 @@ export const DEFAULT_SCENE_BG = "#222222";
  * (three + R3F) and the scene — in parallel, before the canvas mounts.
  */
 export function preloadScene(slug: string): void {
-	import("../scene-canvas");
-	scenes[slug]?.load();
+	// Prefetch only: a failure (offline, stale chunk after a deploy) surfaces
+	// when the lazy component renders, so there's nothing to handle here.
+	const ignore = () => {};
+	import("../scene-canvas").catch(ignore);
+	scenes[slug]?.load().catch(ignore);
 }
 
 /** Pre-rendered still of each scene (`bun run posters`), used as the card cover. */

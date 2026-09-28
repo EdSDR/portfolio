@@ -62,15 +62,17 @@ function Prewarm({ onReady }: { onReady?: () => void }) {
 	useEffect(() => {
 		let cancelled = false;
 		const { gl, scene, camera, advance } = get();
-		gl.compileAsync(scene, camera).then(() => {
-			if (cancelled) return;
-			// Reveal even if a scene's first frame throws; the loop keeps going.
-			try {
-				advance(performance.now());
-			} finally {
-				onReady?.();
-			}
-		});
+		gl.compileAsync(scene, camera)
+			.then(() => {
+				if (cancelled) return;
+				// Reveal even if a scene's first frame throws; the loop keeps going.
+				try {
+					advance(performance.now());
+				} finally {
+					onReady?.();
+				}
+			})
+			.catch((error: unknown) => console.error(error));
 		return () => {
 			cancelled = true;
 		};
