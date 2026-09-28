@@ -1,6 +1,7 @@
 import { useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { galleryImages, getGalleryImage } from "@/content/gallery";
+import { useMounted } from "@/lib/use-mounted";
 import { Lightbox } from "./lightbox";
 import { Masonry, type MasonryItem } from "./masonry";
 
@@ -11,7 +12,11 @@ import { Masonry, type MasonryItem } from "./masonry";
  */
 export function GalleryView() {
 	const image = useSearch({ strict: false, select: (s) => s.image });
-	const active = image ? getGalleryImage(image) : undefined;
+	// /gallery is prerendered without search params, so a deep-linked
+	// `?image=` opens the lightbox one commit after hydration (rendering it
+	// during hydration mismatched the server HTML).
+	const mounted = useMounted();
+	const active = mounted && image ? getGalleryImage(image) : undefined;
 	const navigate = useNavigate();
 	const router = useRouter();
 
