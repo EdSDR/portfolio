@@ -1,3 +1,4 @@
+import { readdirSync } from "node:fs";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import mdx from "@mdx-js/rollup";
 import tailwindcss from "@tailwindcss/vite";
@@ -10,6 +11,7 @@ import { frontmatterSchema } from "./src/content/schema.ts";
 import { SITE_URL } from "./src/lib/site.ts";
 import { imageSize } from "./vite-plugins/image-size.ts";
 import { mdxFrontmatter } from "./vite-plugins/mdx-frontmatter.ts";
+import { sitemap } from "./vite-plugins/sitemap.ts";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
@@ -53,8 +55,17 @@ const config = defineConfig({
 				concurrency: 14,
 				failOnError: true,
 			},
-			// sitemap.xml from the prerendered pages.
-			sitemap: { enabled: true, host: SITE_URL },
+		}),
+		// sitemap.xml for the public pages (keep in sync with src/routes).
+		sitemap({
+			host: SITE_URL,
+			paths: () => [
+				"/",
+				"/gallery",
+				...readdirSync("src/content/projects")
+					.filter((file) => file.endsWith(".mdx"))
+					.map((file) => `/work/${file.replace(/\.mdx$/, "")}`),
+			],
 		}),
 		viteReact({ include: /\.(jsx|js|mdx|md|tsx|ts)$/ }),
 	],
