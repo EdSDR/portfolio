@@ -1,3 +1,5 @@
+import { prefersReducedMotion } from "./use-device";
+
 /**
  * Remembers the home scroll position across an open→close cycle. Opening a card
  * collapses the list (page shrinks, scroll clamps to top), which loses the
@@ -12,8 +14,10 @@ export function rememberHomeScroll(): void {
 
 export function restoreHomeScroll(): void {
 	if (typeof window === "undefined") return;
-	const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-	window.scrollTo({ top: homeScrollY, behavior: reduce ? "auto" : "smooth" });
+	window.scrollTo({
+		top: homeScrollY,
+		behavior: prefersReducedMotion() ? "auto" : "smooth",
+	});
 }
 
 /**

@@ -24,7 +24,11 @@ import {
 	releaseScrollHold,
 	rememberHomeScroll,
 } from "@/lib/scroll-memory";
-import { usePointerFine, usePrefersReducedMotion } from "@/lib/use-device";
+import {
+	prefersReducedMotion,
+	usePointerFine,
+	usePrefersReducedMotion,
+} from "@/lib/use-device";
 import { useInView } from "@/lib/use-in-view";
 import { useMounted } from "@/lib/use-mounted";
 import { ProjectDetail } from "./project-detail";
@@ -74,7 +78,7 @@ export function ProjectCard({
 		if (!entering || !el) return;
 		const animation = flyIn(el, {
 			delay: enterDelay,
-			reduced: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+			reduced: prefersReducedMotion(),
 		});
 		return () => animation.cancel();
 	}, [entering, enterDelay]);

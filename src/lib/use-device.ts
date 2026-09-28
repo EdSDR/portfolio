@@ -16,6 +16,14 @@ function useMediaQuery(query: string): boolean {
 /** True on precise-pointer devices (desktop) — where live scenes run in the list. */
 export const usePointerFine = () => useMediaQuery("(pointer: fine)");
 
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+
 /** True when the user asked the OS to minimize motion. */
-export const usePrefersReducedMotion = () =>
-	useMediaQuery("(prefers-reduced-motion: reduce)");
+export const usePrefersReducedMotion = () => useMediaQuery(REDUCED_MOTION);
+
+/**
+ * The same preference read once, for event handlers and effects that run
+ * before the hook's first update (client-only).
+ */
+export const prefersReducedMotion = () =>
+	window.matchMedia(REDUCED_MOTION).matches;
