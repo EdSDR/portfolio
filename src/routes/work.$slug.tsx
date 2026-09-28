@@ -13,8 +13,13 @@ export const Route = createFileRoute("/work/$slug")({
 		const project = getProject(params.slug);
 		if (!project) throw notFound();
 		// Prefetch the MDX body so the writeup is ready when the card expands
-		// (runs on hover-intent preload too).
-		await project.loadBody();
+		// (runs on hover-intent preload too). A failed prefetch must not fail the
+		// route (the router would reuse that errored preload on click); the card
+		// still opens and the writeup shows its own "couldn't load" message (a
+		// failed dynamic import stays failed until the page reloads).
+		try {
+			await project.loadBody();
+		} catch {}
 		return {
 			slug: project.slug,
 			name: project.name,
