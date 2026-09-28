@@ -31,12 +31,13 @@ function Statue() {
 				(targetRotY - group.current.rotation.y) * Math.min(1, delta * 1.5);
 		}
 		if (light.current) {
-			// The reference tracks the pointer; at rest that settles the key light
-			// front-and-center at ~[0, 0, 8], aimed at the origin. We keep it there
-			// and let it drift gently so the statue's front face stays lit rather
-			// than swinging wide (which left the Lambert mesh black against the fog).
+			// A raking key light: its drift is centered 3 units to the side of the
+			// statue (the reference's pointer-driven light rests front-and-center),
+			// so folds and the scales throw deeper shadows. The drift stays narrow
+			// enough that the face is never left black against the fog (checked
+			// across the whole cycle).
 			light.current.position.set(
-				Math.sin(t * 0.25) * 3,
+				-3 + Math.sin(t * 0.25) * 3,
 				1 + Math.cos(t * 0.4),
 				8,
 			);
