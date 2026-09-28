@@ -7,7 +7,7 @@ import viteReact from "@vitejs/plugin-react";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { defineConfig } from "vite";
-import { imageSize } from "./vite-plugins/image-size";
+import { imageSize } from "./vite-plugins/image-size.ts";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
