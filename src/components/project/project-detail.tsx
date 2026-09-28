@@ -23,6 +23,11 @@ export function ProjectDetail({ project }: { project: Project }) {
 			<h1 className="mt-4 font-semibold text-3xl tracking-tight">
 				{project.name}
 			</h1>
+			{(project.company || project.year) && (
+				<p className="mt-1 text-muted-foreground text-sm">
+					{[project.company, project.year].filter(Boolean).join(" · ")}
+				</p>
+			)}
 			<p className="mt-2 text-muted-foreground">{project.description}</p>
 
 			{project.tags.length > 0 && (
