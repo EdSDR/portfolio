@@ -1,33 +1,60 @@
 ---
 name: "Governance"
-description: "The Torus DAO governance interface — proposals, voting, and whitelist review, fronted by a 3D statue of Themis."
+description: "A recreation of the landing scene I made for the Torus DAO app: a statue of Themis under a single moving spotlight."
+company: "Renlabs"
+year: "2025"
 date: "2025-11-01"
 accent: "#c9b678"
-tags: ["Three.js", "React Three Fiber", "DAO", "Governance"]
+tags: ["React Three Fiber", "drei", "glTF", "Draco"]
 links:
   - text: "torus.network"
     url: "https://torus.network"
+  - text: "Original source"
+    url: "https://github.com/renlabs-dev/torus-ts/blob/main/apps/torus-governance/src/app/_components/statue-animation.tsx"
 ---
 
-## Overview
+This recreates the landing scene of the Torus governance app, which I built in April 2025. Before
+you get to proposals and votes, you see a statue of Themis, the Greek figure of justice, lit by one
+spotlight in fog and starlight.
 
-The governance app is where the Torus DAO does its work: submitting and voting on
-proposals, reviewing whitelist applications, and tracking the cadre. The landing
-is anchored by a slowly lit statue of Themis — the figure of justice — set in fog
-and starlight.
+## The original
 
-## The idea
+The governance app is where TORUS holders run the DAO: proposals (including emission changes and
+treasury transfers), voting, applications from agents that want to be whitelisted, a dashboard of
+agent health, and DAO membership tied to a Discord account. Chain data comes in through the
+polkadot.js SDK; comments and off-chain votes go through tRPC and Drizzle.
 
-Governance UIs are usually dense tables. I wanted the entry point to feel weighty
-and deliberate: a single sculpted figure emerging from the dark, lit by a drifting
-spotlight, before you drop into the actual tooling.
+The landing page used to be a static image of a Greek statue. I replaced it with a 3D version: a
+glTF model of Themis, fog, volumetric clouds, stars, and a spotlight that follows the mouse. Three
+buttons float inside the scene and lead to proposals, the DAO dashboard and whitelist applications.
 
-- A real 3D model (glTF) lit with soft shadows and a moving key light.
-- Volumetric clouds and a starfield for depth.
-- Calm, continuous motion — no spin, just a gentle sway.
+## My part
 
-## Under the hood
+The scene was mine, start to finish, in one PR. I also worked on the rest of the governance app
+with the team.
 
-Built with React Three Fiber and drei (SoftShadows, Clouds, Stars). The statue is
-a glTF mesh with a simple stone material; the drama is all light, fog, and
-composition rather than geometry.
+## How it works
+
+The statue is a single Draco-compressed mesh, 2.9 MB, drawn with a plain Lambert material. The
+look comes from lighting and fog, not textures. The pointer drives the motion through maath's
+damping helpers: the statue turns toward the cursor and the spotlight tracks the pointer across
+the front. Soft shadows came from drei's `SoftShadows` (PCSS); the clouds and stars are drei too.
+
+## The tricky bit
+
+Bringing it into this site broke two things.
+
+First, the statue vanished. `SoftShadows` injects shader code that three.js 0.186 no longer
+supports, so the statue's material failed to compile and the mesh quietly stopped drawing, while
+the clouds and stars kept rendering. I switched to variance shadow maps (VSM).
+
+Second, the model is 772k triangles with no shared vertices (every corner carries its own normal),
+about 65 MB once decoded. I dropped the normals, welded vertices by position, simplified it with
+meshoptimizer, and recomputed smooth normals: 193k triangles, 590 KB. At 10% of the original the
+thin chains on the scales broke apart. 25% kept them.
+
+## About this recreation
+
+Cards here don't take pointer input, so the parallax became a slow automatic sway and the spotlight
+drifts on its own. The key light sits off to one side, so the shadows are harder than in the
+original. The cloud texture is served from this site instead of a CDN.

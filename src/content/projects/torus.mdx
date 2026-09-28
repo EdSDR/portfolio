@@ -1,35 +1,64 @@
 ---
 name: "Torus"
-description: "A live 3D visualization of an on-chain agent network — a force-directed hypergraph of emission flows between agents."
+description: "A recreation of the permission hypergraph I built for Torus Portal: agents, permissions and emission streams as a 3D force graph."
+company: "Renlabs"
+year: "2025"
 date: "2026-02-01"
 accent: "#63cbff"
-tags: ["Three.js", "React Three Fiber", "Substrate", "Web3"]
+tags: ["React Three Fiber", "r3f-forcegraph", "d3-force-3d", "Substrate"]
 links:
-  - text: "torus.network"
-    url: "https://torus.network"
+  - text: "Torus Portal"
+    url: "https://portal.torus.network"
+  - text: "Original source"
+    url: "https://github.com/renlabs-dev/torus-ts/tree/main/apps/torus-portal/src/app/(pages)/portal/_components/force-graph"
 ---
 
-## Overview
+This is a recreation of the hypergraph in Torus Portal, the app people use to explore and manage
+the Torus network. I built the original at Renlabs in 2025. The scene above runs on generated data,
+but it uses the same library, shapes and colors as the real one.
 
-Torus is a Substrate-based network where autonomous agents delegate stake and
-route emissions to one another. To make that structure legible, I built a live
-3D map of it: a force-directed graph where every node is an agent and every edge
-is a permission or emission stream, with particles flowing along the links to
-show value moving through the network in real time.
+## The original
 
-## The idea
+Torus is a Substrate blockchain for networks of autonomous agents. A root allocator pays emissions
+to agents, and agents can delegate emissions or capabilities to other agents through permissions.
+Delegations can chain, so the structure gets deep quickly and a table stops helping.
 
-A hypergraph of thousands of agents is hard to reason about in a table. Rendered
-in space — clustered by relationship, glowing by role, animated by flow — it
-becomes something you can actually explore.
+The Portal draws the network as a 3D force-directed graph. The allocator is pinned at the center.
+Agents are spheres, colored by whether they're whitelisted. Signals are tetrahedrons. Permissions
+get their own small icosahedrons instead of being plain edges, because one permission can connect a
+delegator to several recipients and distribution targets. That's what makes it a hypergraph, and
+where the name comes from. Particles run along the links, more of them on heavier weights.
 
-- Nodes sized and colored by role (allocators, roots, agents, signals).
-- Curved links carry directional particles that trace live emission flows.
-- A d3 force simulation lays the graph out, then settles so it reads clearly.
+## My part
 
-## Under the hood
+I started the graph in May 2025 and wrote most of it: the 3D view, the click-to-focus camera, flow
+highlighting, the side sheet with an agent's permissions, and a 2D version in PixiJS. Other people
+on the team worked on it too; Rodrigo reworked the search, for example.
 
-Built with React Three Fiber and `three-forcegraph`, fed by typed chain data
-transpiled from the Rust Substrate runtime into TypeScript. The hero you see
-here is a self-contained, synthetic approximation of that system — same visual
-language, generated data.
+## How it works
+
+The graph uses r3f-forcegraph, a React Three Fiber wrapper around three-forcegraph and
+d3-force-3d. A worker indexes permissions, agents and signals from the chain into Postgres on every
+block, and the page reads them through four tRPC queries. The client turns rows into nodes and
+links, seeds agents on a ring so the simulation starts from a reasonable shape, and sets the
+forces (link distance 130, charge −60). Bloom from `@react-three/postprocessing` makes the nodes
+glow.
+
+Clicking a node flies the camera to it with a small hand-written ease-in-out. The flight stops once
+it's within 5 units or 90% of the way there, because the last few percent of an ease just crawl.
+The selection lives in the URL (`?id=`), so a shared link opens the graph focused on that agent.
+
+## The tricky bit
+
+Flow highlighting: pick an agent and dim everything it isn't connected to. The obvious version
+walks links recursively, and it selected the whole graph every time, because every agent connects
+to the allocator. The fix was to walk everything except the allocator and add it back at the end.
+The dimming itself is only material opacity, 0.1 to 0.2 on the nodes outside the flow.
+
+## About this recreation
+
+There's no chain here. The graph comes from a seeded random generator: 16 root clusters, about 600
+nodes and 690 links, with the production palette and shapes. Cards on this site don't take input,
+so there's no camera focus or selection. The scene gets its own canvas with Bloom at 4× MSAA,
+pauses when the card scrolls out of view, and shows a pre-rendered poster until its first frame
+is ready.

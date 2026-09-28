@@ -11,7 +11,7 @@ links:
 
 ## Oh, you made it all the way down here
 
-You scrolled past a live on-chain hypergraph and a statue of Themis wrapped in
+You scrolled past a 3D agent hypergraph and a statue of Themis wrapped in
 volumetric clouds, and you clicked on... two boxes. Respect.
 
 This was the first scene I ever put in this portfolio. Its whole job was to answer
@@ -51,13 +51,10 @@ the page by a frame when you scroll, and a 9999px box-shadow pretending to be
 rounded corners. So I deleted it. Every card now owns its own canvas. It renders
 while you can see it, pauses when it's just off screen, and disappears entirely
 when it's far away. The first JavaScript download went from about 430 KB to
-under 190 KB (gzipped), and the rounded corners are real now.
+about 160 KB (gzipped), and the rounded corners are real now.
 
-**The invisible statue.** For a while the governance scene looked perfect: clouds,
-stars, fog, lighting. It just had no statue in it. The soft-shadow helper I used
-injects shader code that the latest three.js no longer supports, so the statue's
-material failed to compile and the mesh quietly skipped drawing itself. Swapping to
-variance shadow maps brought her back.
+**The invisible statue.** For a while the governance scene had clouds, stars, fog
+and lighting, and no statue. The governance writeup has the details.
 
 **The graph that wouldn't come back.** Open another project, close it, and the
 hypergraph would sit there as a still image. When a card remounts, its shaders are

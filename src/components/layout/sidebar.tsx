@@ -46,11 +46,11 @@ const SOCIAL_ICONS: Record<string, ReactNode> = {
 
 const profile = {
 	name: "Ed Castro",
-	role: "Software Engineer & Frontend Specialist",
+	role: "Senior software engineer · front-end and 3D on the web",
 	avatar: "/avatar.webp",
 	available: true,
-	availableText: "Available for new projects",
-	bio: "I'm a passionate software developer. 5+ years of experience creating fun and innovative ways to interact with complex software and visualizations.",
+	availableText: "Open to full-time and contract work",
+	bio: "I build web apps in TypeScript and React, and sometimes put 3D scenes in them. At Renlabs I lead the web team that builds the apps for Torus, a blockchain for networks of autonomous agents. Away from the keyboard I take photos and paint miniatures.",
 	buttons: {
 		call: { text: "Book a call", url: "mailto:contact@edsdr.com" },
 		chat: { text: "Chat", url: "mailto:contact@edsdr.com" },
@@ -59,17 +59,17 @@ const profile = {
 		{
 			company: "Renlabs",
 			year: "2024 — Present",
-			note: "Lead a 5-person web team; built a Torus→Base token bridge that has moved $5M+ with zero security incidents.",
+			note: "Lead the 5-person web team. Built the Torus ↔ Base bridge: $5M+ moved, zero incidents.",
 		},
 		{
 			company: "Nitro Academy",
 			year: "2024",
-			note: "Sole developer — took an edtech platform from zero to production serving 10,000+ students in 5 months.",
+			note: "Solo developer. Took their learning platform from zero to 10,000+ students in five months.",
 		},
 		{
 			company: "FutureMe",
 			year: "2022 — 2024",
-			note: "Grew a gamified career-discovery platform to 5,000+ students; led the Next.js Pages → App Router rewrite.",
+			note: "Joined as an intern; later led the App Router rewrite and mentored two interns.",
 		},
 	],
 	socials: [
@@ -82,7 +82,7 @@ const profile = {
 		{ label: "Email", url: "mailto:contact@edsdr.com", icon: "email" },
 	],
 	footer:
-		"Based in Rio de Janeiro, Brazil. Working remotely with teams all across the globe.",
+		"Rio de Janeiro, Brazil (UTC−3). Remote since 2021; my hours overlap with US-East and Europe.",
 	copyright: "© 2026 Ed Castro. All rights reserved.",
 };
 
