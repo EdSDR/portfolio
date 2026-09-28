@@ -1,12 +1,16 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import type { GalleryImage } from "@/content/gallery";
+import { useMounted } from "@/lib/use-mounted";
 import { LIGHTBOX_SPRING, masonryLayoutId } from "./masonry";
 
 /**
  * Full-view image over a blurred backdrop. The image shares its tile's
  * layoutId, so it flies out of the grid and back. Closes on Esc, backdrop
  * click, or the browser back button (the open image lives in the URL).
+ * Portaled to <body> so the app shell behind it can be made `inert` (focus
+ * and screen readers stay in the dialog).
  */
 export function Lightbox({
 	image,
@@ -18,6 +22,7 @@ export function Lightbox({
 	onExitComplete?: () => void;
 }) {
 	const closeRef = useRef<HTMLButtonElement>(null);
+	const mounted = useMounted();
 
 	useEffect(() => {
 		if (!image) return;
@@ -25,6 +30,8 @@ export function Lightbox({
 		const root = document.documentElement;
 		const overflow = root.style.overflow;
 		root.style.overflow = "hidden";
+		const shell = document.querySelector<HTMLElement>("[data-app-shell]");
+		if (shell) shell.inert = true;
 		const onKey = (e: KeyboardEvent) => {
 			if (e.key === "Escape") onClose();
 		};
@@ -32,11 +39,13 @@ export function Lightbox({
 		closeRef.current?.focus({ preventScroll: true });
 		return () => {
 			root.style.overflow = overflow;
+			if (shell) shell.inert = false;
 			window.removeEventListener("keydown", onKey);
 		};
 	}, [image, onClose]);
 
-	return (
+	if (!mounted) return null;
+	return createPortal(
 		<AnimatePresence onExitComplete={onExitComplete}>
 			{image && (
 				<motion.div
@@ -106,6 +115,7 @@ export function Lightbox({
 					</motion.button>
 				</motion.div>
 			)}
-		</AnimatePresence>
+		</AnimatePresence>,
+		document.body,
 	);
 }

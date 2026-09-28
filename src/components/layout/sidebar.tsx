@@ -96,7 +96,8 @@ export function Sidebar() {
 				<div style={flyUp(0)} className="fly-up flex items-center gap-3">
 					<img
 						src={profile.avatar}
-						alt={profile.name}
+						// Decorative: the name is right next to it.
+						alt=""
 						width={32}
 						height={32}
 						className="size-8 rounded-full"
@@ -105,7 +106,7 @@ export function Sidebar() {
 						<span className="relative flex size-2">
 							<span
 								className={cn(
-									"absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
+									"absolute inline-flex h-full w-full rounded-full opacity-75 motion-safe:animate-ping",
 									profile.available ? "bg-emerald-400" : "bg-red-400",
 								)}
 							/>

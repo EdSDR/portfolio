@@ -32,7 +32,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 	return (
 		<MotionConfig reducedMotion="user">
-			<div className="relative min-h-screen">
+			<div data-app-shell className="relative min-h-screen">
 				<div className="relative mx-auto flex w-full max-w-[1600px] flex-col gap-8 lg:flex-row">
 					<Sidebar />
 					{/* Extra bottom room on small screens for the floating tabs. */}
