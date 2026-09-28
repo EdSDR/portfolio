@@ -58,11 +58,12 @@ try {
 		reducedMotion: "no-preference",
 	});
 	await page.goto(BASE_URL, { waitUntil: "networkidle" });
-	// Raw scene only: no label pill, border, rounded corners, or dev overlays
-	// (the app shell is <body>'s first child; devtools render after it).
+	// Raw scene only: no label pill, border, rounded corners, fixed page overlays
+	// (tabs, fade strips: `data-poster-hide`), or dev overlays (the app shell is
+	// <body>'s first child; devtools render after it).
 	await page.addStyleTag({
 		content: [
-			"[data-card-label]{display:none!important}",
+			"[data-card-label],[data-poster-hide]{display:none!important}",
 			"[data-scene-media]{border:0!important;border-radius:0!important}",
 			"body>:not(:first-child){display:none!important}",
 		].join(""),

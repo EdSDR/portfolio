@@ -31,7 +31,8 @@ and `torus-ts/` (the real Torus codebase, reference for the Torus scene).
 - `bun run deploy` — build + `wrangler deploy`
 - `bun run posters [slug…]` — re-capture card posters + OG images into `public/posters/`
   (headless system Chrome via playwright-core; uses/starts the dev server, override with
-  `BASE_URL=…`). Re-run after changing a scene's look or adding a project.
+  `BASE_URL=…`). Re-run after changing a scene's look or adding a project. Any new
+  `position: fixed` overlay must carry `data-poster-hide`, or it gets baked into posters.
 
 Before handing work back: `bun run typecheck` and `bunx biome ci` (what CI runs, plus
 `bun run build`; `.github/workflows/ci.yml`). Formatting-only commits go in
