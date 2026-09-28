@@ -178,14 +178,13 @@ public/
 
 ## Writing the copy
 
-Sidebar and writeups follow `.plan/copy/RESEARCH.md` (gitignored; research + sources). Short version:
-- Plain and concise, first person. "I" for my part; name teammates for theirs.
-- Facts only from the resume source of truth (`.plan/ed-resume/original.md`) or measured in this
-  repo. No invented numbers, no quality adjectives about my own work, no marketing words
-  (passionate, innovative, seamless, robust, leverage…), no "not just X but Y".
-- Scene writeups: intro → `## The original` → `## My part` → `## How it works` →
-  `## The tricky bit` → `## About this recreation`; 450–800 words; say what's recreated or faked.
-  Frontmatter `company` + `year` render the meta line under the title.
+Short and interesting beats complete. Sidebar and writeups:
+- Plain, first person, no marketing words (passionate, innovative, seamless, robust…).
+- Scene writeups ~150–250 words: what the viewer is looking at, one line on where it came from,
+  one or two concrete details worth knowing. Short paragraphs under three light headings:
+  `## Overview`, `## The idea`, `## Under the hood`.
+  No "my part"/team-credit sections: the scene on the site is the thing being described.
+- Facts only from the resume source of truth (`.plan/ed-resume/original.md`) or this repo.
 - Never put the phone number or other private contact details in the repo.
 
 ## Adding gallery images

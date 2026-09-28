@@ -1,6 +1,6 @@
 ---
 name: "Governance"
-description: "A recreation of the landing scene I made for the Torus DAO app: a statue of Themis under a single moving spotlight."
+description: "Themis in fog under one moving spotlight, from the Torus DAO app."
 company: "Renlabs"
 year: "2025"
 date: "2025-11-01"
@@ -13,48 +13,24 @@ links:
     url: "https://github.com/renlabs-dev/torus-ts/blob/main/apps/torus-governance/src/app/_components/statue-animation.tsx"
 ---
 
-This recreates the landing scene of the Torus governance app, which I built in April 2025. Before
-you get to proposals and votes, you see a statue of Themis, the Greek figure of justice, lit by one
-spotlight in fog and starlight.
+## Overview
 
-## The original
+The Torus DAO app opens on this scene: Themis, the Greek figure of justice, in black fog under a
+single spotlight. I made it for the governance app, where the light followed your mouse. Here it
+drifts on its own.
 
-The governance app is where TORUS holders run the DAO: proposals (including emission changes and
-treasury transfers), voting, applications from agents that want to be whitelisted, a dashboard of
-agent health, and DAO membership tied to a Discord account. Chain data comes in through the
-polkadot.js SDK; comments and off-chain votes go through tRPC and Drizzle.
+## The idea
 
-The landing page used to be a static image of a Greek statue. I replaced it with a 3D version: a
-glTF model of Themis, fog, volumetric clouds, stars, and a spotlight that follows the mouse. Three
-buttons float inside the scene and lead to proposals, the DAO dashboard and whitelist applications.
+There's only one light that matters. It sits off to one side and sweeps slowly, so the folds of
+her robe and the scales she holds fall in and out of shadow. The clouds and stars come from drei,
+the fog is plain three.js fog, and the statue has a plain grey material. All of the mood comes
+from the light.
 
-## My part
+## Under the hood
 
-The scene was mine, start to finish, in one PR. I also worked on the rest of the governance app
-with the team.
+The model used to be 772k triangles and 3 MB to download. I welded and simplified it down to 193k
+triangles and 590 KB. Going lower broke the thin chains on the scales, so that's where it stopped.
 
-## How it works
-
-The statue is a single Draco-compressed mesh, 2.9 MB, drawn with a plain Lambert material. The
-look comes from lighting and fog, not textures. The pointer drives the motion through maath's
-damping helpers: the statue turns toward the cursor and the spotlight tracks the pointer across
-the front. Soft shadows came from drei's `SoftShadows` (PCSS); the clouds and stars are drei too.
-
-## The tricky bit
-
-Bringing it into this site broke two things.
-
-First, the statue vanished. `SoftShadows` injects shader code that three.js 0.186 no longer
-supports, so the statue's material failed to compile and the mesh quietly stopped drawing, while
-the clouds and stars kept rendering. I switched to variance shadow maps (VSM).
-
-Second, the model is 772k triangles with no shared vertices (every corner carries its own normal),
-about 65 MB once decoded. I dropped the normals, welded vertices by position, simplified it with
-meshoptimizer, and recomputed smooth normals: 193k triangles, 590 KB. At 10% of the original the
-thin chains on the scales broke apart. 25% kept them.
-
-## About this recreation
-
-Cards here don't take pointer input, so the parallax became a slow automatic sway and the spotlight
-drifts on its own. The key light sits off to one side, so the shadows are harder than in the
-original. The cloud texture is served from this site instead of a CDN.
+For a while she went missing entirely. drei's soft shadows inject shader code that current
+three.js no longer supports, so her material failed to compile and she stopped drawing while the
+clouds and stars carried on. Variance shadow maps brought her back.
