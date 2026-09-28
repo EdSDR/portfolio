@@ -1,7 +1,12 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import { fadeUp, staggerContainer } from "@/lib/motion";
+import { flyUpSequence } from "@/lib/fly-in";
+
+// Sidebar entrance: one sequence top to bottom (0.1s → ~0.8s), interleaved with
+// the cards' fly-in (from 0.25s). Icons travel less.
+const flyUp = flyUpSequence({ start: 0.1 });
+const flyUpSmall = flyUpSequence({ start: 0.1, distance: 20, blur: 6 });
 
 // Lucide outline icons (matching the reference's @lucide set).
 const lucideProps = {
@@ -85,16 +90,16 @@ export function Sidebar() {
 	return (
 		<motion.aside
 			data-scroll-anchor
-			variants={staggerContainer(0.55, 0.12)}
 			initial="hidden"
 			animate="show"
 			className="flex w-full shrink-0 flex-col gap-8 px-4 py-8 lg:sticky lg:top-0 lg:h-screen lg:max-w-sm lg:justify-between"
 		>
-			<motion.div
-				variants={staggerContainer(0.05)}
-				className="flex w-full flex-col gap-6"
-			>
-				<motion.div variants={fadeUp} className="flex items-center gap-3">
+			<motion.div className="flex w-full flex-col gap-6">
+				<motion.div
+					variants={flyUp}
+					custom={0}
+					className="flex items-center gap-3"
+				>
 					<img
 						src={profile.avatar}
 						alt={profile.name}
@@ -123,17 +128,36 @@ export function Sidebar() {
 					</div>
 				</motion.div>
 
-				<motion.div variants={fadeUp} className="flex flex-col gap-3">
-					<h1 className="text-balance font-semibold text-2xl">
+				{/* Name, role and bio land one after another. */}
+				<motion.div className="flex flex-col gap-3">
+					<motion.h1
+						variants={flyUp}
+						custom={1}
+						className="text-balance font-semibold text-2xl"
+					>
 						{profile.name}
-					</h1>
-					<h2 className="text-balance font-normal text-2xl text-muted-foreground">
+					</motion.h1>
+					<motion.h2
+						variants={flyUp}
+						custom={2}
+						className="text-balance font-normal text-2xl text-muted-foreground"
+					>
 						{profile.role}
-					</h2>
-					<p className="text-muted-foreground text-sm">{profile.bio}</p>
+					</motion.h2>
+					<motion.p
+						variants={flyUp}
+						custom={3}
+						className="text-muted-foreground text-sm"
+					>
+						{profile.bio}
+					</motion.p>
 				</motion.div>
 
-				<motion.div variants={fadeUp} className="flex items-center gap-3">
+				<motion.div
+					variants={flyUp}
+					custom={4}
+					className="flex items-center gap-3"
+				>
 					<a
 						href={profile.buttons.call.url}
 						className="inline-flex h-9 items-center rounded-lg bg-foreground px-4 font-medium text-background text-sm transition-transform active:scale-[0.97]"
@@ -148,14 +172,12 @@ export function Sidebar() {
 					</a>
 				</motion.div>
 
-				<motion.div
-					variants={staggerContainer(0.04)}
-					className="flex w-full flex-col gap-1"
-				>
-					{profile.experience.map((exp) => (
+				<motion.div className="flex w-full flex-col gap-1">
+					{profile.experience.map((exp, i) => (
 						<motion.div
 							key={exp.company}
-							variants={fadeUp}
+							variants={flyUp}
+							custom={5 + i}
 							className="group relative flex cursor-default flex-col rounded-lg px-3 py-3 transition-colors duration-300 hover:bg-muted"
 						>
 							<div className="flex w-full items-center justify-between">
@@ -174,18 +196,13 @@ export function Sidebar() {
 				</motion.div>
 			</motion.div>
 
-			<motion.footer
-				variants={staggerContainer(0.04)}
-				className="flex flex-col gap-3"
-			>
-				<motion.div
-					variants={staggerContainer(0.03)}
-					className="flex flex-wrap items-center gap-4"
-				>
-					{profile.socials.map((s) => (
+			<motion.footer className="flex flex-col gap-3">
+				<motion.div className="flex flex-wrap items-center gap-4">
+					{profile.socials.map((s, i) => (
 						<motion.a
 							key={s.label}
-							variants={fadeUp}
+							variants={flyUpSmall}
+							custom={8 + i}
 							href={s.url}
 							target="_blank"
 							rel="noreferrer"
@@ -197,12 +214,17 @@ export function Sidebar() {
 					))}
 				</motion.div>
 				<motion.p
-					variants={fadeUp}
+					variants={flyUp}
+					custom={11}
 					className="text-muted-foreground text-xs leading-relaxed"
 				>
 					{profile.footer}
 				</motion.p>
-				<motion.p variants={fadeUp} className="text-muted-foreground text-xs">
+				<motion.p
+					variants={flyUp}
+					custom={12}
+					className="text-muted-foreground text-xs"
+				>
 					{profile.copyright}
 				</motion.p>
 			</motion.footer>

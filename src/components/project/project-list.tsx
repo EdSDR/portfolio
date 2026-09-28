@@ -2,7 +2,6 @@ import { useParams } from "@tanstack/react-router";
 import { LayoutGroup } from "motion/react";
 import { useEffect, useRef } from "react";
 import { projects } from "@/content";
-import { markEntered } from "@/lib/entrance";
 import { restoreHomeScroll } from "@/lib/scroll-memory";
 import { ProjectCard } from "./project-card";
 
@@ -16,9 +15,11 @@ export function ProjectList() {
 	const { slug } = useParams({ strict: false }) as { slug?: string };
 	const visible = slug ? projects.filter((p) => p.slug === slug) : projects;
 
-	// Cards play their staggered entrance only on the very first render.
+	// Cards on the list's first render fly in (page load, or switching back from
+	// the Gallery tab); cards re-mounting after a project closes just appear.
+	const firstRender = useRef(true);
 	useEffect(() => {
-		markEntered();
+		firstRender.current = false;
 	}, []);
 
 	// On close (slug clears), restore the home scroll position after the list has
@@ -48,6 +49,7 @@ export function ProjectList() {
 						project={project}
 						active={project.slug === slug}
 						index={i}
+						enter={firstRender.current}
 					/>
 				))}
 			</div>

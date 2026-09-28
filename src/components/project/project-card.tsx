@@ -17,7 +17,7 @@ import {
 } from "@/components/canvas/scenes/registry";
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
-import { hasEnteredOnce } from "@/lib/entrance";
+import { FLY_HIDDEN, flyIn } from "@/lib/fly-in";
 import {
 	holdScrollForOpen,
 	releaseScrollHold,
@@ -49,20 +49,34 @@ export function ProjectCard({
 	project,
 	active,
 	index,
+	enter,
 }: {
 	project: Project;
 	active: boolean;
 	index: number;
+	/** Fly in on mount (page load / tab switch), vs. just appear (after a close). */
+	enter: boolean;
 }) {
 	const [ref, state] = useInView<HTMLDivElement>();
 	const mounted = useMounted();
 	const fine = usePointerFine();
 	const reduced = usePrefersReducedMotion();
 
-	// Staggered entrance, only on the first page load (cards re-appearing after an
-	// open/close snap in instantly). Cards come in after the sidebar cascade.
-	const firstLoad = useRef(!hasEnteredOnce()).current;
-	const enterDelay = firstLoad ? 0.9 + index * 0.16 : 0;
+	// Staggered fly-in (same as the gallery tiles), interleaved with the sidebar
+	// cascade. Decided at mount only: `index` changes when a card opens (the list
+	// filters to it), which must not replay the entrance.
+	const entering = useRef(enter).current;
+	const enterDelay = useRef(entering ? 0.25 + index * 0.12 : 0).current;
+	const articleRef = useRef<HTMLElement>(null);
+	useLayoutEffect(() => {
+		const el = articleRef.current;
+		if (!entering || !el) return;
+		const controls = flyIn(el, {
+			delay: enterDelay,
+			reduced: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+		});
+		return () => controls.stop();
+	}, [entering, enterDelay]);
 	const sceneBg = scenes[project.slug]?.background ?? DEFAULT_SCENE_BG;
 
 	// Opening: the click scrolled to the top and held the page visually in place
@@ -74,18 +88,17 @@ export function ProjectCard({
 		wasActive.current = active;
 	}, [active]);
 
-	// On first load, hold scene start-up (chunk parse, context, shader compile)
-	// until this card's entrance has played so it doesn't jank the cascade; the
-	// poster covers the gap.
-	const [entranceDone, setEntranceDone] = useState(!firstLoad);
+	// Hold scene start-up (chunk parse, context, shader compile) until this card
+	// has landed, so it doesn't jank the fly-in; the poster covers the gap.
+	const [entranceDone, setEntranceDone] = useState(!entering);
 	useEffect(() => {
-		if (!firstLoad) return;
+		if (!entering) return;
 		const t = setTimeout(
 			() => setEntranceDone(true),
-			(enterDelay + 0.65) * 1000,
+			(enterDelay + 0.8) * 1000,
 		);
 		return () => clearTimeout(t);
-	}, [firstLoad, enterDelay]);
+	}, [entering, enterDelay]);
 
 	// Live 3D on desktop pointers while near/visible, or whenever a card is
 	// opened. Mobile / reduced-motion stay on the poster.
@@ -105,14 +118,10 @@ export function ProjectCard({
 
 	return (
 		<motion.article
+			ref={articleRef}
 			layout
-			initial={firstLoad ? { opacity: 0, y: 18 } : false}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{
-				layout: { type: "spring", stiffness: 220, damping: 30 },
-				opacity: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: enterDelay },
-				y: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: enterDelay },
-			}}
+			initial={entering ? FLY_HIDDEN : false}
+			transition={{ layout: { type: "spring", stiffness: 220, damping: 30 } }}
 			className="relative w-full"
 		>
 			{/* borderRadius lives in `style` so Motion corrects it during layout
