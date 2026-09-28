@@ -7,5 +7,7 @@
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 /draco/*
   Cache-Control: public, max-age=2592000
+/cloud.png
+  Cache-Control: public, max-age=2592000
 /themis.glb
   Cache-Control: public, max-age=604800, stale-while-revalidate=2592000

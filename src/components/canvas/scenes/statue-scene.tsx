@@ -56,7 +56,9 @@ function Statue() {
 				<meshLambertMaterial color="#43434a" />
 			</mesh>
 
-			<Clouds material={THREE.MeshBasicMaterial}>
+			{/* Self-hosted copy of drei's default cloud sprite (it would otherwise be
+			    fetched from rawcdn.githack.com at runtime, gating the scene's start). */}
+			<Clouds material={THREE.MeshBasicMaterial} texture="/cloud.png">
 				<Cloud
 					seed={2}
 					scale={2}
