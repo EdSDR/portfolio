@@ -1,7 +1,9 @@
 import { Cloud, Clouds, Stars, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { type RefObject, useRef } from "react";
 import * as THREE from "three";
+import { FilmGrade } from "./film-grade";
+import { StatueLight } from "./statue-light";
 
 /** Self-hosted Draco decoder (public/draco) — no runtime fetch from Google's CDN. */
 const DRACO_PATH = "/draco/";
@@ -13,9 +15,8 @@ const DRACO_PATH = "/draco/";
  *
  * Shadows (VSM) and the camera are configured on the canvas via the registry.
  */
-function Statue() {
+function Statue({ light }: { light: RefObject<THREE.SpotLight | null> }) {
 	const group = useRef<THREE.Group>(null);
-	const light = useRef<THREE.SpotLight>(null);
 	// Own time base: R3F resets clock.elapsedTime whenever the card pauses and
 	// resumes (frameloop change), which would make the light jump.
 	const time = useRef(0);
@@ -54,7 +55,7 @@ function Statue() {
 				position={[0.409, -0.06, -1.618]}
 				rotation={[Math.PI / 2, 0, -0.25]}
 			>
-				<meshLambertMaterial color="#43434a" />
+				<meshStandardMaterial color="#43434a" roughness={0.5} metalness={0} />
 			</mesh>
 
 			{/* Self-hosted copy of drei's default cloud sprite (it would otherwise be
@@ -100,10 +101,15 @@ function Statue() {
 }
 
 export default function StatueScene() {
+	const light = useRef<THREE.SpotLight>(null);
 	return (
 		<>
 			<fog attach="fog" args={["black", 0, 20]} />
-			<Statue />
+			<Statue light={light} />
+			<StatueLight light={light} />
+			{/* Straight to the canvas, no EffectComposer: its linear-space fog and
+			    tone mapping change how the fog and clouds grade. */}
+			<FilmGrade />
 		</>
 	);
 }
