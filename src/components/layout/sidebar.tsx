@@ -46,11 +46,11 @@ const SOCIAL_ICONS: Record<string, ReactNode> = {
 
 const profile = {
 	name: "Ed Castro",
-	role: "Senior software engineer · front-end and 3D on the web",
+	role: "Software Engineer & Frontend Specialist",
 	avatar: "/avatar.webp",
 	available: true,
-	availableText: "Open to full-time and contract work",
-	bio: "I build web apps in TypeScript and React, and sometimes put 3D scenes in them. At Renlabs I lead the web team that builds the apps for Torus, a blockchain for networks of autonomous agents. Away from the keyboard I take photos and paint miniatures.",
+	availableText: "Available for new projects",
+	bio: "I'm driven by curiosity “uomo universale”. I love creating easy ways to interact and understand complex systems.\n\nRunning, music, miniature painting and photography are predominant in this mix. I have many interests but not enough time to pursue all of them.",
 	buttons: {
 		call: { text: "Book a call", url: "mailto:contact@edsdr.com" },
 		chat: { text: "Chat", url: "mailto:contact@edsdr.com" },
@@ -82,7 +82,7 @@ const profile = {
 		{ label: "Email", url: "mailto:contact@edsdr.com", icon: "email" },
 	],
 	footer:
-		"Rio de Janeiro, Brazil (UTC−3). Remote since 2021; my hours overlap with US-East and Europe.",
+		"Based in Rio de Janeiro, Brazil (GMT-3). Working remotely with teams across the world.",
 	copyright: "© 2026 Ed Castro. All rights reserved.",
 };
 
@@ -137,7 +137,11 @@ export function Sidebar() {
 					>
 						{profile.role}
 					</h2>
-					<p style={flyUp(3)} className="fly-up text-muted-foreground text-sm">
+					<p
+						style={flyUp(3)}
+						// `\n` in the bio is a line break (`\n\n` leaves a blank line).
+						className="fly-up whitespace-pre-line text-muted-foreground text-sm"
+					>
 						{profile.bio}
 					</p>
 				</div>
