@@ -84,10 +84,10 @@ function Statue() {
 				penumbra={0.5}
 				castShadow
 				intensity={1500}
-				shadow-mapSize={1024}
+				shadow-mapSize={512}
 				shadow-bias={-0.0008}
-				shadow-radius={7}
-				shadow-blurSamples={24}
+				shadow-radius={3.5}
+				shadow-blurSamples={12}
 			>
 				<orthographicCamera
 					attach="shadow-camera"
@@ -102,8 +102,6 @@ export default function StatueScene() {
 	return (
 		<>
 			<fog attach="fog" args={["black", 0, 20]} />
-			<pointLight position={[10, -10, -20]} intensity={6} />
-			<pointLight position={[-10, -10, -20]} intensity={6} />
 			<Statue />
 		</>
 	);
