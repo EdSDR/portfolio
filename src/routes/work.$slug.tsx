@@ -38,5 +38,4 @@ export const Route = createFileRoute("/work/$slug")({
 			links: [{ rel: "canonical", href: url }],
 		};
 	},
-	component: () => null,
 });

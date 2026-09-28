@@ -52,7 +52,7 @@ src/
   routes/index.tsx           home / Scenes tab (list is in the shell, route renders nothing)
   routes/gallery.tsx         Gallery tab; `?image=<id>` = open lightbox (zod-validated search)
   routes/work.$slug.tsx      URL + loader (notFound, prefetches MDX body) + head/OG/canonical;
-                             component → null
+                             no component (routes render nothing; the shell owns the UI)
   components/layout/
     app-shell.tsx            persistent shell: sidebar, <ViewTabs>, and the active view
                              (<ProjectList> or <GalleryView>, by pathname); MotionConfig
