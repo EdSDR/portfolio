@@ -12,7 +12,7 @@ import {
 	type NodeType,
 } from "@/lib/graph-data";
 
-/** All links, arrows, and particles share one whitish tint. */
+/** Links and particles share one whitish tint. */
 const LINK_TINT = "#e6ebf2";
 
 /** Per-type geometry — like the reference, some node roles get faceted shapes. */
@@ -146,16 +146,15 @@ export default function TorusScene() {
 					linkColor={LINK_TINT}
 					linkOpacity={0.3}
 					linkWidth={0.5}
-					linkDirectionalArrowLength={3.5}
-					linkDirectionalArrowRelPos={1}
-					linkDirectionalArrowColor={LINK_TINT}
 					linkDirectionalParticles={particlesOf}
 					linkDirectionalParticleWidth={2.2}
 					linkDirectionalParticleSpeed={particleSpeedOf}
 					linkDirectionalParticleColor={LINK_TINT}
 				/>
 			</group>
-			<EffectComposer>
+			{/* 4× MSAA (the library default is 8× on half-float targets, ~2× the
+			    GPU memory for no visible gain at this size). */}
+			<EffectComposer multisampling={4}>
 				<Bloom
 					mipmapBlur
 					luminanceThreshold={0.2}

@@ -23,14 +23,14 @@ export default function SceneCanvas({
 }) {
 	const entry = scenes[slug];
 	if (!entry) return null;
-	const { Scene, background, canvas } = entry;
+	const { Scene, background, canvas, antialias = true } = entry;
 
 	return (
 		<Canvas
 			frameloop={paused ? "never" : "always"}
 			dpr={[1, 1.5]}
 			gl={{
-				antialias: true,
+				antialias,
 				alpha: false,
 				powerPreference: "high-performance",
 			}}

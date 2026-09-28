@@ -16,6 +16,11 @@ export interface SceneEntry {
 	background: string;
 	/** Per-scene <Canvas> options (shadow map type, default camera). */
 	canvas?: Pick<CanvasProps, "shadows" | "camera">;
+	/**
+	 * Default-framebuffer MSAA (default true). Off for scenes whose
+	 * post-processing composer already antialiases its own render targets.
+	 */
+	antialias?: boolean;
 }
 
 const lazyScene = (load: SceneEntry["load"]) => ({ load, Scene: lazy(load) });
@@ -28,6 +33,8 @@ export const scenes: Record<string, SceneEntry> = {
 	torus: {
 		...lazyScene(() => import("./torus-scene")),
 		background: "#1a1a1a",
+		// The EffectComposer multisamples; the final pass is a full-screen quad.
+		antialias: false,
 	},
 	governance: {
 		...lazyScene(() => import("./statue-scene")),
