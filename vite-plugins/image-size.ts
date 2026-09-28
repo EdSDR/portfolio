@@ -66,7 +66,10 @@ export function readImageSize(buf: Buffer): ImageSize | null {
 	if (ascii(4, 8) === "ftyp") {
 		const at = buf.indexOf("ispe");
 		if (at < 0) return null;
-		return { width: buf.readUInt32BE(at + 8), height: buf.readUInt32BE(at + 12) };
+		return {
+			width: buf.readUInt32BE(at + 8),
+			height: buf.readUInt32BE(at + 12),
+		};
 	}
 	// JPEG: walk the markers to the frame header, noting EXIF orientation on the way.
 	if (buf[0] === 0xff && buf[1] === 0xd8) return readJpegSize(buf);
