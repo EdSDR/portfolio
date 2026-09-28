@@ -29,7 +29,8 @@ export const FLY_PENDING = "pending";
 /**
  * Style for a CSS fly-up (`.fly-up` in styles.css): position `i` in a sequence
  * starting at `start`s, `step`s apart. Pure CSS, so it plays from first paint,
- * before JS hydrates. Negative `distance` drops in from above.
+ * before JS hydrates (and on insertion, for elements mounted later).
+ * `distance` is px, or any CSS length; negative drops in from above.
  */
 export function flyUpStyle({
 	i = 0,
@@ -41,12 +42,12 @@ export function flyUpStyle({
 	i?: number;
 	start?: number;
 	step?: number;
-	distance?: number;
+	distance?: number | string;
 	blur?: number;
 } = {}): CSSProperties {
 	return {
-		"--fly-delay": `${start + i * step}s`,
-		"--fly-distance": `${distance}px`,
+		"--fly-delay": `${+(start + i * step).toFixed(3)}s`,
+		"--fly-distance": typeof distance === "number" ? `${distance}px` : distance,
 		"--fly-blur": `${blur}px`,
 	};
 }

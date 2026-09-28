@@ -143,13 +143,15 @@ public/
   Gallery, else Scenes). Switching tabs unmounts the other view (frees the scenes'
   WebGL contexts) and fades the new one in. The lightbox is the `?image=` search param.
 
-- **One entrance style** (`lib/fly-in.ts` + `.fly-up` in `styles.css`): rise from just
-  off-screen + blur into focus, power3.out, staggered. Cards and gallery tiles use
-  `flyIn()` (Web Animations; start hidden via `data-fly="pending"` so SSR HTML doesn't
-  flash); sidebar and tabs use the CSS `.fly-up` class + `flyUpStyle({ i })` (plays from
-  first paint, before hydration). Cards fly in on the list's first render only (page
-  load / tab switch, not after a close); entrance values that depend on props (index,
-  delay) are pinned at mount — opening a card re-indexes the list.
+- **One entrance style** (`lib/fly-in.ts` + `.fly-up` in `styles.css`): rise + blur into
+  focus, power3.out, staggered. Server-rendered content — sidebar, tabs, scene cards,
+  404/error views — uses the CSS `.fly-up` class + `flyUpStyle({ i, … })`: it plays from
+  first paint (the first card's poster is the LCP; don't gate it on hydration) and on
+  insertion for elements mounted later (tab switch). Gallery tiles use `flyIn()` (Web
+  Animations, from just off-screen as each image loads; start hidden via
+  `data-fly="pending"`). Cards get the entrance only on the list's first render (page
+  load / tab switch), not when re-mounted after a close; entrance values that depend on
+  props (index) are pinned at mount — opening a card re-indexes the list.
 - **Keep entrances on the compositor.** Motion (opacity + `translate`) and blur are
   separate animations: a blur can't be composited, and one non-composited property drags
   the whole animation onto the main thread, where scene start-up (~150–300ms tasks)

@@ -19,17 +19,13 @@ import {
 import { ErrorBoundary } from "@/components/error-boundary";
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
-import { FLY_PENDING, flyIn } from "@/lib/fly-in";
+import { flyUpStyle } from "@/lib/fly-in";
 import {
 	holdScrollForOpen,
 	releaseScrollHold,
 	rememberHomeScroll,
 } from "@/lib/scroll-memory";
-import {
-	prefersReducedMotion,
-	usePointerFine,
-	usePrefersReducedMotion,
-} from "@/lib/use-device";
+import { usePointerFine, usePrefersReducedMotion } from "@/lib/use-device";
 import { useInView } from "@/lib/use-in-view";
 import { useMounted } from "@/lib/use-mounted";
 import { ProjectDetail } from "./project-detail";
@@ -68,21 +64,23 @@ export function ProjectCard({
 	const fine = usePointerFine();
 	const reduced = usePrefersReducedMotion();
 
-	// Staggered fly-in (same as the gallery tiles), interleaved with the sidebar
-	// cascade. Decided at mount only: `index` changes when a card opens (the list
-	// filters to it), which must not replay the entrance.
-	const entering = useRef(enter).current;
-	const enterDelay = useRef(entering ? 0.25 + index * 0.12 : 0).current;
-	const articleRef = useRef<HTMLElement>(null);
-	useLayoutEffect(() => {
-		const el = articleRef.current;
-		if (!entering || !el) return;
-		const animation = flyIn(el, {
-			delay: enterDelay,
-			reduced: prefersReducedMotion(),
-		});
-		return () => animation.cancel();
-	}, [entering, enterDelay]);
+	// Staggered rise + blur-in, interleaved with the sidebar cascade. CSS
+	// (`.fly-up`), so server-rendered cards animate from first paint instead of
+	// waiting for hydration (the first poster is the page's LCP), and cards
+	// mounted later (tab switch) animate on insertion. Decided at mount only:
+	// `index` changes when a card opens (the list filters to it), which must not
+	// replay the entrance; cards re-mounted after a close just appear.
+	const entrance = useRef(
+		enter
+			? flyUpStyle({
+					i: index,
+					start: 0.25,
+					step: 0.12,
+					distance: "75vh",
+					blur: 10,
+				})
+			: undefined,
+	).current;
 	const sceneBg = scenes[project.slug]?.background ?? DEFAULT_SCENE_BG;
 
 	// Opening: the click scrolled to the top and held the page visually in place
@@ -119,14 +117,13 @@ export function ProjectCard({
 
 	return (
 		<motion.article
-			ref={articleRef}
 			layout
 			// Only open/close changes the card's layout; without this, Motion
 			// re-measures on every re-render (visibility, pause, ready changes).
 			layoutDependency={active}
-			data-fly={entering ? FLY_PENDING : undefined}
+			style={entrance}
 			transition={{ layout: { type: "spring", stiffness: 220, damping: 30 } }}
-			className="relative w-full"
+			className={cn("relative w-full", entrance && "fly-up")}
 		>
 			{/* borderRadius lives in `style` so Motion corrects it during layout
 			    animations (a class radius would stretch with the scale transform). */}
@@ -172,6 +169,7 @@ export function ProjectCard({
 						alt=""
 						decoding="async"
 						loading={index < 2 ? "eager" : "lazy"}
+						fetchPriority={index === 0 ? "high" : undefined}
 						className="size-full object-cover"
 						onError={(e) => {
 							e.currentTarget.hidden = true;
