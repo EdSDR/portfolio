@@ -20,13 +20,7 @@ const config = defineConfig({
 	// momentarily load two copies of React into the SSR graph, throwing an
 	// "Invalid hook call" during dev.
 	optimizeDeps: {
-		include: [
-			"r3f-forcegraph",
-			"r3f-forcegraph > three-forcegraph",
-			"r3f-forcegraph > three-forcegraph > d3-force-3d",
-			"@react-three/postprocessing",
-			"postprocessing",
-		],
+		include: ["d3-force-3d", "@react-three/postprocessing", "postprocessing"],
 	},
 	plugins: [
 		// Devtools must remain the first plugin.
