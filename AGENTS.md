@@ -1,7 +1,8 @@
 # AGENTS.md
 
 Portfolio site for **Ed Castro (EdSDR)**: a sticky bio sidebar (left ~1/4) beside a
-page-scrolling list of project cards (right ~3/4). Each card's hero is a **live React
+page-scrolling content column (right ~3/4) with two tabs: **Scenes** (project cards)
+and **Gallery** (a masonry of still images with a lightbox). Each card's hero is a **live React
 Three Fiber scene**; clicking a card expands it in place into a route (`/work/$slug`)
 with the scene on top and an MDX writeup below. Visual reference (structure/type/color
 only, not code) lives in `.plan/` (gitignored): `ui-reference.png`, `ui-reference-repo/`,
@@ -48,12 +49,16 @@ Before handing work back: run `bunx tsc --noEmit` and `bunx biome check --write 
 src/
   routes/__root.tsx          html shell (forced `dark` class), default/OG meta, font preload,
                              devtools, renders <AppShell>
-  routes/index.tsx           home (list is in the shell, route renders nothing)
+  routes/index.tsx           home / Scenes tab (list is in the shell, route renders nothing)
+  routes/gallery.tsx         Gallery tab; `?image=<id>` = open lightbox (zod-validated search)
   routes/work.$slug.tsx      URL + loader (notFound, prefetches MDX body) + head/OG/canonical;
                              component → null
   components/layout/
-    app-shell.tsx            persistent shell: sidebar + <ProjectList>, MotionConfig
+    app-shell.tsx            persistent shell: sidebar, <ViewTabs>, and the active view
+                             (<ProjectList> or <GalleryView>, by pathname); MotionConfig
                              reducedMotion="user"
+    view-tabs.tsx            Scenes/Gallery pill, absolute top-right of <main>, sliding
+                             indicator (layoutId)
     sidebar.tsx              bio/links (copy is hand-edited by the user)
     fade.tsx                 top/bottom viewport fade strips
   components/project/
@@ -61,6 +66,10 @@ src/
     project-card.tsx         card: in-view state, live gate, poster crossfade, lazy
                              <SceneCanvas>, Motion `layout` expand, <ProjectDetail> when active
     project-detail.tsx       meta + lazy MDX body under the expanded hero
+  components/gallery/
+    gallery-view.tsx         wires ?image= to the lightbox (open pushes, close pops history)
+    masonry.tsx              Motion port of reactbits' GSAP masonry (same props)
+    lightbox.tsx             full view; shares the tile's layoutId; Esc/backdrop/back close
   components/canvas/
     scene-canvas.tsx         a card's own <Canvas> (lazy default export): frameloop from
                              `paused`, bg color, MatchContainerSize, Prewarm (compileAsync →
@@ -73,11 +82,15 @@ src/
     schema.ts                Zod frontmatter (name, description, date, accent, tags, links)
     index.ts                 eager frontmatter glob + lazy body glob; sorted by date desc
     projects/*.mdx           one file per project; filename = slug
+    gallery.ts               glob of gallery/ → items (id, hashed src, size, alt, caption)
+    gallery/                 gallery image files (currently placeholder-* crops of posters)
   lib/                       use-in-view, use-device (pointer/reduced-motion), use-mounted,
-                             entrance (first-load stagger flag), scroll-memory, motion
-                             variants, graph-data (seeded synthetic Torus graph), site
-                             (SITE_URL for absolute OG/canonical URLs), cn
+                             fly-in (the site entrance: blur-rise helpers), scroll-memory,
+                             graph-data (seeded synthetic Torus graph), site (SITE_URL for
+                             absolute OG/canonical URLs), cn
 scripts/capture-posters.ts   `bun run posters`
+vite-plugins/image-size.ts   `import s from "./x.png?size"` → { width, height } (header parse,
+                             no deps; PNG/JPEG+EXIF/WebP/GIF/AVIF)
 public/
   posters/<slug>.webp        card cover; <slug>-og.jpg = 1200×630 og:image
   themis.glb                 Draco-compressed statue (mesh node `themis`, scale 0.06)
@@ -109,13 +122,25 @@ public/
   compiled + one frame drawn; `far` → unmounted (context freed). Hysteresis: mount at
   150% viewport margin, unmount only past 300%. **Never set React state on scroll events.**
 - **Live gate** (`project-card.tsx`): canvas mounts when client-mounted + not
-  reduced-motion + (card open, or fine pointer + not `far` + first-load entrance done).
+  reduced-motion + (card open, or fine pointer + not `far` + its fly-in finished).
   The poster (scene-bg color + `posters/<slug>.webp`) sits above the canvas and fades
   only after `onReady` (first frame drawn), so there's never a blank frame.
 - Honor `prefers-reduced-motion` (poster only, no live scene).
 - Mobile (coarse pointer): list shows posters; the live scene mounts on open.
 - R3F resets `clock.elapsedTime` when `frameloop` changes (pause/resume). Animate with
   `delta` or your own accumulated time (see `statue-scene.tsx`), not `clock.elapsedTime`.
+
+- **Views are routes.** The shell picks the view from the pathname (`/gallery*` →
+  Gallery, else Scenes). Switching tabs unmounts the other view (frees the scenes'
+  WebGL contexts) and fades the new one in. The lightbox is the `?image=` search param.
+
+- **One entrance style** (`lib/fly-in.ts`): rise from just off-screen + blur into
+  focus, power3.out, staggered — gallery tiles and scene cards via `flyIn()` (cards on
+  the list's first render only: page load / tab switch, not after a close), sidebar and
+  tabs via `flyUpSequence()` variants with an explicit `custom` order (Motion doesn't
+  carry a parent's stagger into nested containers). Always end at `filter: none`: a
+  leftover `blur(0px)` keeps a filter layer over live canvases. Entrance values that
+  depend on props (index, delay) are pinned at mount — opening a card re-indexes the list.
 
 **Planned, not yet implemented:** light/dark toggle (forced dark for now).
 
@@ -129,6 +154,13 @@ public/
    in `vite.config.ts` (see gotchas).
 4. `bun run posters <slug>` to generate its cover + OG image.
 
+## Adding gallery images
+
+Drop files into `src/content/gallery/` (png/jpg/webp/avif/gif). Order = filename sort
+(prefix numbers). Alt text defaults to the humanized filename; override alt / add a
+caption in the `details` map in `src/content/gallery.ts`. Delete the `placeholder-*`
+files once real images are in.
+
 ## Hard-won gotchas (don't rediscover these)
 
 - **Every canvas needs `MatchContainerSize`** (built into `SceneCanvas`) — R3F's
@@ -141,6 +173,11 @@ public/
   `lib/scroll-memory.ts`); the card releases it at commit. The card Link uses
   `resetScroll={false}`. A separate `y` counter-animation doesn't work: Motion holds
   `y` animations while a layout animation runs.
+- **Motion skips `layout` animations caused by window resizes** (by design). The
+  masonry re-flows on resize, so tiles animate `x`/`y`/`width`/`height` directly.
+- **Shared `layoutId` + raised z-index:** a gallery tile is lifted above the lightbox
+  backdrop while flying back; it's lowered by a timer, because Motion's
+  layout-complete callback doesn't fire when the lightbox opened on page load.
 - **drei `<SoftShadows>` is broken on three 0.186** (PCSS GLSL uses removed
   `unpackRGBAToDepth`/`vogelDiskSample`; `PCFSoftShadowMap` removed). Symptom: material
   shader fails to compile (`useProgram: program not valid`) and the mesh silently isn't
