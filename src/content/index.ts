@@ -1,12 +1,14 @@
 import type { ComponentType, FulfilledReactPromise, ReactPromise } from "react";
-import { type Frontmatter, frontmatterSchema } from "./schema";
+import type { Frontmatter } from "./schema";
 
 type BodyModule = { default: ComponentType };
 
 // Only the frontmatter is eager (`?frontmatter`, vite-plugins/mdx-frontmatter.ts),
 // so listing projects doesn't pull every writeup into the entry bundle. Each
-// MDX body is its own chunk, imported when its project is opened.
-const frontmatters = import.meta.glob<unknown>("./projects/*.mdx", {
+// MDX body is its own chunk, imported when its project is opened. The
+// frontmatter is validated against `frontmatterSchema` at build time (see
+// vite.config.ts), so zod never ships to the client.
+const frontmatters = import.meta.glob<Frontmatter>("./projects/*.mdx", {
 	eager: true,
 	query: "?frontmatter",
 	import: "default",
@@ -55,9 +57,9 @@ function cachedBody(
 }
 
 export const projects: Project[] = Object.entries(frontmatters)
-	.map(([path, raw]) => ({
+	.map(([path, frontmatter]) => ({
 		slug: toSlug(path),
-		...frontmatterSchema.parse(raw),
+		...frontmatter,
 		loadBody: cachedBody(bodies[path]),
 	}))
 	.sort((a, b) => b.date.getTime() - a.date.getTime());

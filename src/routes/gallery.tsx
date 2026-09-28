@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -7,7 +6,11 @@ import { SITE_URL } from "@/lib/site";
  * rendered by the persistent shell. `?image=<id>` is the open lightbox.
  */
 export const Route = createFileRoute("/gallery")({
-	validateSearch: z.object({ image: z.string().optional() }),
+	// Hand-rolled (not zod) to keep the validator out of the client bundle. A
+	// non-string `image` (e.g. `?image=5`, which the router parses as a number)
+	// just means "no image open".
+	validateSearch: (search: Record<string, unknown>): { image?: string } =>
+		typeof search.image === "string" ? { image: search.image } : {},
 	head: () => {
 		const title = "Gallery — Ed";
 		const description = "Stills from projects by Ed Castro.";

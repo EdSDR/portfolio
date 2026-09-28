@@ -6,6 +6,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import remarkFrontmatter from "remark-frontmatter";
 import { defineConfig } from "vite";
+import { frontmatterSchema } from "./src/content/schema.ts";
 import { imageSize } from "./vite-plugins/image-size.ts";
 import { mdxFrontmatter } from "./vite-plugins/mdx-frontmatter.ts";
 
@@ -31,8 +32,9 @@ const config = defineConfig({
 		// `import size from "./img.png?size"` → { width, height } (gallery layout).
 		imageSize(),
 		// `import fm from "./post.mdx?frontmatter"` → just the frontmatter object,
-		// so the project list doesn't bundle the MDX bodies.
-		mdxFrontmatter(),
+		// validated here at build time, so the project list doesn't bundle the MDX
+		// bodies (or zod).
+		mdxFrontmatter({ parse: (data) => frontmatterSchema.parse(data) }),
 		// MDX must run before the React/Start transforms so `.mdx` compiles to JS first.
 		{
 			enforce: "pre",
