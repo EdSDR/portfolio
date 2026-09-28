@@ -6,12 +6,12 @@ import { flyUpStyle } from "@/lib/fly-in";
 // Rises in with the sidebar and cards (CSS, from first paint).
 const entrance = flyUpStyle({ start: 0.2, distance: 16, blur: 6 });
 
-export type View = "scenes" | "gallery";
-
 const TABS = [
 	{ view: "scenes", to: "/", label: "Scenes" },
 	{ view: "gallery", to: "/gallery", label: "Gallery" },
 ] as const;
+
+export type View = (typeof TABS)[number]["view"];
 
 /**
  * Scenes / Gallery switch: a frosted-glass pill pinned while content scrolls

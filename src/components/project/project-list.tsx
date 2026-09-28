@@ -12,7 +12,7 @@ import { ProjectCard } from "./project-card";
  * never unmounts on navigation.
  */
 export function ProjectList() {
-	const { slug } = useParams({ strict: false }) as { slug?: string };
+	const slug = useParams({ strict: false, select: (p) => p.slug });
 	const visible = slug ? projects.filter((p) => p.slug === slug) : projects;
 
 	// Cards on the list's first render fly in (page load, or switching back from

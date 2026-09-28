@@ -93,8 +93,8 @@ export function Masonry({
 		return () => ro.disconnect();
 	}, []);
 
-	const { grid, height } = useMemo(() => {
-		if (!width) return { grid: [] as GridItem[], height: 0 };
+	const { grid, height } = useMemo<{ grid: GridItem[]; height: number }>(() => {
+		if (!width) return { grid: [], height: 0 };
 		const columns = columnsFor(width);
 		const colHeights = new Array<number>(columns).fill(0);
 		const w = (width - (columns - 1) * gap) / columns;

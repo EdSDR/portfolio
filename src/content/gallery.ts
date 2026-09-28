@@ -8,6 +8,8 @@
  * "Torus dashboard"); override it or add a caption below, keyed by id (the
  * filename without extension).
  */
+import type { ImageSize } from "../../vite-plugins/image-size.ts";
+
 export interface GalleryImage {
 	id: string;
 	src: string;
@@ -25,7 +27,7 @@ const urls = import.meta.glob<string>(
 	"./gallery/*.{png,jpg,jpeg,webp,avif,gif}",
 	{ eager: true, query: "?url", import: "default" },
 );
-const sizes = import.meta.glob<{ width: number; height: number }>(
+const sizes = import.meta.glob<ImageSize>(
 	"./gallery/*.{png,jpg,jpeg,webp,avif,gif}",
 	{ eager: true, query: "?size", import: "default" },
 );

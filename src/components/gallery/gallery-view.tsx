@@ -10,7 +10,7 @@ import { Masonry, type MasonryItem } from "./masonry";
  * closes it and a lightbox can be linked to directly.
  */
 export function GalleryView() {
-	const { image } = useSearch({ strict: false }) as { image?: string };
+	const image = useSearch({ strict: false, select: (s) => s.image });
 	const active = image ? getGalleryImage(image) : undefined;
 	const navigate = useNavigate();
 	const router = useRouter();

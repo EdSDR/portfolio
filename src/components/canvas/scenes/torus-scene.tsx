@@ -1,11 +1,16 @@
 import { PerspectiveCamera } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
-import type { GraphMethods, NodeObject } from "r3f-forcegraph";
+import type { GraphMethods, LinkObject, NodeObject } from "r3f-forcegraph";
 import R3fForceGraph from "r3f-forcegraph";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { type GraphNode, generateGraph, type NodeType } from "@/lib/graph-data";
+import {
+	type GraphLink,
+	type GraphNode,
+	generateGraph,
+	type NodeType,
+} from "@/lib/graph-data";
 
 /** All links, arrows, and particles share one whitish tint. */
 const LINK_TINT = "#e6ebf2";
@@ -30,10 +35,9 @@ const PARTICLE_SPEED_SCALE = 0.18;
 // Link accessors live at module scope: the graph compares props by identity,
 // and a new function on every render (visibility/pause changes) made it
 // re-process every link.
-const particlesOf = (l: object) =>
-	Number((l as { particles?: number }).particles ?? 0);
-const particleSpeedOf = (l: object) =>
-	Number((l as { speed?: number }).speed ?? 0.005) * PARTICLE_SPEED_SCALE;
+type Link = LinkObject<GraphNode, GraphLink>;
+const particlesOf = (l: Link) => l.particles;
+const particleSpeedOf = (l: Link) => l.speed * PARTICLE_SPEED_SCALE;
 
 /**
  * Force-simulation layout. Edit and hot-reload — the graph re-applies these and
@@ -49,7 +53,9 @@ const FORCE = { charge: -60, linkDistance: 42, center: 0.55 };
  * the whole graph slowly rotates.
  */
 export default function TorusScene() {
-	const fg = useRef<GraphMethods | undefined>(undefined);
+	const fg = useRef<GraphMethods<NodeObject<GraphNode>, Link> | undefined>(
+		undefined,
+	);
 	const groupRef = useRef<THREE.Group>(null);
 	const appliedForces = useRef("");
 	// The graph builds its d3 layout asynchronously after mount. Touching the sim
@@ -80,10 +86,9 @@ export default function TorusScene() {
 	}, [cache]);
 
 	const nodeThreeObject = useMemo(
-		() => (node: NodeObject) => {
-			const n = node as unknown as GraphNode;
-			const size = n.val ?? 5;
-			const color = n.color ?? "#63cbff";
+		() => (n: NodeObject<GraphNode>) => {
+			const size = n.val;
+			const color = n.color;
 
 			const geoKey = `${n.type}:${size}`;
 			let geo = cache.geo.get(geoKey);
@@ -130,7 +135,7 @@ export default function TorusScene() {
 			    which are lit meshes, so they read against the dark background. */}
 			<ambientLight intensity={1.6} />
 			<group ref={groupRef}>
-				<R3fForceGraph
+				<R3fForceGraph<GraphNode, GraphLink>
 					ref={fg}
 					graphData={data}
 					onFinishUpdate={markGraphReady}

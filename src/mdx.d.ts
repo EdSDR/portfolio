@@ -14,6 +14,6 @@ declare module "*.mdx?frontmatter" {
 
 // `?size` image imports (vite-plugins/image-size.ts).
 declare module "*?size" {
-	const size: { width: number; height: number };
+	const size: import("../vite-plugins/image-size.ts").ImageSize;
 	export default size;
 }

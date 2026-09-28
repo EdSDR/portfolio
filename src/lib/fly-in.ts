@@ -48,7 +48,7 @@ export function flyUpStyle({
 		"--fly-delay": `${start + i * step}s`,
 		"--fly-distance": `${distance}px`,
 		"--fly-blur": `${blur}px`,
-	} as CSSProperties;
+	};
 }
 
 export type FlyFrom = "bottom" | "top" | "left" | "right" | "center" | "random";
