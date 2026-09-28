@@ -1,8 +1,9 @@
 import { useRouterState } from "@tanstack/react-router";
 import { MotionConfig } from "motion/react";
-import type { ReactNode } from "react";
+import { type ReactNode, useLayoutEffect } from "react";
 import { GalleryView } from "@/components/gallery/gallery-view";
 import { ProjectList } from "@/components/project/project-list";
+import { releaseScrollHold } from "@/lib/scroll-memory";
 import { ErrorView } from "./error-view";
 import { Fade } from "./fade";
 import { NotFound } from "./not-found";
@@ -19,6 +20,10 @@ import { type View, ViewTabs } from "./view-tabs";
  * visible.
  */
 export function AppShell({ children }: { children: ReactNode }) {
+	// Not-found is read from the matches' public `status` (the catch-all route
+	// and the /work loader throw notFound()). Don't add a root
+	// `notFoundComponent`: a root-level boundary marks the match `success` (with
+	// an internal flag) instead, which this wouldn't see.
 	const view = useRouterState({
 		select: (s): View | "notFound" | "error" =>
 			s.matches.some((m) => m.status === "notFound")
@@ -29,6 +34,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 						? "gallery"
 						: "scenes",
 	});
+
+	// A card click holds the scrolled page in place until the card opens (see
+	// holdScrollForOpen); if the navigation ends in a 404/error instead, release
+	// it so that view isn't left translated off-screen.
+	useLayoutEffect(() => {
+		if (view === "notFound" || view === "error") releaseScrollHold();
+	}, [view]);
 
 	return (
 		<MotionConfig reducedMotion="user">

@@ -9,6 +9,9 @@ export function getRouter() {
 		defaultPreload: "intent",
 		// Root-level failures replace the shell; give them the same page.
 		defaultErrorComponent: ErrorView,
+		// The shell renders the visible 404 (see AppShell); this only fills the
+		// hidden Outlet, and silences the router's "not configured" dev warning.
+		defaultNotFoundComponent: () => null,
 	});
 
 	return router;
