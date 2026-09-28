@@ -2,7 +2,7 @@ import { z } from "zod";
 
 /**
  * Typed frontmatter for each project MDX file. Kept flat and serializable;
- * `accent` tints the scene/poster, `date` drives list ordering.
+ * `date` drives list ordering. `accent` is a per-project color, not used yet.
  */
 export const frontmatterSchema = z.object({
 	name: z.string(),

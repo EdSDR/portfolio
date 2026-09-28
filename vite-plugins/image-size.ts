@@ -26,7 +26,7 @@ export interface ImageSize {
 	height: number;
 }
 
-export function readImageSize(buf: Buffer): ImageSize | null {
+function readImageSize(buf: Buffer): ImageSize | null {
 	const ascii = (start: number, end: number) =>
 		buf.toString("latin1", start, end);
 

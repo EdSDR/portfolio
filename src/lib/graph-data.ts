@@ -27,7 +27,7 @@ export interface GraphLink {
 	speed: number;
 }
 
-export interface GraphData {
+interface GraphData {
 	nodes: GraphNode[];
 	links: GraphLink[];
 }

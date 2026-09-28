@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
  * `far` once it leaves the wider `keepMargin`, so scrolling back and forth around
  * the edge doesn't create and destroy a WebGL context each time.
  */
-export type InViewState = "far" | "near" | "visible";
+type InViewState = "far" | "near" | "visible";
 
 export function useInView<T extends HTMLElement>(
 	nearMargin = "150% 0px",

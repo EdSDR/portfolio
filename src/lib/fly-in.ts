@@ -67,7 +67,7 @@ interface Box {
  * at least 80px so off-screen elements still visibly move. `center` flies out
  * of the middle of `bounds` (e.g. the grid).
  */
-export function flyInOffset(
+function flyInOffset(
 	rect: Box,
 	from: FlyFrom,
 	bounds?: Box,

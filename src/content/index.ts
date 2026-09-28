@@ -41,8 +41,6 @@ export const projects: Project[] = Object.entries(frontmatters)
 	}))
 	.sort((a, b) => b.date.getTime() - a.date.getTime());
 
-export const projectSlugs: string[] = projects.map((p) => p.slug);
-
 export function getProject(slug: string): Project | undefined {
 	return projects.find((p) => p.slug === slug);
 }
