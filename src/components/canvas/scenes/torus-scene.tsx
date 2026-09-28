@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import type { GraphMethods, NodeObject } from "r3f-forcegraph";
 import R3fForceGraph from "r3f-forcegraph";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { type GraphNode, generateGraph, type NodeType } from "@/lib/graph-data";
 
@@ -27,6 +27,14 @@ function makeGeometry(type: NodeType, size: number): THREE.BufferGeometry {
 /** Scales down the per-link particle speeds for a slow, calm flow. */
 const PARTICLE_SPEED_SCALE = 0.18;
 
+// Link accessors live at module scope: the graph compares props by identity,
+// and a new function on every render (visibility/pause changes) made it
+// re-process every link.
+const particlesOf = (l: object) =>
+	Number((l as { particles?: number }).particles ?? 0);
+const particleSpeedOf = (l: object) =>
+	Number((l as { speed?: number }).speed ?? 0.005) * PARTICLE_SPEED_SCALE;
+
 /**
  * Force-simulation layout. Edit and hot-reload — the graph re-applies these and
  * reheats the sim so changes are visible (it re-settles, then freezes again).
@@ -49,6 +57,9 @@ export default function TorusScene() {
 	// tickFrame — which a remount hits, since cached shaders let the first frame
 	// run immediately.
 	const graphReady = useRef(false);
+	const markGraphReady = useCallback(() => {
+		graphReady.current = true;
+	}, []);
 
 	const data = useMemo(() => generateGraph(), []);
 
@@ -122,9 +133,7 @@ export default function TorusScene() {
 				<R3fForceGraph
 					ref={fg}
 					graphData={data}
-					onFinishUpdate={() => {
-						graphReady.current = true;
-					}}
+					onFinishUpdate={markGraphReady}
 					nodeThreeObject={nodeThreeObject}
 					warmupTicks={80}
 					cooldownTicks={260}
@@ -135,14 +144,9 @@ export default function TorusScene() {
 					linkDirectionalArrowLength={3.5}
 					linkDirectionalArrowRelPos={1}
 					linkDirectionalArrowColor={LINK_TINT}
-					linkDirectionalParticles={(l) =>
-						Number((l as { particles?: number }).particles ?? 0)
-					}
+					linkDirectionalParticles={particlesOf}
 					linkDirectionalParticleWidth={2.2}
-					linkDirectionalParticleSpeed={(l) =>
-						Number((l as { speed?: number }).speed ?? 0.005) *
-						PARTICLE_SPEED_SCALE
-					}
+					linkDirectionalParticleSpeed={particleSpeedOf}
 					linkDirectionalParticleColor={LINK_TINT}
 				/>
 			</group>

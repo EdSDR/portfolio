@@ -35,6 +35,10 @@ export default function SceneCanvas({
 				powerPreference: "high-performance",
 			}}
 			{...canvas}
+			// Size from the ResizeObserver only. R3F also listens to scroll to track
+			// the canvas offset (for pointer events), then re-renders ~50ms after every
+			// scroll stops; these canvases are pointer-events:none, so skip it.
+			resize={{ scroll: false }}
 			style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
 		>
 			<color attach="background" args={[background]} />
