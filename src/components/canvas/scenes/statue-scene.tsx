@@ -84,10 +84,10 @@ function Statue() {
 				penumbra={0.5}
 				castShadow
 				intensity={1500}
-				shadow-mapSize={512}
+				shadow-mapSize={1024}
 				shadow-bias={-0.0008}
-				shadow-radius={3.5}
-				shadow-blurSamples={12}
+				shadow-radius={2.5}
+				shadow-blurSamples={16}
 			>
 				<orthographicCamera
 					attach="shadow-camera"
