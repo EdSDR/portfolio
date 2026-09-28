@@ -7,6 +7,7 @@ import viteReact from "@vitejs/plugin-react";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { defineConfig } from "vite";
+import { imageSize } from "./vite-plugins/image-size";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
@@ -27,6 +28,8 @@ const config = defineConfig({
 	plugins: [
 		// Devtools must remain the first plugin.
 		devtools(),
+		// `import size from "./img.png?size"` → { width, height } (gallery layout).
+		imageSize(),
 		// MDX must run before the React/Start transforms so `.mdx` compiles to JS first.
 		{
 			enforce: "pre",

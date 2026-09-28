@@ -8,3 +8,9 @@ declare module "*.mdx" {
 	const MDXComponent: ComponentType;
 	export default MDXComponent;
 }
+
+// `?size` image imports (vite-plugins/image-size.ts).
+declare module "*?size" {
+	const size: { width: number; height: number };
+	export default size;
+}
