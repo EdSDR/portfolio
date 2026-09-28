@@ -111,6 +111,8 @@ export function ProjectCard({
 	// The poster fades only after the scene has drawn, so there's never a blank frame.
 	const [ready, setReady] = useState(false);
 	const markReady = useCallback(() => setReady(true), []);
+	// A scene that fails after its first frame hands the card back to its poster.
+	const markFailed = useCallback(() => setReady(false), []);
 	useEffect(() => {
 		if (!live) setReady(false);
 	}, [live]);
@@ -142,7 +144,7 @@ export function ProjectCard({
 				{/* A scene that can't start (no WebGL, missing chunk or asset) just
 				    leaves the poster in place instead of taking the page down. */}
 				{live && (
-					<ErrorBoundary fallback={null}>
+					<ErrorBoundary fallback={null} onError={markFailed}>
 						<Suspense fallback={null}>
 							<SceneCanvas
 								slug={project.slug}
