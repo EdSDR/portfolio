@@ -7,6 +7,7 @@ import viteReact from "@vitejs/plugin-react";
 import remarkFrontmatter from "remark-frontmatter";
 import { defineConfig } from "vite";
 import { frontmatterSchema } from "./src/content/schema.ts";
+import { SITE_URL } from "./src/lib/site.ts";
 import { imageSize } from "./vite-plugins/image-size.ts";
 import { mdxFrontmatter } from "./vite-plugins/mdx-frontmatter.ts";
 
@@ -52,6 +53,8 @@ const config = defineConfig({
 				concurrency: 14,
 				failOnError: true,
 			},
+			// sitemap.xml from the prerendered pages.
+			sitemap: { enabled: true, host: SITE_URL },
 		}),
 		viteReact({ include: /\.(jsx|js|mdx|md|tsx|ts)$/ }),
 	],
