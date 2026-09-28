@@ -186,8 +186,9 @@ export function Sidebar() {
 						<a
 							key={s.label}
 							href={s.url}
-							target="_blank"
-							rel="noreferrer"
+							// mailto: opens the mail app; a new tab would just be left empty.
+							target={s.url.startsWith("mailto:") ? undefined : "_blank"}
+							rel={s.url.startsWith("mailto:") ? undefined : "noreferrer"}
 							aria-label={s.label}
 							style={flyUpSmall(8 + i)}
 							className="fly-up [&>svg]:size-4.5 text-muted-foreground transition-colors hover:text-foreground"
