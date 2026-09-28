@@ -39,7 +39,7 @@ Before handing work back: run `bunx tsc --noEmit` and `bunx biome check --write 
 - **Files & folders: kebab-case** (`project-card.tsx`, `use-in-view.ts`).
   **Exported React component identifier: PascalCase** derived from the file
   (`project-card.tsx` → `ProjectCard`). Lazy-loaded scene modules use a default export.
-- Path aliases: `#/*` and `@/*` both map to `src/*`.
+- Path alias: `@/*` maps to `src/*`.
 - Biome formats: tabs, double quotes, organize-imports on save.
 - Comments explain *why* (a constraint, a bug that was hit) — match the existing density.
 
