@@ -57,6 +57,11 @@ try {
 		deviceScaleFactor: 1.5,
 		reducedMotion: "no-preference",
 	});
+	// Scenes that can look very different moment to moment read this to hold a
+	// representative frame (the Midgard storm freezes on a lightning strike).
+	await page.addInitScript(() => {
+		Object.assign(window, { __posterCapture: true });
+	});
 	await page.goto(BASE_URL, { waitUntil: "networkidle" });
 	// Raw scene only: no label pill, border, rounded corners, fixed page overlays
 	// (tabs, fade strips: `data-poster-hide`), or dev overlays (the app shell is
