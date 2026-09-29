@@ -30,6 +30,8 @@ and `torus-ts/` (the real Torus codebase, reference for the Torus scene).
 - `bun run typecheck` — `tsc --noEmit`
 - `bun run fix` — Biome lint + format, applying fixes (`check`/`lint`/`format` only report)
 - `bun run deploy` — build + `wrangler deploy`
+- `bun run gallery [--force|--prune]` — encode `gallery-originals/` into the gallery (see
+  "Adding gallery images")
 - `bun run posters [slug…]` — re-capture card posters + OG images into `public/posters/`
   (headless system Chrome via playwright-core; uses/starts the dev server, override with
   `BASE_URL=…`). Re-run after changing a scene's look or adding a project. Any new
@@ -99,13 +101,14 @@ src/
     index.ts                 eager `?frontmatter` glob (no MDX bodies in the entry) + lazy body
                              chunks via `loadBody()` (cached; read with React `use()`)
     projects/*.mdx           one file per project; filename = slug
-    gallery.ts               glob of gallery/ → items (id, hashed src, size, alt, caption)
-    gallery/                 gallery image files (currently placeholder-* crops of posters)
+    gallery.ts               glob of gallery/ → items (id, full src, thumb, size, alt, caption)
+    gallery/                 generated WebP (full + thumbs/), from gallery-originals/
   lib/                       use-in-view, use-device (pointer/reduced-motion), use-mounted,
                              fly-in (the site entrance: blur-rise helpers), scroll-memory,
                              graph-data (seeded synthetic Torus graph), site (SITE_URL for
                              absolute OG/canonical URLs), cn
 scripts/capture-posters.ts   `bun run posters`
+scripts/gallery.ts           `bun run gallery` (originals → WebP full + thumb, via system Chrome)
 vite-plugins/mdx-frontmatter.ts  `import fm from "./x.mdx?frontmatter"` → frontmatter object only
 vite-plugins/image-size.ts   `import s from "./x.png?size"` → { width, height } (header parse,
                              no deps; PNG/JPEG+EXIF/WebP/GIF/AVIF)
@@ -202,10 +205,17 @@ Short and interesting beats complete. Sidebar and writeups:
 
 ## Adding gallery images
 
-Drop files into `src/content/gallery/` (png/jpg/webp/avif/gif). Order = filename sort
-(prefix numbers). Alt text defaults to the humanized filename; override alt / add a
-caption in the `details` map in `src/content/gallery.ts`. Delete the `placeholder-*`
-files once real images are in.
+1. Drop originals (any size; png/jpg/webp/avif/gif) into `gallery-originals/` (gitignored:
+   full-size files stay off the public repo and out of the deploy), named `NNN-project-what.png`,
+   e.g. `045-torus-bridge.png`. The number sets the order (they go up in 10s, so a new image
+   slots in between) and is **not** part of the id, so reorder freely: the id (`torus-bridge`,
+   the `?image=` URL people share) stays. Ids must be unique. Every file there is published,
+   thin strips included (subfolders are ignored).
+2. `bun run gallery` → `src/content/gallery/NN-project-what.webp` (lightbox, ≤ 2400px) and
+   `thumbs/…webp` (grid, ≤ 1000px wide). Only new/changed originals are re-encoded; renaming or
+   deleting an original leaves an orphan that `bun run gallery --prune` removes.
+3. Add alt text + caption for the id in `details` in `src/content/gallery.ts` (the fallback alt,
+   the humanized id, is not good alt text). Commit the webp files.
 
 ## Hard-won gotchas (don't rediscover these)
 

@@ -74,6 +74,10 @@ export function Lightbox({
 						draggable={false}
 						className="relative object-cover shadow-2xl"
 						style={{
+							// The grid's thumbnail (already loaded) shows until the full image
+							// paints over it, so the fly-out never starts from an empty box.
+							backgroundImage: `url(${image.thumb})`,
+							backgroundSize: "cover",
 							borderRadius: 12,
 							aspectRatio: `${image.width} / ${image.height}`,
 							// Fit inside the viewport (minus room for the caption) without upscaling.

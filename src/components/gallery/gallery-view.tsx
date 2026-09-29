@@ -30,9 +30,9 @@ export function GalleryView() {
 
 	const items = useMemo<MasonryItem[]>(
 		() =>
-			galleryImages.map(({ id, src, width, height, alt }) => ({
+			galleryImages.map(({ id, thumb, width, height, alt }) => ({
 				id,
-				img: src,
+				img: thumb,
 				width,
 				height,
 				alt,

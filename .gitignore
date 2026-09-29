@@ -20,3 +20,6 @@ dev.log
 
 # personal resume (contains private contact details) — never commit to the public repo
 resume.md
+
+# gallery originals (full-size; `bun run gallery` makes the web copies in src/content/gallery)
+gallery-originals
