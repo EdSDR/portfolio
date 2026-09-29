@@ -96,6 +96,10 @@ src/
     scenes/statue-light.tsx  statue's lit air (quarter-res ray march through the spot cone,
                              reads its VSM shadow map) + dust motes lit only in the beam
     scenes/film-grade.tsx    vignette + grain as one multiply-blended full-screen triangle
+    scenes/midgard-*.ts(x)   night storm: `storm` (strike scheduler, flash envelopes, bolts, sky),
+                             `sea` (swell + SwellBody rocking), `weather`
+                             (rain, embers, flames; one draw each), `scene` (lights, glass
+                             water with the transmission pass at half resolution, composer)
     scenes/match-container-size.tsx  per-frame canvas resize (Motion layout transforms)
   content/
     schema.ts                Zod frontmatter (name, description, date, accent, tags, links)
@@ -115,6 +119,9 @@ vite-plugins/image-size.ts   `import s from "./x.png?size"` → { width, height 
                              no deps; PNG/JPEG+EXIF/WebP/GIF/AVIF)
 public/
   posters/<slug>.webp        card cover; <slug>-og.jpg = 1200×630 og:image
+  midgard.glb                "Thor and the Midgard Serpent" by MrEmjeR, **CC BY 4.0: keep the
+                             credit** (writeup links + scene file header). Flattened to named
+                             world-space parts (ship, rock, serpent, eyes, boat1, boat2, water)
   themis.glb                 Draco statue, decimated to ~193k tris (mesh node `themis`, scale
                              0.06); keep new models welded + simplified (see git log 82b33e1)
   draco/                     self-hosted Draco decoder (copied from three/examples)
@@ -219,6 +226,20 @@ Short and interesting beats complete. Sidebar and writeups:
    the humanized id, is not good alt text). Commit the webp files.
 
 ## Hard-won gotchas (don't rediscover these)
+
+- **Under an EffectComposer, set tone mapping yourself**: the composer forces
+  `NoToneMapping`, and postprocessing's `<ToneMapping>` defaults to **AgX**; write
+  `mode={ToneMappingMode.ACES_FILMIC}` for R3F's usual look.
+- **Nested `<group>`s reset transparent draw order**: three sorts transparent objects by the
+  nearest Group's `renderOrder`, and every nested group (even at 0) overrides it. Set a layer's
+  order on its outermost group (`<group renderOrder={3}>`), not on the meshes.
+- **drei `<Cloud>` reads `clock.elapsedTime`** (which resets on pause) only for `growth`; use
+  `growth={0}`. Its default texture is on a CDN: pass `texture="/cloud.png"`.
+- **Don't mount/unmount lights or toggle `visible` for effects that come and go** (lightning):
+  a light-count change recompiles every lit material, and a hidden mesh's shader first
+  compiles when shown (a hitch). Drive intensity to 0, clip vertices in the shader instead.
+- **Posters of changing scenes**: `bun run posters` sets `window.__posterCapture`; a scene may
+  read it to hold a representative frame (Midgard freezes on a lightning strike).
 
 - **An EffectComposer changes the grade.** It renders without the renderer's tone mapping and
   applies fog in linear space (three normally tone-maps each material, then fogs in display
