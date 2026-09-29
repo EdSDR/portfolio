@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useMemo } from "react";
 import * as THREE from "three";
+import { fullScreenTriangle } from "./full-screen-triangle";
 
 // A full-screen triangle, drawn last over the finished frame: it multiplies
 // the frame by a vignette and a moving film grain. Multiply can only darken,
@@ -44,14 +45,7 @@ export function FilmGrade({
 	grain?: number;
 }) {
 	const mesh = useMemo(() => {
-		const geometry = new THREE.BufferGeometry();
-		geometry.setAttribute(
-			"position",
-			new THREE.BufferAttribute(
-				new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]),
-				3,
-			),
-		);
+		const geometry = fullScreenTriangle();
 		const material = new THREE.ShaderMaterial({
 			vertexShader: VERTEX,
 			fragmentShader: FRAGMENT,
