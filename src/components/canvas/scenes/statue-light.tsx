@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { type RefObject, useMemo } from "react";
 import * as THREE from "three";
+import { fullScreenTriangle } from "./full-screen-triangle";
 
 /**
  * The statue's key light made visible: light scattering in the air (god rays,
@@ -193,19 +194,6 @@ function makeSpotUniforms() {
 		uTime: new THREE.Uniform(0),
 		uFog: new THREE.Uniform(new THREE.Vector2(0, 20)),
 	};
-}
-
-/** A triangle that covers the whole screen (clip space). */
-function fullScreenTriangle() {
-	const geometry = new THREE.BufferGeometry();
-	geometry.setAttribute(
-		"position",
-		new THREE.BufferAttribute(
-			new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]),
-			3,
-		),
-	);
-	return geometry;
 }
 
 /** The low-resolution scatter pass and the full-resolution composite. */

@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useMemo } from "react";
 import * as THREE from "three";
+import { makeRng } from "@/lib/random";
 import { WIND } from "./midgard-sea";
 import { SEA_Y, type StormUniforms } from "./midgard-storm";
 
@@ -144,7 +145,7 @@ function rainGeometry() {
 	const seeds: number[] = [];
 	const corners: number[] = [];
 	const index: number[] = [];
-	const random = mulberry(99);
+	const random = makeRng(99);
 	for (let i = 0; i < RAIN.drops; i++) {
 		const seed = [random(), random(), random(), random()];
 		for (const [x, y] of [
@@ -175,7 +176,7 @@ function rainGeometry() {
 }
 
 function emberGeometry() {
-	const random = mulberry(7);
+	const random = makeRng(7);
 	const seeds = Array.from({ length: EMBERS * 4 }, random);
 	const geometry = new THREE.BufferGeometry();
 	geometry.setAttribute(
@@ -210,16 +211,6 @@ function flameGeometry(points: [number, number, number][]) {
 	geometry.setAttribute("aFlame", new THREE.Float32BufferAttribute(flame, 3));
 	geometry.setIndex(index);
 	return geometry;
-}
-
-function mulberry(seed: number) {
-	let a = seed;
-	return () => {
-		a = (a + 0x6d2b79f5) | 0;
-		let t = Math.imul(a ^ (a >>> 15), 1 | a);
-		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-	};
 }
 
 const additive = {
