@@ -1,0 +1,48 @@
+---
+name: "Midgard"
+description: "Thor and the Midgard Serpent, moved from a bright sunset into a thunderstorm at night."
+date: "2026-09-29"
+accent: "#8fb3ff"
+tags: ["React Three Fiber", "GLSL", "Postprocessing", "glTF"]
+links:
+  - text: "Model by MrEmjeR (CC BY 4.0)"
+    url: "https://sketchfab.com/models/2ef4c45caa35450db1b876a7f94ff79d"
+  - text: "pmndrs viking-ship example"
+    url: "https://github.com/pmndrs/examples/tree/main/examples/viking-ship"
+---
+
+## Overview
+
+[Thor and the Midgard Serpent](https://sketchfab.com/models/2ef4c45caa35450db1b876a7f94ff79d)
+is a low-poly battle scene by [MrEmjeR](https://sketchfab.com/MatthijsDeRijk), licensed
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). I found it in the pmndrs
+[viking-ship example](https://github.com/pmndrs/examples/tree/main/examples/viking-ship), lit by a
+bright sunset. Here it's relit for night, the sky is new, and there's weather.
+
+## The idea
+
+I wanted to see how far the same model could go the other way: the middle of the night, in a storm,
+in the middle of the fight. The model already has Thor throwing lightning at the serpent. The storm
+gives that lightning a sky to come from.
+
+## Under the hood
+
+- **Nothing downloaded but the model.** The example lit everything with a sunset HDR fetched from a
+  CDN. Here the light comes from the scene itself: the burning fort, a lantern on deck, the
+  serpent's eyes and the lightning, plus a sky drawn in a shader. The model went from 572 KB to
+  512 KB: empty meshes and unused textures removed, parts flattened, the ship's objects merged into
+  one draw call.
+- **Lightning.** Four bolts are built once from a seed, all in one mesh, and a strike only sets a
+  few numbers. Each strike has a leader and two to four return strokes tens of milliseconds apart.
+  The bolt flickers with every stroke, but the sky and fog get one soft swell, so the screen never
+  flashes more than about three times a second.
+- **The water** is still the example's glass block, so you see the serpent's coils and the keels
+  through it. Glass renders the scene a second time each frame to refract it; here that second
+  render runs at half resolution, since the water blurs it anyway. The whole island rocks on a
+  slow swell.
+- **Rain and embers.** 2,000 drops in one draw call fall through a box that wraps around the camera
+  in the vertex shader, so the CPU never moves them. Embers from the burning fort drift on the same
+  wind.
+
+The sky is also baked once into an environment map, so the ship, the rock and the serpent pick up
+the same blues as the water.
