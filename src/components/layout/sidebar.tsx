@@ -50,7 +50,7 @@ const profile = {
 	avatar: "/avatar.webp",
 	available: true,
 	availableText: "Available for new projects",
-	bio: "I'm driven by curiosity “uomo universale”. I love creating easy ways to interact and understand complex systems.\n\nRunning, music, miniature painting and photography are predominant in this mix. I have many interests but not enough time to pursue all of them.",
+	bio: "I'm driven by curiosity. I love creating easy ways to interact and understand complex systems.\n\nRunning, music, miniature painting and photography are predominant in this mix. I have many interests but not enough time to pursue all of them.",
 	buttons: {
 		call: { text: "Book a call", url: "mailto:contact@edsdr.com" },
 		chat: { text: "Chat", url: "mailto:contact@edsdr.com" },
@@ -59,17 +59,17 @@ const profile = {
 		{
 			company: "Renlabs",
 			year: "2024 — Present",
-			note: "Lead the 5-person web team. Built the Torus ↔ Base bridge: $5M+ moved, zero incidents.",
+			note: "Substrate-based blockchain where autonomous on-chain agents interact and emissions flows.",
 		},
 		{
 			company: "Nitro Academy",
 			year: "2024",
-			note: "Solo developer. Took their learning platform from zero to 10,000+ students in five months.",
+			note: "Complement traditional education with practical subjects and top-tier mentors.",
 		},
 		{
 			company: "FutureMe",
 			year: "2022 — 2024",
-			note: "Joined as an intern; later led the App Router rewrite and mentored two interns.",
+			note: "Self-directed, gamified career guidance solution.",
 		},
 	],
 	socials: [
