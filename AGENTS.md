@@ -232,7 +232,8 @@ Short and interesting beats complete. Sidebar and writeups:
   `mode={ToneMappingMode.ACES_FILMIC}` for R3F's usual look.
 - **Nested `<group>`s reset transparent draw order**: three sorts transparent objects by the
   nearest Group's `renderOrder`, and every nested group (even at 0) overrides it. Set a layer's
-  order on its outermost group (`<group renderOrder={3}>`), not on the meshes.
+  order on the group directly around its meshes (`<group renderOrder={3}>`), not on the meshes
+  or an outer wrapper.
 - **drei `<Cloud>` reads `clock.elapsedTime`** (which resets on pause) only for `growth`; use
   `growth={0}`. Its default texture is on a CDN: pass `texture="/cloud.png"`.
 - **Don't mount/unmount lights or toggle `visible` for effects that come and go** (lightning):
