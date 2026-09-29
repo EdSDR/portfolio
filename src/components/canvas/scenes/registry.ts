@@ -37,6 +37,21 @@ export interface SceneEntry {
 const lazyScene = (load: SceneEntry["load"]) => ({ load, Scene: lazy(load) });
 
 export const scenes: Record<string, SceneEntry> = {
+	midgard: {
+		...lazyScene(() => import("./midgard-scene")),
+		background: "#070c19",
+		// The EffectComposer multisamples.
+		antialias: false,
+		canvas: {
+			camera: { position: [0, 6, 50], fov: 45, near: 0.5, far: 400 },
+		},
+		controls: {
+			minDistance: 32,
+			maxDistance: 70,
+			minPolarAngle: 1.0,
+			maxPolarAngle: 1.62,
+		},
+	},
 	"test-animation": {
 		...lazyScene(() => import("./test-animation-scene")),
 		background: "#222222",
