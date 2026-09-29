@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { makeRng } from "@/lib/random";
+import { fullScreenTriangle } from "./full-screen-triangle";
 
 /**
  * The storm over Midgard: when lightning strikes, how bright it is over time,
@@ -48,20 +50,11 @@ export const channelAt = (s: Strike, age: number) =>
 	);
 
 /** Sky/fog/ambient brightness: one hump per strike. */
-export const skyAt = (s: Strike, age: number) =>
-	0.6 * pulse(age - LEADER, 0.03, 0.4) + 0.025 * channelAt(s, age);
+export const skyAt = (s: Strike, age: number, channel = channelAt(s, age)) =>
+	0.6 * pulse(age - LEADER, 0.03, 0.4) + 0.025 * channel;
 
 /** How far down the channel is drawn (the leader), 0–1. */
 export const revealAt = (age: number) => Math.min(1, Math.max(0, age / LEADER));
-
-/** Seeded (Park–Miller) random numbers, so every visit sees the same storm. */
-export function makeRandom(seed: number) {
-	let s = seed;
-	return () => {
-		s = (s * 16807) % 2147483647;
-		return s / 2147483647;
-	};
-}
 
 /** Seconds from one strike to the next (a restrike follows 20% of the time). */
 export function nextGap(random: () => number) {
@@ -212,8 +205,11 @@ const BOLT_VERTEX = /* glsl */ `
 
 	void main() {
 		vT = aT;
-		if (abs(aBolt - uBolt.w) > 0.5 || aT > uBolt.x) {
-			gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // clipped
+		// Inactive bolts: every vertex moves off screen, so whole ribbons vanish.
+		// (The leader is cut per fragment instead: moving single vertices would
+		// stretch the triangles at the cut into slivers.)
+		if (abs(aBolt - uBolt.w) > 0.5) {
+			gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
 			return;
 		}
 		float c = cos(uBoltPlace.z);
@@ -240,6 +236,7 @@ const BOLT_FRAGMENT = /* glsl */ `
 	varying float vT;
 
 	void main() {
+		if (vT > uBolt.x) discard; // not reached by the leader yet
 		float x = vSide;
 		float core = exp(-x * x / 0.015);
 		float halo = exp(-abs(x) * 3.0) * 0.35;
@@ -303,26 +300,12 @@ const SKY_FRAGMENT = /* glsl */ `
 	}
 `;
 
-/** A triangle covering the screen (clip space). */
-export function fullScreenTriangle() {
-	const geometry = new THREE.BufferGeometry();
-	geometry.setAttribute(
-		"position",
-		new THREE.BufferAttribute(
-			new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]),
-			3,
-		),
-	);
-	return geometry;
-}
-
 // -- The storm ----------------------------------------------------------------
 
 export type StormUniforms = ReturnType<typeof makeUniforms>;
 
 function makeUniforms(horizon: THREE.Color) {
 	return {
-		uTime: new THREE.Uniform(0),
 		/** Bolt + point light: every stroke. */
 		uChannel: new THREE.Uniform(0),
 		/** Sky, fog, ambient: one hump per strike. */
@@ -345,10 +328,12 @@ export class Storm {
 	readonly uniforms: StormUniforms;
 	readonly bolts: THREE.Mesh;
 	readonly sky: THREE.Mesh;
-	private readonly random = makeRandom(2718);
+	private readonly random = makeRng(2718);
 	private time = 0;
 	private next: number;
 	private strike: (Strike & { start: number }) | null = null;
+	/** A strike still fading when a restrike begins (so the flash doesn't pop). */
+	private fading: (Strike & { start: number }) | null = null;
 	/** Poster capture: fire one strike early and hold it at its peak. */
 	private readonly hold: number | null;
 
@@ -358,7 +343,7 @@ export class Storm {
 		this.next = options.posterStrike ? 0.8 : 1.6;
 
 		this.bolts = new THREE.Mesh(
-			boltGeometry(makeRandom(1123)),
+			boltGeometry(makeRng(1123)),
 			new THREE.ShaderMaterial({
 				vertexShader: BOLT_VERTEX,
 				fragmentShader: BOLT_FRAGMENT,
@@ -383,32 +368,40 @@ export class Storm {
 		this.sky.frustumCulled = false;
 		// Last among the opaque objects: only pixels nothing else covered are shaded.
 		this.sky.renderOrder = 1;
+		// The camera as it is for this very render (controls and the close ease
+		// move it after the scene's own frame callback).
+		this.sky.onBeforeRender = (_renderer, _scene, camera) => {
+			this.uniforms.uProjInv.value.copy(camera.projectionMatrixInverse);
+			this.uniforms.uCamWorld.value.copy(camera.matrixWorld);
+		};
 	}
 
 	update(delta: number, camera: THREE.Camera) {
 		const u = this.uniforms;
-		u.uProjInv.value.copy(camera.projectionMatrixInverse);
-		u.uCamWorld.value.copy(camera.matrixWorld);
 		const held =
 			this.hold !== null &&
 			this.strike &&
 			this.time - this.strike.start >= this.hold;
 		if (!held) this.time += delta;
-		u.uTime.value = this.time;
 
 		if (this.time >= this.next) this.begin(camera);
 		const s = this.strike;
 		if (!s) return;
 		const age = this.time - s.start;
 		const channel = channelAt(s, age);
-		u.uChannel.value = channel;
-		u.uSky.value = skyAt(s, age);
-		u.uBolt.value.set(
-			revealAt(age),
-			channel,
-			channelAt(s, age) * (age < 0.2 ? 1 : 0),
-			s.bolt,
-		);
+		let sky = skyAt(s, age, channel);
+		let light = channel;
+		const f = this.fading;
+		if (f) {
+			const fadingAge = this.time - f.start;
+			const fadingChannel = channelAt(f, fadingAge);
+			sky = Math.max(sky, skyAt(f, fadingAge, fadingChannel));
+			light = Math.max(light, fadingChannel);
+			if (fadingAge > 3) this.fading = null;
+		}
+		u.uChannel.value = light;
+		u.uSky.value = sky;
+		u.uBolt.value.set(revealAt(age), channel, age < 0.2 ? channel : 0, s.bolt);
 		if (age > 3) {
 			this.strike = null;
 			u.uBolt.value.set(0, 0, 0, -1);
@@ -429,6 +422,7 @@ export class Storm {
 			Math.cos(azimuth) * distance,
 		);
 		const bolt = Math.floor(r() * BOLTS);
+		this.fading = this.strike;
 		this.strike = {
 			start: this.time,
 			strokes: makeStrokes(r),
