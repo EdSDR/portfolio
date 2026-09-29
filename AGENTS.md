@@ -78,7 +78,8 @@ src/
     project-detail.tsx       meta + lazy MDX body under the expanded hero
   components/gallery/
     gallery-view.tsx         wires ?image= to the lightbox (open pushes, close pops history)
-    masonry.tsx              Motion port of reactbits' GSAP masonry (same props)
+    masonry.tsx              Motion port of reactbits' GSAP masonry (same props); square images
+                             are grouped 2×2 into one tile slot
     lightbox.tsx             full view; shares the tile's layoutId; Esc/backdrop/back close
   components/error-boundary.tsx  tiny boundary: scene → poster stays; writeup → message
   components/canvas/

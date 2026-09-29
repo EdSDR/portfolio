@@ -47,6 +47,34 @@ export const masonryLayoutId = (id: string) => `masonry-${id}`;
 const columnsFor = (width: number) =>
 	width >= 1400 ? 4 : width >= 860 ? 3 : width >= 480 ? 2 : 1;
 
+/** Width/height within this of 1 counts as square (logos, not near-square screenshots). */
+const SQUARE_TOLERANCE = 0.02;
+const isSquare = (item: MasonryItem) =>
+	Math.abs(item.width / item.height - 1) <= SQUARE_TOLERANCE;
+
+/**
+ * Splits items into slots, one tile each, except square images: they're
+ * gathered, in order, into groups of up to four that share one slot as a 2×2
+ * block, placed where the group's first square would have gone. (A full column
+ * width is far too big for a logo.) A lone leftover square stays a normal tile.
+ */
+function groupSquares(items: MasonryItem[]): MasonryItem[][] {
+	const squares = items.filter(isSquare);
+	const groups: MasonryItem[][] = [];
+	for (let i = 0; i < squares.length; i += 4)
+		groups.push(squares.slice(i, i + 4));
+	const groupOf = new Map<MasonryItem, MasonryItem[]>(
+		groups.flatMap((group) => group.map((item) => [item, group] as const)),
+	);
+	const slots: MasonryItem[][] = [];
+	for (const item of items) {
+		const group = groupOf.get(item);
+		if (!group || group.length === 1) slots.push([item]);
+		else if (group[0] === item) slots.push(group);
+	}
+	return slots;
+}
+
 interface GridItem extends MasonryItem {
 	x: number;
 	y: number;
@@ -56,8 +84,9 @@ interface GridItem extends MasonryItem {
 
 /**
  * Masonry grid: each tile drops into the shortest column at its image's aspect
- * ratio. Tiles fly in (from `animateFrom`, blurred into focus) as their image
- * loads, staggered; re-flows (column count / width changes) glide tiles to
+ * ratio; square images share a slot four at a time (see groupSquares). Tiles
+ * fly in (from `animateFrom`, blurred into focus) as their image loads,
+ * staggered; re-flows (column count / width changes) glide tiles to
  * their new spots.
  * A Motion port of the GSAP masonry from reactbits.dev.
  */
@@ -98,13 +127,32 @@ export function Masonry({
 		const columns = columnsFor(width);
 		const colHeights = new Array<number>(columns).fill(0);
 		const w = (width - (columns - 1) * gap) / columns;
-		const grid = items.map((item) => {
+		const grid: GridItem[] = [];
+		for (const slot of groupSquares(items)) {
 			const col = colHeights.indexOf(Math.min(...colHeights));
-			const h = (w * item.height) / item.width;
-			const placed = { ...item, x: col * (w + gap), y: colHeights[col], w, h };
-			colHeights[col] += h + gap;
-			return placed;
-		});
+			const x = col * (w + gap);
+			const y = colHeights[col];
+			if (slot.length === 1) {
+				const [item] = slot;
+				const h = (w * item.height) / item.width;
+				grid.push({ ...item, x, y, w, h });
+				colHeights[col] += h + gap;
+				continue;
+			}
+			// Squares two by two inside one column-wide slot.
+			const cell = (w - gap) / 2;
+			slot.forEach((item, i) => {
+				grid.push({
+					...item,
+					x: x + (i % 2) * (cell + gap),
+					y: y + Math.floor(i / 2) * (cell + gap),
+					w: cell,
+					h: cell,
+				});
+			});
+			const rows = Math.ceil(slot.length / 2);
+			colHeights[col] += rows * cell + (rows - 1) * gap + gap;
+		}
 		return { grid, height: Math.max(0, Math.max(...colHeights) - gap) };
 	}, [items, width, gap]);
 
