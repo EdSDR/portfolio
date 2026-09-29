@@ -31,8 +31,8 @@ export function swellHeight(x: number, z: number, t: number) {
 
 /**
  * Rides the swell: heave is the mean height under the hull, pitch and roll
- * the slope across its length and beam. A long hull averages the waves, so it
- * moves slowly and heavily; a small boat bobs. Smoothed and clamped.
+ * the slope across its length and beam. A long span averages the waves, so it
+ * moves slowly and heavily. Smoothed and clamped.
  */
 export class SwellBody {
 	private time = 0;

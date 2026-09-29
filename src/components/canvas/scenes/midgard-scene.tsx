@@ -15,7 +15,7 @@ import {
 	Vignette,
 } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
-import { type ReactNode, useLayoutEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { SwellBody } from "./midgard-sea";
 import { MOON_DIR, SKY_GLSL, Storm } from "./midgard-storm";
@@ -114,29 +114,6 @@ function softenWaterGlints(shader: THREE.WebGLProgramParametersWithUniforms) {
 	);
 }
 
-/** A part of the model that moves on its own, rotating about `pivot` (model space). */
-function Tossed({
-	pivot,
-	body,
-	children,
-}: {
-	pivot: [number, number, number];
-	body: SwellBody;
-	children: ReactNode;
-}) {
-	const toss = useRef<THREE.Group>(null);
-	useFrame((_, delta) => {
-		if (toss.current) body.update(toss.current, delta);
-	});
-	return (
-		<group position={pivot}>
-			<group ref={toss}>
-				<group position={[-pivot[0], -pivot[1], -pivot[2]]}>{children}</group>
-			</group>
-		</group>
-	);
-}
-
 const Part = ({ mesh }: { mesh: THREE.Mesh }) => (
 	<mesh geometry={mesh.geometry} material={mesh.material} />
 );
@@ -179,20 +156,15 @@ export default function MidgardScene() {
 			env.dispose();
 		};
 	}, [gl, scene, storm]);
-	const bodies = useMemo(
-		() => ({
-			// The floating island rocks slowly, as one piece.
-			diorama: new SwellBody(0, 0, 40, 26, 0.03, 0.5),
-		}),
-		[],
-	);
+	// The floating island rocks slowly on the swell, as one piece.
+	const swell = useMemo(() => new SwellBody(0, 0, 40, 26, 0.03, 0.5), []);
+	const island = useRef<THREE.Group>(null);
 
 	// Absolute values on the (globally cached) glTF materials: safe to repeat.
 	useMemo(() => {
 		const eyes = nodes.eyes.material as THREE.MeshStandardMaterial;
 		eyes.emissive.set("#ff4a1a");
 		eyes.emissiveIntensity = 8;
-		eyes.toneMapped = false;
 	}, [nodes]);
 
 	const hemi = useRef<THREE.HemisphereLight>(null);
@@ -212,6 +184,8 @@ export default function MidgardScene() {
 		}
 		fogColor.copy(baseFog).lerp(uFlashColor.value, uSky.value * 0.1);
 		if (scene.fog) scene.fog.color = fogColor;
+
+		if (island.current) swell.update(island.current, delta);
 
 		if (spin.current && !poster) {
 			spinTime.current += delta;
@@ -265,7 +239,7 @@ export default function MidgardScene() {
 			<group ref={spin}>
 				<group position={[-FOCUS.x, -FOCUS.y, -FOCUS.z]}>
 					{/* The floating island: water block, rock, ship and fort rock as one. */}
-					<Tossed pivot={[0, 0, 0]} body={bodies.diorama}>
+					<group ref={island}>
 						{/* The example's glass water, tinted for night: you see the serpent's
 					    coils and the keels through it. */}
 						<mesh geometry={nodes.water.geometry}>
@@ -316,7 +290,7 @@ export default function MidgardScene() {
 						/>
 						<Part mesh={nodes.boat1} />
 						<Part mesh={nodes.boat2} />
-					</Tossed>
+					</group>
 				</group>
 			</group>
 
