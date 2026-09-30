@@ -13,8 +13,7 @@ import { projects } from "@/content";
 import { SITE_TITLE, SITE_URL } from "@/lib/site";
 import appCss from "../styles.css?url";
 
-const SITE_DESCRIPTION =
-	"Portfolio of Ed (EdSDR) — project heroes rendered as live React Three Fiber scenes, built with TanStack Start.";
+const SITE_DESCRIPTION = "Hi, I'm Ed. This is where I show some of my work.";
 
 export const Route = createRootRoute({
 	head: () => ({
@@ -24,7 +23,7 @@ export const Route = createRootRoute({
 			{ title: SITE_TITLE },
 			{ name: "description", content: SITE_DESCRIPTION },
 			// Defaults; /work/$slug overrides title/description/image/url.
-			{ property: "og:site_name", content: "Ed Castro" },
+			{ property: "og:site_name", content: "ed.sdr" },
 			{ property: "og:type", content: "website" },
 			{ property: "og:title", content: SITE_TITLE },
 			{ property: "og:description", content: SITE_DESCRIPTION },
