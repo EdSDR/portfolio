@@ -1,0 +1,37 @@
+---
+name: "Ftm"
+description: "A hand-painted diorama, drawn the way it was painted."
+date: "2025-10-15"
+accent: "#d98a8a"
+tags: ["React Three Fiber", "glTF", "Postprocessing"]
+links:
+  - text: "Model by luyssport (CC BY-NC-SA 4.0)"
+    url: "https://sketchfab.com/3d-models/ftm-0970f30574d047b1976ba0aa6f2ef855"
+---
+
+## Overview
+
+[Ftm](https://sketchfab.com/3d-models/ftm-0970f30574d047b1976ba0aa6f2ef855) is a hand-painted
+diorama by [luyssport](https://sketchfab.com/luyssport), licensed
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): a gatehouse on a floating
+island, a traveller on the path, and something dark standing behind the arch. The model is
+optimized here; the scene matches its original look.
+
+## The idea
+
+The other scenes are about light: a spotlight on a statue, lightning over the sea, glowing lines.
+This one has no lights at all. The light and shade are painted into the textures, so the job is to
+put the painting on screen without changing it.
+
+## Under the hood
+
+- **Drawn as painted.** Every material is unlit, and tone mapping is turned off for them, so each
+  pixel is the texture's own colour. The ink lines are a second, slightly larger copy of the model
+  with its faces flipped, drawn in black: only its edges show around each shape.
+- **12.3 MB down to 1.27 MB.** Seven 1024 px JPEG textures re-encoded as WebP, the geometry
+  compressed with Draco, and normals dropped from every mesh that's never lit.
+- **A sky that never gets closer.** The painted sky dome is drawn first, without depth, centred on
+  the camera wherever the orbit takes it, so it reads as infinitely far away.
+- **Depth of field for free on the monster.** It's translucent, so it writes no depth: the depth of
+  field sees the sky behind it and blurs it just as softly, while the island stays sharp. The blur
+  runs at half resolution, and a frame costs about 2 ms of GPU time.

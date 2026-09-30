@@ -100,6 +100,10 @@ src/
                              `sea` (swell + SwellBody rocking), `weather`
                              (rain, embers, flames; one draw each), `scene` (lights, glass
                              water with the transmission pass at half resolution, composer)
+    scenes/ftm-scene.tsx     painted diorama: unlit glTF materials drawn as authored
+                             (`toneMapped = false`, no lights), sky dome that follows the
+                             camera, half-res DepthOfField (depthless translucent monster
+                             blurs like the sky)
     scenes/match-container-size.tsx  per-frame canvas resize (Motion layout transforms)
   content/
     schema.ts                Zod frontmatter (name, description, date, accent, tags, links)
@@ -122,6 +126,9 @@ public/
   midgard.glb                "Thor and the Midgard Serpent" by MrEmjeR, **CC BY 4.0: keep the
                              credit** (writeup links + scene file header). Flattened to named
                              world-space parts (ship, rock, serpent, eyes, boat1, boat2, water)
+  ftm.glb                    "Ftm" by luyssport, **CC BY-NC-SA 4.0: keep the credit, and the
+                             model stays non-commercial and under the same license**. Named
+                             world-space parts; textures WebP (12.3 MB original → 1.27 MB)
   themis.glb                 Draco statue, decimated to ~193k tris (mesh node `themis`, scale
                              0.06); keep new models welded + simplified (see git log 82b33e1)
   draco/                     self-hosted Draco decoder (copied from three/examples)
