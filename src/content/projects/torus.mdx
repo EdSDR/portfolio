@@ -1,6 +1,6 @@
 ---
-name: "Torus"
-description: "The Torus Portal hypergraph, rebuilt: about 600 agents and permissions arranged by a force simulation."
+name: "Torus - Portal Hypergraph"
+description: "This is the hypergraph from Torus Portal, rebuilt for this site. In the original it maps every agent on the Torus network and how emissions and permissions flow between them."
 company: "Renlabs"
 year: "2025"
 date: "2026-02-01"
@@ -12,11 +12,6 @@ links:
   - text: "Original source"
     url: "https://github.com/renlabs-dev/torus-ts/tree/main/apps/torus-portal/src/app/(pages)/portal/_components/force-graph"
 ---
-
-## Overview
-
-This is the hypergraph from Torus Portal, rebuilt for this site. In the original it maps every
-agent on the Torus network and how emissions flow between them.
 
 ## The idea
 
@@ -35,7 +30,7 @@ the middle is the root allocator everything hangs from. Here it's all generated 
 
 ## Under the hood
 
-Nobody placed these nodes. d3-force-3d pushes every node away from the others, pulls linked ones
+Nobody placed these nodes. [D3 Force](https://d3js.org/d3-force) pushes every node away from the others, pulls linked ones
 together, and runs until the layout settles. Three numbers set the shape: link distance, charge
 and pull toward the center. I tuned them by eye.
 
