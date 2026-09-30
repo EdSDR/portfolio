@@ -152,9 +152,10 @@ public/
   scenes are `lazy()` in the registry, and `registry.ts` must stay free of runtime
   three/R3F/drei imports (type-only is fine).
 - **IntersectionObserver** (`use-in-view.ts`) drives `far`/`near`/`visible`:
-  `visible` → `frameloop="always"`; `near` → mounted, `frameloop="never"`, shaders
-  compiled + one frame drawn; `far` → unmounted (context freed). Hysteresis: mount at
-  150% viewport margin, unmount only past 300%. **Never set React state on scroll events.**
+  `visible` → `frameloop="always"`; `near` → mounted, `frameloop="demand"` (not
+  `"never"`: see the delta gotcha below), shaders compiled + one frame drawn; `far` →
+  unmounted (context freed). Hysteresis: mount at 150% viewport margin, unmount only
+  past 300%. **Never set React state on scroll events.**
 - **Live gate** (`project-card.tsx`): canvas mounts when client-mounted + not
   reduced-motion + (card open, or fine pointer + not `far`). It does **not** wait for the
   card's fly-in (that runs on the compositor), and the card calls `preloadScene()` at
@@ -165,6 +166,11 @@ public/
 - Mobile (coarse pointer): list shows posters; the live scene mounts on open.
 - R3F resets `clock.elapsedTime` when `frameloop` changes (pause/resume). Animate with
   `delta` or your own accumulated time (see `statue-scene.tsx`), not `clock.elapsedTime`.
+  `SceneCanvas` clamps `delta` to 0.1 s: a hidden tab otherwise hands the next frame the
+  whole absence, and a shader clock in the tens of thousands of seconds is float32-coarse
+  (rain and link pulses stepped at a few fps). Under `frameloop="never"` R3F takes a
+  pending-invalidate frame's delta from the rAF timestamp (ms), bypassing the clamp and
+  jumping clocks by the page's age; paused cards use `"demand"` instead.
 
 - **Views are routes.** The shell picks the view from the pathname (`/gallery*` →
   Gallery, else Scenes). Switching tabs unmounts the other view (frees the scenes'

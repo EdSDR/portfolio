@@ -1,8 +1,22 @@
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, type RootState, useThree } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
 import { SceneControls } from "./scene-controls";
 import { MatchContainerSize } from "./scenes/match-container-size";
 import { scenes } from "./scenes/registry";
+
+/**
+ * Longest frame step a scene sees, in seconds. R3F passes the real time since
+ * the last frame, which after a hidden tab is the whole absence; scenes add it
+ * to shader clocks, and a float32 uniform in the tens of thousands of seconds
+ * only moves in steps of several milliseconds (rain and link pulses stutter).
+ * A long hitch slows the animation for a frame instead.
+ */
+const MAX_DELTA = 0.1;
+
+function clampDelta({ clock }: RootState) {
+	const getDelta = clock.getDelta.bind(clock);
+	clock.getDelta = () => Math.min(getDelta(), MAX_DELTA);
+}
 
 /**
  * One card's WebGL canvas. Each live card owns its own <Canvas>, so the scene is
@@ -34,7 +48,10 @@ export default function SceneCanvas({
 
 	return (
 		<Canvas
-			frameloop={paused ? "never" : "always"}
+			// Paused is "demand", not "never": under "never" R3F takes a frame's delta
+			// from the timestamp (a rAF time in ms, whenever an invalidate was still
+			// pending), so scene clocks jumped by the page's age in "seconds".
+			frameloop={paused ? "demand" : "always"}
 			dpr={[1, 1.5]}
 			gl={{
 				antialias,
@@ -42,6 +59,7 @@ export default function SceneCanvas({
 				powerPreference: "high-performance",
 			}}
 			{...canvas}
+			onCreated={clampDelta}
 			style={{
 				position: "absolute",
 				inset: 0,
