@@ -221,7 +221,7 @@ Short and interesting beats complete. Sidebar and writeups:
   paragraphs under three light headings: `## Overview`, `## The idea`, `## Under the hood`;
   ~250–400 words when there's that much real work to tell.
   No "my part"/team-credit sections: the scene on the site is the thing being described.
-- Facts only from the resume source of truth (`.plan/ed-resume/original.md`) or this repo.
+- Facts only from the profile source of truth in ed-kb (`~/Developer/ed-kb/kb/profile/original.md`; the KB links this repo as `repos/portfolio`) or this repo.
 - Never put the phone number or other private contact details in the repo.
 
 ## Adding gallery images
