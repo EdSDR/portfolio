@@ -8,7 +8,7 @@ import {
 } from "@react-three/postprocessing";
 import { useMemo, useRef } from "react";
 import type * as THREE from "three";
-import { TorusGraph } from "./torus-graph";
+import { prepareTorusLayout, TorusGraph } from "./torus-graph";
 
 /**
  * Torus hero: a force-directed graph approximating an on-chain agent network
@@ -55,3 +55,6 @@ export default function TorusScene() {
 		</>
 	);
 }
+
+// Loading this module means the scene starts soon (lib/scene-queue).
+prepareTorusLayout();

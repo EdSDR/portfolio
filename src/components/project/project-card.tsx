@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import {
-	lazy,
 	type MouseEvent,
 	Suspense,
 	useCallback,
@@ -12,6 +11,7 @@ import {
 } from "react";
 import {
 	DEFAULT_SCENE_BG,
+	LazySceneCanvas,
 	posterUrl,
 	preloadScene,
 	scenes,
@@ -32,7 +32,7 @@ import { useMounted } from "@/lib/use-mounted";
 import { ProjectDetail } from "./project-detail";
 
 // Lazy so three/R3F stay out of the entry bundle (phones may never load them).
-const SceneCanvas = lazy(() => import("@/components/canvas/scene-canvas"));
+const SceneCanvas = LazySceneCanvas.Component;
 
 /**
  * One project card. Its media box shows a poster (a pre-rendered still) and,

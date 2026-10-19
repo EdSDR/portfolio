@@ -1,6 +1,7 @@
 import type { OrbitControlsProps } from "@react-three/drei";
 import type { CanvasProps } from "@react-three/fiber";
-import { type ComponentType, lazy } from "react";
+import type { ComponentType } from "react";
+import { preloadable } from "@/lib/preloadable";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -34,7 +35,13 @@ export interface SceneEntry {
 	>;
 }
 
-const lazyScene = (load: SceneEntry["load"]) => ({ load, Scene: lazy(load) });
+const lazyScene = (load: SceneEntry["load"]) => {
+	const { preload, Component } = preloadable(load);
+	return { load: preload, Scene: Component };
+};
+
+/** A card's <SceneCanvas> (the three + R3F chunk), loaded on demand. */
+export const LazySceneCanvas = preloadable(() => import("../scene-canvas"));
 
 export const scenes: Record<string, SceneEntry> = {
 	ftm: {
@@ -110,7 +117,7 @@ export function preloadScene(slug: string): void {
 	// Prefetch only: a failure (offline, stale chunk after a deploy) surfaces
 	// when the lazy component renders, so there's nothing to handle here.
 	const ignore = () => {};
-	import("../scene-canvas").catch(ignore);
+	LazySceneCanvas.preload().catch(ignore);
 	scenes[slug]?.load().catch(ignore);
 }
 

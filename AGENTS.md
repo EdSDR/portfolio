@@ -102,7 +102,9 @@ src/
                              No runtime three imports (read by the entry bundle).
     scenes/*-scene.tsx       scene content only (meshes/lights/camera/effects), default export
     scenes/torus-graph.ts    Torus graph: d3 sim → 4 InstancedMesh (node shapes) + 1 LineSegments
-                             + 1 Points; fresnel nodes, link pulses and depth fade in GLSL
+                             + 1 Points; fresnel nodes, link pulses and depth fade in GLSL. The
+                             sim's 80-tick warm-up (~280 ms) runs in 6 ms slices from module load
+                             (`prepareTorusLayout`, during the entrance); TorusGraph takes it over
     scenes/statue-light.tsx  statue's lit air (quarter-res ray march through the spot cone,
                              reads its VSM shadow map) + dust motes lit only in the beam
     scenes/film-grade.tsx    vignette + grain as one multiply-blended full-screen triangle
@@ -125,6 +127,7 @@ src/
   lib/                       use-in-view, use-device (pointer/reduced-motion), use-mounted,
                              fly-in (the site entrance: blur-rise helpers), scroll-memory,
                              scene-queue (scene start-ups: one at a time, after the entrance),
+                             preloadable (lazy() that renders a loaded module without suspending),
                              graph-data (seeded synthetic Torus graph), site (SITE_URL for
                              absolute OG/canonical URLs), cn
 scripts/capture-posters.ts   `bun run posters`
@@ -269,6 +272,10 @@ Short and interesting beats complete. Sidebar and writeups:
 
 ## Hard-won gotchas (don't rediscover these)
 
+- **A preloaded lazy() still suspends, and React then holds the reveal 300 ms** (its
+  Suspense fallback throttle, in react-dom and R3F's reconciler alike): a card's canvas
+  appeared ~340 ms after its queue turn for nothing. Scenes and the canvas chunk use
+  `preloadable` (`lib/preloadable.ts`), which renders the module directly once loaded.
 - **First visits are a different site.** A program's link (and on Metal its first use
   and first draw) costs 0.1–1.9 s per scene on a cold shader cache, ~nothing on a warm
   one. Chrome keeps compiled shaders per profile *and* macOS keeps a per-app Metal cache,

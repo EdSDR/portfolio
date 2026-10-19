@@ -195,6 +195,70 @@ const PULSE_FRAGMENT = /* glsl */ `
 `;
 
 /**
+ * The graph and its force simulation through the warm-up. The warm-up runs
+ * with d3's default forces (a compact start), then the tuned ones take over
+ * from a reheated sim: the sequence FORCE was tuned against (the graph library
+ * this replaced did the same).
+ */
+class Layout {
+	readonly nodes: Node[];
+	readonly links: Link[];
+	readonly sim: Simulation<Node>;
+	private readonly link;
+	private readonly charge = forceManyBody();
+	private readonly center = forceCenter();
+	private ticks = 0;
+
+	constructor() {
+		const data = generateGraph();
+		this.nodes = data.nodes;
+		this.links = data.links;
+		this.link = forceLink<Node, Link>(this.links).id((n) => n.id);
+		this.sim = forceSimulation(this.nodes, 3)
+			.alphaDecay(SIM.alphaDecay)
+			.force("link", this.link)
+			.force("charge", this.charge)
+			.force("center", this.center)
+			.stop();
+	}
+
+	/** Runs warm-up ticks until done or `deadline` (performance.now()); done? */
+	warm(deadline = Number.POSITIVE_INFINITY): boolean {
+		if (this.ticks === SIM.warmupTicks) return true;
+		while (this.ticks < SIM.warmupTicks && performance.now() < deadline) {
+			this.sim.tick();
+			this.ticks++;
+		}
+		if (this.ticks < SIM.warmupTicks) return false;
+		this.link.distance(FORCE.linkDistance);
+		this.charge.strength(FORCE.charge);
+		this.center.strength(FORCE.center);
+		this.sim.alpha(1);
+		return true;
+	}
+}
+
+let prepared: Layout | null = null;
+
+/**
+ * Starts the layout's warm-up (~280 ms of simulation on a fast machine) in
+ * short main-thread slices, so it's done before the scene's turn to start
+ * instead of blocking it. Call when the scene module loads (during the site
+ * entrance: slices this short don't disturb it); the next TorusGraph takes the
+ * layout over, finishing any ticks left.
+ */
+export function prepareTorusLayout(): void {
+	if (prepared || typeof window === "undefined") return;
+	const layout = new Layout();
+	prepared = layout;
+	const slice = () => {
+		if (prepared === layout && !layout.warm(performance.now() + 6))
+			setTimeout(slice, 0);
+	};
+	setTimeout(slice, 0);
+}
+
+/**
  * The Torus hypergraph, drawn in a handful of draw calls: one InstancedMesh
  * per node shape, every link in one LineSegments, every pulse head in one
  * Points. The d3-force-3d simulation writes positions into those buffers
@@ -221,27 +285,12 @@ export class TorusGraph {
 	private ticks = 0;
 
 	constructor() {
-		const data = generateGraph();
-		const nodes: Node[] = data.nodes;
-		this.links = data.links;
-
-		// The warmup runs with d3's default forces (a compact start), then the
-		// tuned ones take over from a reheated sim: the sequence FORCE was tuned
-		// against (the graph library this replaced did the same).
-		const link = forceLink<Node, Link>(this.links).id((n) => n.id);
-		const charge = forceManyBody();
-		const center = forceCenter();
-		this.sim = forceSimulation(nodes, 3)
-			.alphaDecay(SIM.alphaDecay)
-			.force("link", link)
-			.force("charge", charge)
-			.force("center", center)
-			.stop()
-			.tick(SIM.warmupTicks);
-		link.distance(FORCE.linkDistance);
-		charge.strength(FORCE.charge);
-		center.strength(FORCE.center);
-		this.sim.alpha(1);
+		const layout = prepared ?? new Layout();
+		prepared = null;
+		layout.warm();
+		const { nodes } = layout;
+		this.links = layout.links;
+		this.sim = layout.sim;
 
 		this.buildNodes(nodes);
 		this.linePositions = this.buildLinks();
