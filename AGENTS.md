@@ -36,6 +36,11 @@ and `torus-ts/` (the real Torus codebase, reference for the Torus scene).
   (headless system Chrome via playwright-core; uses/starts the dev server, override with
   `BASE_URL=…`). Re-run after changing a scene's look or adding a project. Any new
   `position: fixed` overlay must carry `data-poster-hide`, or it gets baked into posters.
+- `bun run cold-start [--runs N] [--headed] [--dir …|--url …]` — measures a first-ever
+  visit (fresh Chrome profile, shaders made unique per run so the macOS Metal cache can't
+  help): screen stalls, long tasks, GPU-process time, LCP, entrance end, scene-ready
+  times. Serves `dist/client` (build first). Run it before/after anything that touches
+  scene start-up; a normal reload or incognito window does **not** reproduce a first visit.
 
 Before handing work back: `bun run typecheck` and `bunx biome ci` (what CI runs, plus
 `bun run build`; `.github/workflows/ci.yml`). Formatting-only commits go in
@@ -83,9 +88,14 @@ src/
     lightbox.tsx             full view; shares the tile's layoutId; Esc/backdrop/back close
   components/error-boundary.tsx  tiny boundary: scene → poster stays; writeup → message
   components/canvas/
-    scene-canvas.tsx         a card's own <Canvas> (lazy default export): frameloop from
-                             `paused`, bg color, MatchContainerSize, Prewarm (compileAsync →
+    scene-canvas.tsx         a card's own <Canvas> (lazy default export): frameloop
+                             ("never" until warm, then from `paused`), bg color,
+                             MatchContainerSize, Prewarm (setups → precompile → drawInSteps →
                              first frame → onReady)
+    precompile.ts            first-visit shader work off the critical path: `precompile` (dry
+                             frame: every draw's program created under its exact state, links
+                             awaited), `drawInSteps` (first draws a few per frame, under the
+                             poster), `beforeFirstFrame` + `prefilteredEnvironment` (PMREM)
     scene-controls.tsx       open-card orbit controls + camera return on close
     scenes/registry.ts       slug → { lazy Scene, background, canvas opts, orbit limits };
                              posterUrl/ogImageUrl.
@@ -114,10 +124,12 @@ src/
     gallery/                 generated WebP (full + thumbs/), from gallery-originals/
   lib/                       use-in-view, use-device (pointer/reduced-motion), use-mounted,
                              fly-in (the site entrance: blur-rise helpers), scroll-memory,
+                             scene-queue (scene start-ups: one at a time, after the entrance),
                              graph-data (seeded synthetic Torus graph), site (SITE_URL for
                              absolute OG/canonical URLs), cn
 scripts/capture-posters.ts   `bun run posters`
 scripts/gallery.ts           `bun run gallery` (originals → WebP full + thumb, via system Chrome)
+scripts/cold-start.ts        `bun run cold-start` (first-visit benchmark, see Commands)
 vite-plugins/mdx-frontmatter.ts  `import fm from "./x.mdx?frontmatter"` → frontmatter object only
 vite-plugins/image-size.ts   `import s from "./x.png?size"` → { width, height } (header parse,
                              no deps; PNG/JPEG+EXIF/WebP/GIF/AVIF)
@@ -163,12 +175,26 @@ public/
   `"never"`: see the delta gotcha below), shaders compiled + one frame drawn; `far` →
   unmounted (context freed). Hysteresis: mount at 150% viewport margin, unmount only
   past 300%. **Never set React state on scroll events.**
-- **Live gate** (`project-card.tsx`): canvas mounts when client-mounted + not
-  reduced-motion + (card open, or fine pointer + not `far`). It does **not** wait for the
-  card's fly-in (that runs on the compositor), and the card calls `preloadScene()` at
-  mount so three/R3F + the scene chunk download in parallel (no canvas→scene waterfall).
-  The poster (scene-bg color + `posters/<slug>.webp`) sits above the canvas and fades
-  only after `onReady` (first frame drawn), so there's never a blank frame.
+- **Live gate** (`project-card.tsx`): a card *wants* its scene when client-mounted + not
+  reduced-motion + (card open, or fine pointer + not `far`); the canvas mounts when the
+  **start queue** (`lib/scene-queue.ts`) grants it: never while an entrance (`fly-*`
+  CSS animation) is playing, one scene at a time (each holds the slot until `onReady` or
+  failure), open card first, then visible cards, then near ones, in list order. Starting
+  a scene (context, shader links, first draws) runs in Chrome's GPU process, which also
+  draws the page: on a first visit, scenes starting under the fly-in froze the whole page
+  (compositor animations too) for seconds. Cards on screen `preloadScene()` at mount (JS +
+  model download in parallel with the fly-in); cards further down only when granted. The
+  poster (scene-bg color + `posters/<slug>.webp`) sits above the canvas and fades only
+  after `onReady` (first frame drawn), so there's never a blank frame.
+- **Prewarm** (`scene-canvas.tsx` + `precompile.ts`): the canvas stays on
+  `frameloop="never"` until warm (R3F would otherwise draw the scene as it commits, and
+  that draw waits for every shader link on the main thread). Prewarm waits for the
+  scene's `beforeFirstFrame` setups and two frames (react-postprocessing builds its
+  composer an effect later), runs a dry frame (`precompile`), then real first draws a
+  few per frame (`drawInSteps`), then the full frame → `onReady`. Advance with
+  `advance(clock.elapsedTime)` under "never" (a zero step). Anything a frame's programs
+  depend on (an environment map) must be in place before the dry frame: build it in a
+  layout effect via `beforeFirstFrame(gl, prefilteredEnvironment(…).then(…))`.
 - Honor `prefers-reduced-motion` (poster only, no live scene).
 - Mobile (coarse pointer): list shows posters; the live scene mounts on open.
 - R3F resets `clock.elapsedTime` when `frameloop` changes (pause/resume). Animate with
@@ -194,8 +220,8 @@ public/
   props (index) are pinned at mount — opening a card re-indexes the list.
 - **Keep entrances on the compositor.** Motion (opacity + `translate`) and blur are
   separate animations: a blur can't be composited, and one non-composited property drags
-  the whole animation onto the main thread, where scene start-up (~150–300ms tasks)
-  would stall it. Keyframes define only the start state, so nothing lingers (a leftover
+  the whole animation onto the main thread, where main-thread work would stall it. (The
+  compositor isn't immune either: GPU-process work stalls it, hence the start queue.) Keyframes define only the start state, so nothing lingers (a leftover
   `blur(0px)` would keep a filter layer over live canvases). Don't reintroduce
   JS-driven (Motion `x`/`y`) entrances.
 
@@ -206,10 +232,13 @@ public/
 1. `src/content/projects/<slug>.mdx` with frontmatter matching `content/schema.ts`.
 2. Scene: `scenes/<slug>-scene.tsx` (default export, content only — post-processing
    like `<EffectComposer>` goes inside the scene) → add to `registry.ts` with its
-   `background` and any `canvas` options (`shadows`, `camera`).
+   `background` and any `canvas` options (`shadows`, `camera`). Environment maps and
+   other one-off GPU setup go through `beforeFirstFrame` (see Prewarm).
 3. If the scene pulls a new lazily-imported 3D dep, add it to `optimizeDeps.include`
    in `vite.config.ts` (see gotchas).
 4. `bun run posters <slug>` to generate its cover + OG image.
+5. `bun run build && bun run cold-start`: no new stalls during the entrance, and the
+   scene's own start-up short (see the first-visit gotcha).
 
 ## Writing the copy
 
@@ -239,6 +268,21 @@ Short and interesting beats complete. Sidebar and writeups:
    the humanized id, is not good alt text). Commit the webp files.
 
 ## Hard-won gotchas (don't rediscover these)
+
+- **First visits are a different site.** A program's link (and on Metal its first use
+  and first draw) costs 0.1–1.9 s per scene on a cold shader cache, ~nothing on a warm
+  one. Chrome keeps compiled shaders per profile *and* macOS keeps a per-app Metal cache,
+  so reloads, cleared caches and incognito all look fine; only a new browser (or
+  `bun run cold-start`) shows it. Measured before the start queue + prewarm (Oct 2026):
+  1.7–2.7 s of frozen screen and LCP pushed to 1.3–1.8 s.
+- **`compileAsync` isn't a prewarm on its own:** it compiles the scene graph under the
+  screen's state, so composer passes, shadow maps, transmission, custom passes and PMREM
+  were missed, and scene materials a composer draws into a render target got the wrong
+  key (compiled twice). Materials also change *between draws of one frame* (three's shadow
+  pass reuses one depth material, flipping `side` per object) and draws with no scene
+  (shadow pass) are unfogged. `precompile` handles all of this by creating each program
+  at its draw; check `gl.info.programs` before/after the first real frame if a scene
+  starts stalling again (any new program there was missed).
 
 - **Under an EffectComposer, set tone mapping yourself**: the composer forces
   `NoToneMapping`, and postprocessing's `<ToneMapping>` defaults to **AgX**; write

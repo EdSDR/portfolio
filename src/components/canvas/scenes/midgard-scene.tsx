@@ -17,6 +17,7 @@ import {
 import { ToneMappingMode } from "postprocessing";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { beforeFirstFrame, prefilteredEnvironment } from "../precompile";
 import { SwellBody } from "./midgard-sea";
 import { MOON_DIR, SKY_GLSL, Storm } from "./midgard-storm";
 import { useWeather } from "./midgard-weather";
@@ -70,7 +71,7 @@ const ENV_SKY_FRAGMENT = /* glsl */ `
 	}
 `;
 
-function nightEnvironment(gl: THREE.WebGLRenderer, storm: Storm) {
+async function nightEnvironment(gl: THREE.WebGLRenderer, storm: Storm) {
 	const u = storm.uniforms;
 	const sky = new THREE.Mesh(
 		new THREE.SphereGeometry(100, 32, 16),
@@ -90,12 +91,12 @@ function nightEnvironment(gl: THREE.WebGLRenderer, storm: Storm) {
 	);
 	const scene = new THREE.Scene();
 	scene.add(sky);
-	const pmrem = new THREE.PMREMGenerator(gl);
-	const target = pmrem.fromScene(scene, 0.04);
-	pmrem.dispose();
-	sky.geometry.dispose();
-	sky.material.dispose();
-	return target;
+	try {
+		return await prefilteredEnvironment(gl, scene, 0.04);
+	} finally {
+		sky.geometry.dispose();
+		sky.material.dispose();
+	}
 }
 
 /**
@@ -143,17 +144,27 @@ export default function MidgardScene() {
 		[],
 	);
 	const gl = useThree((s) => s.gl);
-	// Layout effect: set before the canvas compiles the scene's shaders.
+	// Layout effect + beforeFirstFrame: set before the canvas compiles the
+	// scene's shaders (the environment map is part of their key).
 	useLayoutEffect(() => {
-		const env = nightEnvironment(gl, storm);
-		scene.environment = env.texture;
-		scene.environmentIntensity = 2.8;
+		let env: THREE.WebGLRenderTarget | undefined;
+		let gone = false;
 		// The glass water's transmission pass (the opaque scene rendered again,
 		// to refract) at half resolution: it's blurred by roughness anyway.
 		gl.transmissionResolutionScale = 0.5;
+		beforeFirstFrame(
+			gl,
+			nightEnvironment(gl, storm).then((target) => {
+				if (gone) return target.dispose();
+				env = target;
+				scene.environment = target.texture;
+				scene.environmentIntensity = 2.8;
+			}),
+		);
 		return () => {
+			gone = true;
 			scene.environment = null;
-			env.dispose();
+			env?.dispose();
 		};
 	}, [gl, scene, storm]);
 	// The floating island rocks slowly on the swell, as one piece.

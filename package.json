@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "posters": "bun scripts/capture-posters.ts",
     "gallery": "bun scripts/gallery.ts",
+    "cold-start": "bun scripts/cold-start.ts",
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",

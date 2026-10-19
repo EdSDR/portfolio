@@ -20,6 +20,7 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import type { Project } from "@/content";
 import { cn } from "@/lib/cn";
 import { flyUpStyle } from "@/lib/fly-in";
+import { useSceneStart } from "@/lib/scene-queue";
 import {
 	holdScrollForOpen,
 	releaseScrollHold,
@@ -93,26 +94,40 @@ export function ProjectCard({
 	}, [active]);
 
 	// Live 3D on desktop pointers while near/visible, or whenever a card is
-	// opened. Mobile / reduced-motion stay on the poster. No waiting for the
-	// fly-in: it runs on the compositor, so the scene starts up underneath the
-	// poster while the card is still flying, and the poster fades as soon as the
-	// first frame is drawn.
+	// opened. Mobile / reduced-motion stay on the poster. Scenes start through
+	// the queue (lib/scene-queue): after the entrance, one at a time, visible
+	// cards first. Starting one occupies the GPU process that also draws the
+	// page, so a scene starting under the fly-in froze it on a first visit.
 	const wantsScene =
 		mounted && !reduced && project.slug in scenes && (active || fine);
-	const live = wantsScene && (active || state !== "far");
+	const wanted = wantsScene && (active || state !== "far");
+	const [started, startDone] = useSceneStart(
+		wanted,
+		(active ? 0 : state === "visible" ? 1 : 2) * 100 + index,
+	);
+	const live = wanted && started;
 
-	// Fetch + evaluate the 3D code as soon as it'll be wanted, in parallel with
-	// the fly-in and the IntersectionObserver's first report.
+	// Fetch + evaluate the 3D code (and the scene's model) in parallel with the
+	// fly-in, for the cards on screen; cards further down fetch theirs when
+	// their turn comes, so they don't compete with the visible ones.
+	const soon = active || state === "visible" || started;
 	useEffect(() => {
-		if (wantsScene) preloadScene(project.slug);
-	}, [wantsScene, project.slug]);
+		if (wanted && soon) preloadScene(project.slug);
+	}, [wanted, soon, project.slug]);
 	const paused = !active && state !== "visible";
 
 	// The poster fades only after the scene has drawn, so there's never a blank frame.
 	const [ready, setReady] = useState(false);
-	const markReady = useCallback(() => setReady(true), []);
-	// A scene that fails after its first frame hands the card back to its poster.
-	const markFailed = useCallback(() => setReady(false), []);
+	const markReady = useCallback(() => {
+		setReady(true);
+		startDone();
+	}, [startDone]);
+	// A scene that fails (before or after its first frame) hands the card back
+	// to its poster.
+	const markFailed = useCallback(() => {
+		setReady(false);
+		startDone();
+	}, [startDone]);
 	useEffect(() => {
 		if (!live) setReady(false);
 	}, [live]);

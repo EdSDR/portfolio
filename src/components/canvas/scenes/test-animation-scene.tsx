@@ -2,6 +2,7 @@ import { Float, PerspectiveCamera, RoundedBox } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
+import { beforeFirstFrame, prefilteredEnvironment } from "../precompile";
 import { FilmGrade } from "./film-grade";
 
 /**
@@ -32,7 +33,7 @@ const PANELS: [string, number, [number, number, number], [number, number]][] = [
  * thing drei's <Environment> + <Lightformer> do, without its HDR/EXR loader
  * code in the chunk.
  */
-function studioEnvironment(gl: THREE.WebGLRenderer) {
+async function studioEnvironment(gl: THREE.WebGLRenderer) {
 	const studio = new THREE.Scene();
 	const plane = new THREE.PlaneGeometry();
 	const ring = new THREE.RingGeometry(0.5, 1, 48);
@@ -50,14 +51,14 @@ function studioEnvironment(gl: THREE.WebGLRenderer) {
 		panel.lookAt(0, 0, 0);
 		studio.add(panel);
 	});
-	const pmrem = new THREE.PMREMGenerator(gl);
-	const target = pmrem.fromScene(studio, 0.02);
-	pmrem.dispose();
-	plane.dispose();
-	ring.dispose();
-	for (const panel of studio.children)
-		if (panel instanceof THREE.Mesh) panel.material.dispose();
-	return target;
+	try {
+		return await prefilteredEnvironment(gl, studio, 0.02);
+	} finally {
+		plane.dispose();
+		ring.dispose();
+		for (const panel of studio.children)
+			if (panel instanceof THREE.Mesh) panel.material.dispose();
+	}
 }
 
 export default function TestAnimationScene() {
@@ -65,13 +66,23 @@ export default function TestAnimationScene() {
 	const gl = useThree((s) => s.gl);
 	const scene = useThree((s) => s.scene);
 
-	// Layout effect: set before the canvas compiles the scene's shaders.
+	// Layout effect + beforeFirstFrame: set before the canvas compiles the
+	// scene's shaders (the environment map is part of their key).
 	useLayoutEffect(() => {
-		const env = studioEnvironment(gl);
-		scene.environment = env.texture;
+		let env: THREE.WebGLRenderTarget | undefined;
+		let gone = false;
+		beforeFirstFrame(
+			gl,
+			studioEnvironment(gl).then((target) => {
+				if (gone) return target.dispose();
+				env = target;
+				scene.environment = target.texture;
+			}),
+		);
 		return () => {
+			gone = true;
 			scene.environment = null;
-			env.dispose();
+			env?.dispose();
 		};
 	}, [gl, scene]);
 
