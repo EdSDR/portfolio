@@ -61,3 +61,32 @@ export function releaseScrollHold(): void {
 	for (const el of held) el.style.translate = "";
 	held = [];
 }
+
+/**
+ * Switching Scenes/Gallery lands on the start of the content column, not the
+ * page top: on small screens the sidebar sits above the content, so a reset to
+ * the top would bury the view the user just picked under the bio. The tab click
+ * marks the switch; the shell applies it once the new view has committed (the
+ * router's own reset is off for those links).
+ */
+let contentScrollPending = false;
+
+export function requestContentScroll(): void {
+	contentScrollPending = true;
+}
+
+export function scrollToContent(behavior: ScrollBehavior = "auto"): void {
+	const main = document.getElementById("content");
+	if (!main) return;
+	const top = main.getBoundingClientRect().top + window.scrollY;
+	window.scrollTo({
+		top,
+		behavior: prefersReducedMotion() ? "auto" : behavior,
+	});
+}
+
+export function applyContentScroll(): void {
+	if (!contentScrollPending) return;
+	contentScrollPending = false;
+	scrollToContent();
+}

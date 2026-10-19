@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { type MouseEvent, useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { flyUpStyle } from "@/lib/fly-in";
+import { requestContentScroll, scrollToContent } from "@/lib/scroll-memory";
 
 // Rises in with the sidebar and cards (CSS, from first paint).
 const entrance = flyUpStyle({ start: 0.2, distance: 16, blur: 6 });
@@ -14,18 +16,54 @@ const TABS = [
 export type View = (typeof TABS)[number]["view"];
 
 /**
+ * Below `lg` the sidebar comes first, so the tabs wait until the content column
+ * reaches the upper three quarters of the screen, then stay for the rest of the
+ * visit (scrolling back up keeps them). An IntersectionObserver, not a scroll
+ * listener. Desktop shows them regardless (the hidden state is `max-lg:` only),
+ * so SSR markup is right on both before this runs.
+ */
+function useContentReached(): boolean {
+	const [reached, setReached] = useState(false);
+	useEffect(() => {
+		const main = document.getElementById("content");
+		if (!main) return;
+		const io = new IntersectionObserver(
+			([entry]) => {
+				if (!entry.isIntersecting) return;
+				setReached(true);
+				io.disconnect();
+			},
+			{ rootMargin: "0px 0px -25% 0px" },
+		);
+		io.observe(main);
+		return () => io.disconnect();
+	}, []);
+	return reached;
+}
+
+// A plain left click (not a new-tab/window click) on a tab.
+const isPlainClick = (e: MouseEvent) =>
+	e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
+
+/**
  * Scenes / Gallery switch: a frosted-glass pill pinned while content scrolls
  * under it. Desktop: top-right, within the 1600px page width (at the top of the
  * page it sits 16px inside the first card's corner). Below `lg`: bottom-center,
  * where it's in thumb reach and clear of the sidebar header.
  * The active pill slides between tabs (shared layoutId). Each tab is a route,
  * so views are linkable, prerendered, and the back button switches back.
+ * Below `lg` it appears once the content is reached (see useContentReached),
+ * and a switch lands on the content's start instead of the page top.
  */
 export function ViewTabs({ view }: { view?: View }) {
+	const reached = useContentReached();
 	return (
 		<div
 			data-poster-hide
-			className="pointer-events-none fixed inset-x-0 bottom-4 z-30 lg:top-8 lg:bottom-auto"
+			className={cn(
+				"pointer-events-none fixed inset-x-0 bottom-4 z-30 transition-[opacity,translate,visibility] duration-500 ease-out motion-reduce:transition-none lg:top-8 lg:bottom-auto",
+				!reached && "max-lg:invisible max-lg:translate-y-6 max-lg:opacity-0",
+			)}
 		>
 			<div className="mx-auto flex w-full max-w-[1600px] justify-center lg:justify-end lg:px-8">
 				<nav
@@ -42,6 +80,13 @@ export function ViewTabs({ view }: { view?: View }) {
 							<Link
 								key={tab.view}
 								to={tab.to}
+								// The shell scrolls to the content once the new view commits.
+								resetScroll={false}
+								onClick={(e) => {
+									if (!isPlainClick(e)) return;
+									if (active) scrollToContent("smooth");
+									else requestContentScroll();
+								}}
 								aria-current={active ? "page" : undefined}
 								className={cn(
 									"relative flex h-8 items-center justify-center rounded-full px-4 font-medium text-sm outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-ring/60",

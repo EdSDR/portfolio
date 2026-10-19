@@ -3,7 +3,7 @@ import { MotionConfig } from "motion/react";
 import { type ReactNode, useLayoutEffect } from "react";
 import { GalleryView } from "@/components/gallery/gallery-view";
 import { ProjectList } from "@/components/project/project-list";
-import { releaseScrollHold } from "@/lib/scroll-memory";
+import { applyContentScroll, releaseScrollHold } from "@/lib/scroll-memory";
 import { ErrorView } from "./error-view";
 import { Fade } from "./fade";
 import { NotFound } from "./not-found";
@@ -40,6 +40,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 	// it so that view isn't left translated off-screen.
 	useLayoutEffect(() => {
 		if (view === "notFound" || view === "error") releaseScrollHold();
+		// A Scenes/Gallery tab click lands on the content, not the page top.
+		applyContentScroll();
 	}, [view]);
 
 	return (
@@ -47,10 +49,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 			<div data-app-shell className="relative min-h-screen">
 				<div className="relative mx-auto flex w-full max-w-[1600px] flex-col gap-8 lg:flex-row">
 					<Sidebar />
-					{/* Extra bottom room on small screens for the floating tabs. */}
+					{/* Extra bottom room on small screens for the floating tabs. At least
+					    a screen tall there, so a tab switch can always bring the content's
+					    start to the top even while the new view is still short. */}
 					<main
+						id="content"
 						data-scroll-anchor
-						className="relative min-w-0 flex-1 p-4 pb-24 lg:pb-4"
+						className="relative min-w-0 flex-1 p-4 pb-24 max-lg:min-h-dvh lg:pb-4"
 					>
 						{view === "gallery" ? (
 							<GalleryView />
