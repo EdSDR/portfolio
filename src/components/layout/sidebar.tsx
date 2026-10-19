@@ -48,8 +48,8 @@ const profile = {
 	name: "Ed Castro",
 	role: "Software Engineer & Frontend Specialist",
 	avatar: "/avatar.webp",
-	available: true,
-	availableText: "Available for new projects",
+	available: false,
+	availableText: "Currently not available",
 	bio: "I'm driven by curiosity. I love creating easy ways to interact and understand complex systems.\n\nRunning, music, miniature painting and photography are predominant in this mix. I have many interests but not enough time to pursue all of them.",
 	buttons: {
 		call: { text: "Book a call", url: "mailto:contact@edsdr.com" },
@@ -57,8 +57,13 @@ const profile = {
 	},
 	experience: [
 		{
+			company: "GlobRes",
+			year: "2026 — Present",
+			note: "Swiss innovation in hospitality.",
+		},
+		{
 			company: "Renlabs",
-			year: "2024 — Present",
+			year: "2024 — 2026",
 			note: "Substrate-based blockchain where autonomous on-chain agents interact and emissions flows.",
 		},
 		{
